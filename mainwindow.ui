@@ -6,24 +6,44 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>792</width>
-    <height>558</height>
+    <width>688</width>
+    <height>487</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QWidget" name="verticalLayoutWidget">
+   <widget class="QFrame" name="QFrameTest">
     <property name="geometry">
      <rect>
-      <x>-1</x>
-      <y>360</y>
-      <width>791</width>
-      <height>141</height>
+      <x>70</x>
+      <y>20</y>
+      <width>511</width>
+      <height>381</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="OGLayout"/>
+    <property name="frameShape">
+     <enum>QFrame::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Raised</enum>
+    </property>
+    <widget class="QWidget" name="verticalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>511</width>
+       <height>261</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="OGLayout" stretch="">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+     </layout>
+    </widget>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -31,7 +51,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>792</width>
+     <width>688</width>
      <height>25</height>
     </rect>
    </property>

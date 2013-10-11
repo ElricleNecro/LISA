@@ -19,6 +19,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    OGLWidget *glw;
 };
 
 #endif // MAINWINDOW_H
