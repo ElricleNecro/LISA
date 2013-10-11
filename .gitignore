@@ -1,0 +1,8 @@
+*.o
+moc_mainwindow.cpp
+moc_oglwidget.cpp
+ui_mainwindow.h
+core
+*.core
+*~
+Hello
