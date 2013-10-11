@@ -6,3 +6,4 @@ core
 *.core
 *~
 Hello
+Makefile
