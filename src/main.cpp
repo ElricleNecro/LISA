@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 
 #include <QApplication>
-#include <iostream>
 
 int main(int argc, char *argv[])
 {
@@ -10,6 +9,5 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.show();
 
-    std::cout << "Kikou lol!" << std::endl;
     return a.exec();
 }

@@ -1,54 +1,72 @@
 #include "oglwidget.hpp"
 
-OGLWidget::OGLWidget(int timerInterval, QWidget *parent) : QGLWidget(parent), program(parent), cube(), camera(0, 0, 2, 0, 0, 0, 0, 1, 0, 0.1, 0.6), projection(), modelview(), angle(0.0), z(2.0)
+OGLWidget::OGLWidget(QWidget *parent) : QGLWidget(parent), program(new QGLShaderProgram(this)), cube()
 {
-    if( timerInterval == 0 )
-        m_timer = 0;
-    else
-    {
-        m_timer = new QTimer( this );
-        connect( m_timer, SIGNAL(timeout()), this, SLOT(timeOutSlot()) );
-        m_timer->start( timerInterval );
-    }
 
-    projection.LoadIdentity();
-    modelview.LoadIdentity();
+    projection.setToIdentity();
+    modelview.setToIdentity();
+    distance = 2.5;
+    alpha = 25;
+    beta = -25;
 }
 
 void OGLWidget::initializeGL()
 {
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
+    qglClearColor(QColor(Qt::black));
+
+    // Start by setting shaders
+    program.removeAllShaders();
+    program.addShaderFromSourceFile(QGLShader::Vertex, "Shaders/couleurs.vsh");
+    program.addShaderFromSourceFile(QGLShader::Fragment, "Shaders/couleurs.fsh");
+
+    // Activation du shader
+    if( !program.link() )
+    {
+        std::cerr << "OGLCube.cpp:" << __LINE__ << " " << program.log().toStdString() << std::endl;
+        throw std::runtime_error("Shader do not want to link");
+    }
 }
 
 void OGLWidget::resizeGL( int width, int height )
 {
     height = height?height:1;
 
-    glViewport( 0, 0, (GLint)width, (GLint)height );
+    projection.setToIdentity();
+    projection.perspective(60.0, (float)width/(float)height, 0.001, 1000);
 
-    projection.LoadIdentity();
-    projection.LoadPerspective(70.0, (double)(width)/height, 1.0, 100.0);
+    glViewport( 0, 0, width, height );
 }
 
 void OGLWidget::paintGL(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    this->updateGL();
+    QMatrix4x4 mMatrix;
+    QMatrix4x4 vMatrix;
 
-    this->angle += 4.0;
-    if( this->angle >= 360.0)
-        this->angle = 0.0;
+    QMatrix4x4 cameraTransformation;
+    cameraTransformation.rotate(alpha, 0, 1, 0);
+    cameraTransformation.rotate(beta, 1, 0, 0);
+
+    QVector3D cameraPosition = cameraTransformation * QVector3D(0, 0, this->distance);
+    QVector3D cameraUpDirection = cameraTransformation * QVector3D(0, 1, 0);
+
+    vMatrix.lookAt(cameraPosition, QVector3D(0, 0, 0), cameraUpDirection);
+
+    program.bind();
+    mMatrix = this->projection * vMatrix * mMatrix;
+
+    this->cube.Show(this->program, mMatrix );
+
+    program.release();
 }
 
-void OGLWidget::updateGL(void)
+QSize OGLWidget::sizeHint() const
 {
-    this->modelview.LoadIdentity();
-    this->modelview.LookAt(0, 0, this->z, 0, 0, 0, 0, 1, 0);
-    this->camera.LookAt(modelview);
-    this->modelview.Rotate(this->angle, 0, 1, 0);
-
-    this->cube.Show(this->program, this->projection, this->modelview);
+    return QSize(640, 480);
 }
 
 void OGLWidget::keyPressEvent( QKeyEvent *e )
@@ -60,11 +78,56 @@ void OGLWidget::keyPressEvent( QKeyEvent *e )
     }
 }
 
-void OGLWidget::timeOut()
+void OGLWidget::mousePressEvent(QMouseEvent *event)
 {
+    lastMousePosition = event->pos();
+
+    event->accept();
 }
 
-void OGLWidget::timeOutSlot()
+void OGLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    timeOut();
+    int deltaX = event->x() - lastMousePosition.x();
+    int deltaY = event->y() - lastMousePosition.y();
+
+    if (event->buttons() & Qt::LeftButton) {
+        alpha -= deltaX;
+        while (alpha < 0) {
+            alpha += 360;
+        }
+        while (alpha >= 360) {
+            alpha -= 360;
+        }
+
+        beta -= deltaY;
+        if (beta < -90) {
+            beta = -90;
+        }
+        if (beta > 90) {
+            beta = 90;
+        }
+
+        updateGL();
+    }
+
+    lastMousePosition = event->pos();
+
+    event->accept();
+}
+
+void OGLWidget::wheelEvent(QWheelEvent *event)
+{
+    int delta = event->delta();
+
+    if (event->orientation() == Qt::Vertical) {
+        if (delta < 0) {
+            distance *= 1.1;
+        } else if (delta > 0) {
+            distance *= 0.9;
+        }
+
+        updateGL();
+    }
+
+    event->accept();
 }

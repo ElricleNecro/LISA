@@ -18,19 +18,9 @@ SOURCES += src/main.cpp\
         src/mainwindow.cpp \
     src/oglwidget.cpp \
     src/OGLCube.cpp \
-    src/OGLMatrice.cpp \
-    src/OGLCamera.cpp \
-    src/Shader.cpp \
-    src/Vecteur.cpp \
-    src/Matrice/Matrice.cpp src/Matrice/reel.cpp
 
 HEADERS  += include/mainwindow.h \
     include/oglwidget.hpp \
     include/OGLCube.hpp \
-    include/OGLMatrice.hpp \
-    include/OGLCamera.hpp \
-    include/Shader.hpp \
-    include/Vecteur.hpp \
-    include/Matrice/Matrice.hpp include/Matrice/reel.hpp
 
 FORMS    += mainwindow.ui

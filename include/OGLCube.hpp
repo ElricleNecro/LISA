@@ -8,13 +8,6 @@
 #include <stdexcept>
 
 #include <QGLShader>
-//#include <QOpenGLShaderProgram>
-
-#include "Shader.hpp"
-#include "OGLMatrice.hpp"
-#ifdef TEXTURE_ACTIVATE
-#include "OGLTexture.hpp"
-#endif
 
 namespace OGLCube {
 	class OGLCube {
@@ -23,35 +16,15 @@ namespace OGLCube {
 			OGLCube(float taille, std::string VerticeShader, std::string FragShader);
             virtual ~OGLCube(void);
 
-            void Show(QGLShaderProgram &m_program, OGLMatrice::OGLMatrice &proj, OGLMatrice::OGLMatrice &model);
+            void Show(QGLShaderProgram &m_program, QMatrix4x4 &model);
 
         private:
 			void init(void);
 
 		protected:
-                        //OpenGLShader::Shader shader;
-                        //QOpenGLShaderProgram m_program;
 			// Vertices et indices
-			float       *vertices;
-			unsigned int *indices;
-			// Couleurs
-			float       *rouge, *vert, *bleu;
-			// Taille du cube
-			float taille;
+            QVector<QVector3D> vertices;
+            QVector<QVector3D> colors;
 	};
-
-#ifdef TEXTURE_ACTIVATE
-    class OGLTexturedCube : public OGLCube {
-		public:
-			OGLTexturedCube(void);
-			OGLTexturedCube(float taille, std::string VerticeShader, std::string FragShader, std::string text);
-			//void Show(OGLMatrice::OGLMatrice &proj, OGLMatrice::OGLMatrice &model);
-
-		private:
-			OGLTexture::OGLTexture texture;
-			float *texture_coord;
-	};
-#endif
-} /* OGLCube */
-
+};
 #endif /* end of include guard: OGLCUBE_H */
