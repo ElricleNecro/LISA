@@ -3,11 +3,11 @@
 OGLWidget::OGLWidget(QWidget *parent) : QGLWidget(parent), program(new QGLShaderProgram(this)), cube()
 {
 
-    projection.setToIdentity();
-    modelview.setToIdentity();
-    distance = 2.5;
-    alpha = 25;
-    beta = -25;
+    this->projection.setToIdentity();
+    this->modelview.setToIdentity();
+    this->distance = 2.5;
+    this->angularSpeed = 0.0;
+    this->timer = new QBasicTimer();
 }
 
 void OGLWidget::initializeGL()
@@ -28,6 +28,8 @@ void OGLWidget::initializeGL()
         std::cerr << "OGLCube.cpp:" << __LINE__ << " " << program.log().toStdString() << std::endl;
         throw std::runtime_error("Shader do not want to link");
     }
+    // using QBasicTimer because its faster that QTimer
+    this->timer->start(12, this);
 }
 
 void OGLWidget::resizeGL( int width, int height )
@@ -48,13 +50,12 @@ void OGLWidget::paintGL(void)
     QMatrix4x4 vMatrix;
 
     QMatrix4x4 cameraTransformation;
-    cameraTransformation.rotate(alpha, 0, 1, 0);
-    cameraTransformation.rotate(beta, 1, 0, 0);
 
     QVector3D cameraPosition = cameraTransformation * QVector3D(0, 0, this->distance);
     QVector3D cameraUpDirection = cameraTransformation * QVector3D(0, 1, 0);
 
     vMatrix.lookAt(cameraPosition, QVector3D(0, 0, 0), cameraUpDirection);
+    vMatrix.rotate(this->rotation);
 
     program.bind();
     mMatrix = this->projection * vMatrix * mMatrix;
@@ -80,39 +81,53 @@ void OGLWidget::keyPressEvent( QKeyEvent *e )
 
 void OGLWidget::mousePressEvent(QMouseEvent *event)
 {
-    lastMousePosition = event->pos();
-
-    event->accept();
+    // Saving mouse press position
+    this->mousePressPosition = QVector2D(event->localPos());
 }
 
-void OGLWidget::mouseMoveEvent(QMouseEvent *event)
+void OGLWidget::mouseMoveEvent(QMouseEvent *e)
 {
-    int deltaX = event->x() - lastMousePosition.x();
-    int deltaY = event->y() - lastMousePosition.y();
+    // Mouse release position - mouse press position
+    QVector2D diff = QVector2D(e->localPos()) - this->mousePressPosition;
 
-    if (event->buttons() & Qt::LeftButton) {
-        alpha -= deltaX;
-        while (alpha < 0) {
-            alpha += 360;
-        }
-        while (alpha >= 360) {
-            alpha -= 360;
-        }
+    // Rotation axis is perpendicular to the mouse position difference
+    // vector
+    QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
 
-        beta -= deltaY;
-        if (beta < -90) {
-            beta = -90;
-        }
-        if (beta > 90) {
-            beta = 90;
-        }
+    // Accelerate angular speed relative to the length of the mouse sweep
+    qreal acc = diff.length() / 90.0;
 
+    // Calculate new rotation axis as weighted sum
+    this->rotationAxis = (n * acc).normalized();
+
+    // Increase angular speed
+    this->angularSpeed = acc;
+}
+
+void OGLWidget::mouseReleaseEvent(QMouseEvent *e)
+{
+}
+
+void OGLWidget::timerEvent(QTimerEvent *e)
+{
+    Q_UNUSED(e);
+
+    // Decrease angular speed (friction)
+    this->angularSpeed *= 0.99;
+
+    // Stop rotation when speed goes below threshold
+    if (this->angularSpeed < 0.01)
+        this->angularSpeed = 0.0;
+    else {
+        // Update rotation
+        this->rotation = QQuaternion::fromAxisAndAngle(
+            this->rotationAxis,
+            this->angularSpeed
+        ) * this->rotation;
+
+        // Update scene
         updateGL();
     }
-
-    lastMousePosition = event->pos();
-
-    event->accept();
 }
 
 void OGLWidget::wheelEvent(QWheelEvent *event)

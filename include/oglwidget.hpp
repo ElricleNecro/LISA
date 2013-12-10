@@ -6,6 +6,8 @@
 
 #include <QtOpenGL/QtOpenGL>
 #include <QTimer>
+#include <QQuaternion>
+#include <QMouseEvent>
 
 #include <iostream>
 #include "OGLCube.hpp"
@@ -23,20 +25,23 @@ class OGLWidget : public QGLWidget
         virtual void paintGL();
 
         virtual void keyPressEvent( QKeyEvent *e );
-        virtual void mouseMoveEvent(QMouseEvent *event);
         virtual void wheelEvent(QWheelEvent *event);
         virtual void mousePressEvent(QMouseEvent *event);
+        virtual void mouseReleaseEvent(QMouseEvent *e);
+        virtual void mouseMoveEvent(QMouseEvent *e);
+        virtual void timerEvent(QTimerEvent *e);
 
     private:
         QGLShaderProgram program;
-        QTimer *m_timer;
+        QBasicTimer *timer;
         OGLCube::OGLCube cube;
         QMatrix4x4 camera;
         QMatrix4x4 projection, modelview;
         QPoint lastMousePosition;
-        double angle;
-        double alpha;
-        double beta;
+        QQuaternion rotation;
+        QVector2D mousePressPosition;
+        QVector3D rotationAxis;
+        qreal angularSpeed;
         double distance;
 };
 
