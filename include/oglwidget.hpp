@@ -36,7 +36,7 @@ class OGLWidget : public QGLWidget
         QBasicTimer *timer;
         OGLCube::OGLCube cube;
         QMatrix4x4 camera;
-        QMatrix4x4 projection, modelview;
+        QMatrix4x4 projection, model, view;
         QPoint lastMousePosition;
         QQuaternion rotation;
         QVector2D mousePressPosition;
