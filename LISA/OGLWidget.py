@@ -12,11 +12,11 @@ class ShadersNotLinked(Exception):
 		return self._msg
 
 class OGLWidget(qo.QGLWidget):
-	def __init__(self, data, *args, **kwargs):
+	def __init__(self, *args, **kwargs):
 		super(OGLWidget, self).__init__(*args, **kwargs)
 
 		# Data class to plot:
-		self._data               = data
+		self._data               = []
 
 		# Find how to use and implements those one:
 		self._timer              = Qt.QBasicTimer()
@@ -43,6 +43,13 @@ class OGLWidget(qo.QGLWidget):
 
 		self._mousePressPosition = Qt.QVector2D()
 		self._rotationAxis       = Qt.QVector3D()
+
+	@property
+	def lines(self):
+		return self._data
+	@lines.setter
+	def lines(self, value):
+		self._data.append(value)
 
 	def initializeGL(self):
 		print("initialiseGL")
@@ -86,7 +93,8 @@ class OGLWidget(qo.QGLWidget):
 
 		matrice = self._projection * self._view * self._model
 
-		self._data.show(self._shaders, matrice)
+		for data in self._data:
+			data.show(self._shaders, matrice)
 
 		self._shaders.release()
 
