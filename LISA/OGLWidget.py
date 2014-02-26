@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # -*- coding:Utf8 -*-
 
 from PyQt5 import Qt, QtOpenGL as qo, QtGui as qg
