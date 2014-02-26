@@ -43,7 +43,9 @@ class TestOGL(object):
 if __name__== "__main__":
 	app = Qt.QApplication(sys.argv)
 
-	aff = og.OGLWidget(TestOGL())
+	aff = og.OGLWidget()
+	for i in range(3):
+		aff.lines = TestOGL()
 	aff.show()
 
 	sys.exit( app.exec() )
