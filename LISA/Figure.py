@@ -8,6 +8,10 @@ class Figure(Qt.QGraphicsView):
 	def __init__(self, *args, **kwargs):
 		super(Figure, self).__init__(*args, **kwargs)
 
+		# A color we need a lot of times:
+		self._color = Qt.QColor()
+		self._color.black()
+
 		# Creation of the Plotting class:
 		self._axes  = og.OGLWidget()
 		# Then we add it as background of the View:
@@ -18,6 +22,14 @@ class Figure(Qt.QGraphicsView):
 		self._scene = Qt.QGraphicsScene()
 		# And we set it as scene for the View:
 		self.setScene(self._scene)
+
+		# Set some properties and palette to have a black background:
+		self.setAutoFillBackground(True)
+		self.setPalette(
+				qg.QPalette(
+					self._color
+				)
+		)
 
 	def setupViewport(self, viewport):
 		viewport.makeCurrent()
@@ -30,10 +42,6 @@ class Figure(Qt.QGraphicsView):
 
 	def drawBackground(self, painter, rect):
 		print("drawBackground")
-		color = Qt.QColor()
-		color.black()
-		self.setBackgroundBrush(Qt.QBrush(color))
-		self._scene.setBackgroundBrush(Qt.QBrush(color))
 		self._axes.paintGL()
 
 	def __getitem__(self, ind):
