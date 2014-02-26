@@ -2,7 +2,7 @@
 
 import OGLWidget as og
 
-from PyQt5 import Qt, QtOpenGL as qo, QtGui as qg
+from PyQt5 import Qt, QtOpenGL as qo, QtGui as qg, QtCore as qc
 
 class Figure(Qt.QGraphicsView):
 	def __init__(self, *args, **kwargs):
@@ -41,6 +41,13 @@ class Figure(Qt.QGraphicsView):
 
 	def drawBackground(self, painter, rect):
 		self._axes.paintGL()
+
+	def keyPressEvent(self, event):
+		if (event.modifiers() == qc.Qt.ControlModifier and event.key() == qc.Qt.Key_W) or event.key() == qc.Qt.Key_Escape:
+			print("Quiting!")
+			self.close()
+		else:
+			event.ignore()
 
 	def __getitem__(self, ind):
 		return self._axes.lines[ind]
