@@ -37,11 +37,9 @@ class Figure(Qt.QGraphicsView):
 		viewport.doneCurrent()
 
 	def resizeEvent(self, event):
-		print("resizeEvent")
 		self._axes.resizeGL(event.size().width(), event.size().height())
 
 	def drawBackground(self, painter, rect):
-		print("drawBackground")
 		self._axes.paintGL()
 
 	def __getitem__(self, ind):

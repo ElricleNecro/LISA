@@ -51,7 +51,6 @@ class OGLWidget(qo.QGLWidget):
 		self._data.append(value)
 
 	def initializeGL(self):
-		print("initialiseGL")
 		GL.glEnable(GL.GL_DEPTH_TEST)
 		GL.glEnable(GL.GL_CULL_FACE)
 
