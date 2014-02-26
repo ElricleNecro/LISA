@@ -4,6 +4,7 @@
 import sys
 import numpy as np
 import OGLWidget as og
+import Figure as f
 
 from PyQt5 import Qt
 from PyQt5 import QtGui as qg
@@ -40,7 +41,7 @@ class TestOGL(object):
 		shaders.disableAttributeArray("in_Vertex")
 		shaders.disableAttributeArray("in_Color")
 
-if __name__== "__main__":
+def testOGLWidget():
 	app = Qt.QApplication(sys.argv)
 
 	aff = og.OGLWidget()
@@ -48,4 +49,16 @@ if __name__== "__main__":
 		aff.lines = TestOGL()
 	aff.show()
 
-	sys.exit( app.exec() )
+	return app.exec_()
+
+def testFigure():
+	app = Qt.QApplication(sys.argv)
+
+	fig      = f.Figure()
+	fig.axes = TestOGL()
+	fig.show()
+
+	return app.exec_()
+
+if __name__== "__main__":
+	sys.exit( testFigure() )
