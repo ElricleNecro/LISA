@@ -100,11 +100,40 @@ class OGLWidget(qo.QGLWidget):
 		pass
 
 	def wheelEvent(self, event):
-		pass
+		delta = event.delta()
+
+		if event.orientation() == qc.Qt.Vertical:
+			if delta > 0:
+				self._distance *= 1.1
+			elif delta < 0:
+				self._distance *= 0.9
+			self.updateGL()
+
+		event.accept()
 
 	def mousePressEvent(self, event):
-		pass
+		self._mousePressPosition = Qt.QVector2D(event.localPos())
+
+	def mouseMoveEvent(self, event):
+		diff               = Qt.QVector2D(event.localPos()) - self._mousePressPosition
+		n                  = Qt.QVector3D(diff.y(), diff.x(), 0.0).normalized()
+		acc                = diff.length()/90.0
+		self._rotationAxis = (n*acc).normalized()
+		self._angularSpeed = acc
 
 	def mouseReleaseEvent(self, event):
 		pass
+
+	def timerEvent(self, event):
+		event.ignore()
+		self._angularSpeed *= 0.99
+
+		if self._angularSpeed < 0.01:
+			self._angularSpeed = 0.0
+		else:
+			self._rotate = qg.QQuaternion.fromAxisAndAngle(
+							self._rotationAxis,
+							self._angularSpeed
+					) * self._rotate
+			self.updateGL()
 
