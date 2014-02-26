@@ -8,3 +8,4 @@ core
 Hello
 Makefile
 LISA/.ropeproject
+LISA/__pycache__
