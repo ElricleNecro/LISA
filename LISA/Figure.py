@@ -19,7 +19,7 @@ class Figure(Qt.QGraphicsView):
 		self.setViewportUpdateMode(Qt.QGraphicsView.FullViewportUpdate)
 
 		# We create the scene object which will contain all widget:
-		self._scene = Qt.QGraphicsScene()
+		self._scene = Qt.QGraphicsScene(self)
 		# And we set it as scene for the View:
 		self.setScene(self._scene)
 
@@ -55,6 +55,15 @@ class Figure(Qt.QGraphicsView):
 	def __delitem__(self, ind):
 		pass
 
+	def newWidget(self, wid):
+		tmp = self._scene.addWidget(wid, qc.Qt.Window)
+		tmp.setFlag(
+				Qt.QGraphicsItem.ItemIsMovable
+		)
+		tmp.setCacheMode(
+				Qt.QGraphicsItem.DeviceCoordinateCache
+		)
+
 	@property
 	def axes(self):
 		return self._axes.lines
@@ -65,23 +74,7 @@ class Figure(Qt.QGraphicsView):
 		try:
 			wid = value.createWidget()
 			if wid:
-				self._scene.addWidget(wid)
-
-				last = self._scene.items()[-1]
-				pos  = Qt.QPointF(1., 1.)
-				rect = last.boundingRect()
-				last.setFlag(
-							Qt.QGraphicsItem.ItemIsMovable
-				)
-				last.setCacheMode(
-						Qt.QGraphicsItem.DeviceCoordinateCache
-				)
-				#last.setPos(
-						#pos.x() - rect.x(),
-						#pos.y() - rect.y()
-				#)
-				#last.setVisible(True)
-				#last.setEnabled(True)
-				self._scene.update()
+				self.newWidget(wid)
 		except AttributeError:
 			pass
+
