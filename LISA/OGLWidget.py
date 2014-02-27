@@ -18,7 +18,7 @@ class OGLWidget(qo.QGLWidget):
 		self._data               = []
 
 		# Find how to use and implements those one:
-		self._timer              = Qt.QBasicTimer()
+		#self._timer              = Qt.QBasicTimer()
 
 		self._shaders            = qg.QOpenGLShaderProgram(self)
 
@@ -43,6 +43,11 @@ class OGLWidget(qo.QGLWidget):
 		self._mousePressPosition = Qt.QVector2D()
 		self._rotationAxis       = Qt.QVector3D()
 
+	def getTimer(self, EventHandler):
+		timer = Qt.QBasicTimer()
+		timer.start(12, EventHandler)
+		return timer
+
 	@property
 	def lines(self):
 		return self._data
@@ -60,7 +65,7 @@ class OGLWidget(qo.QGLWidget):
 		if not self._shaders.link():
 			raise ShadersNotLinked("Linking shaders in OGLWidget.initialiseGL has failed! " + self._shaders.log())
 
-		self._timer.start(12, self)
+		#self._timer.start(12, self)
 
 	def resizeGL(self, w, h):
 		h = 1 if h == 0 else h
@@ -107,17 +112,18 @@ class OGLWidget(qo.QGLWidget):
 		event.accept()
 
 	def mousePressEvent(self, event):
-		self._mousePressPosition = Qt.QVector2D(event.localPos())
+		self._mousePressPosition = True #Qt.QVector2D(event.scenePos())
 
 	def mouseMoveEvent(self, event):
-		diff               = Qt.QVector2D(event.localPos()) - self._mousePressPosition
-		n                  = Qt.QVector3D(diff.y(), diff.x(), 0.0).normalized()
-		acc                = diff.length()/90.0
-		self._rotationAxis = (n*acc).normalized()
-		self._angularSpeed = acc
+		if self._mousePressPosition:
+			diff               = Qt.QVector2D(event.scenePos()) - Qt.QVector2D(event.lastScenePos()) #self._mousePressPosition
+			n                  = Qt.QVector3D(diff.y(), diff.x(), 0.0).normalized()
+			acc                = diff.length()/90.0
+			self._rotationAxis = (n*acc).normalized()
+			self._angularSpeed = acc
 
 	def mouseReleaseEvent(self, event):
-		pass
+		self._mousePressPosition = False
 
 	def timerEvent(self, event):
 		event.ignore()
