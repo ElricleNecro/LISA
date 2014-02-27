@@ -4,6 +4,40 @@ import OGLWidget as og
 
 from PyQt5 import Qt, QtOpenGL as qo, QtGui as qg, QtCore as qc
 
+class Scene(Qt.QGraphicsScene):
+	def __init__(self, EventHandler, *args, **kwargs):
+		super(Scene, self).__init__(*args, **kwargs)
+		self._event_handler = EventHandler
+		self._timer = EventHandler.getTimer(self)
+
+	def wheelEvent(self, event):
+		if event.isAccepted():
+			return
+		self._event_handler.wheelEvent(self)
+		self.update()
+
+	def mousePressEvent(self, event):
+		if event.isAccepted():
+			return
+		self._event_handler.mousePressEvent(event)
+
+	def mouseMoveEvent(self, event):
+		if event.isAccepted():
+			return
+		if event.buttons() == qc.Qt.LeftButton:
+			self._event_handler.mouseMoveEvent(event)
+
+		self.update()
+
+	def mouseReleaseEvent(self, event):
+		if event.isAccepted():
+			return
+		self._event_handler.mouseReleaseEvent(event)
+
+	def timerEvent(self, event):
+		self._event_handler.timerEvent(event)
+		self.update()
+
 class Figure(Qt.QGraphicsView):
 	def __init__(self, *args, **kwargs):
 		super(Figure, self).__init__(*args, **kwargs)
@@ -19,7 +53,8 @@ class Figure(Qt.QGraphicsView):
 		self.setViewportUpdateMode(Qt.QGraphicsView.FullViewportUpdate)
 
 		# We create the scene object which will contain all widget:
-		self._scene = Qt.QGraphicsScene(self)
+		self._scene = Scene(self._axes, self)
+		#self._scene = Qt.QGraphicsScene(self)
 		# And we set it as scene for the View:
 		self.setScene(self._scene)
 
