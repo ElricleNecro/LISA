@@ -42,15 +42,13 @@ class TestOGL(object):
 		shaders.disableAttributeArray("in_Vertex")
 		shaders.disableAttributeArray("in_Color")
 
-	def createWidget(self, title="Dialogue de test."):
-		dialog = Qt.QDialog(flags=qc.Qt.CustomizeWindowHint | qc.Qt.WindowTitleHint)
-		#dialog = Qt.QDialog()
-		dialog.setWindowOpacity(0.9)
+	def createWidget(self, title="Dialogue de test.", parent=None):
+		dialog = Qt.QDialog(parent=parent, flags=qc.Qt.CustomizeWindowHint | qc.Qt.WindowTitleHint)
+		dialog.setWindowOpacity(0.4)
 		dialog.setWindowTitle(title)
 		dialog.setLayout(Qt.QVBoxLayout())
 		dialog.layout().addWidget(Qt.QLabel("Ceci est un test d'affichage des widgets."))
 		dialog.layout().addWidget(Qt.QLabel("Ceci est un test d'affichage des widgets."))
-		#dialog.show()
 
 		return dialog
 
@@ -74,4 +72,10 @@ def testFigure():
 	return app.exec_()
 
 if __name__== "__main__":
-	sys.exit( testFigure() )
+	app = Qt.QApplication(sys.argv)
+
+	fig      = f.Figure()
+	fig.axes = TestOGL()
+	fig.show()
+
+	sys.exit( app.exec_() )
