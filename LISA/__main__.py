@@ -8,6 +8,7 @@ import Figure as f
 
 from PyQt5 import Qt
 from PyQt5 import QtGui as qg
+from PyQt5 import QtCore as qc
 from OpenGL import GL
 
 class TestOGL(object):
@@ -40,6 +41,18 @@ class TestOGL(object):
 
 		shaders.disableAttributeArray("in_Vertex")
 		shaders.disableAttributeArray("in_Color")
+
+	def createWidget(self, title="Dialogue de test."):
+		dialog = Qt.QDialog(flags=qc.Qt.CustomizeWindowHint | qc.Qt.WindowTitleHint)
+		#dialog = Qt.QDialog()
+		dialog.setWindowOpacity(0.9)
+		dialog.setWindowTitle(title)
+		dialog.setLayout(Qt.QVBoxLayout())
+		dialog.layout().addWidget(Qt.QLabel("Ceci est un test d'affichage des widgets."))
+		dialog.layout().addWidget(Qt.QLabel("Ceci est un test d'affichage des widgets."))
+		#dialog.show()
+
+		return dialog
 
 def testOGLWidget():
 	app = Qt.QApplication(sys.argv)

@@ -66,5 +66,22 @@ class Figure(Qt.QGraphicsView):
 			wid = value.createWidget()
 			if wid:
 				self._scene.addWidget(wid)
+
+				last = self._scene.items()[-1]
+				pos  = Qt.QPointF(1., 1.)
+				rect = last.boundingRect()
+				last.setFlag(
+							Qt.QGraphicsItem.ItemIsMovable
+				)
+				last.setCacheMode(
+						Qt.QGraphicsItem.DeviceCoordinateCache
+				)
+				#last.setPos(
+						#pos.x() - rect.x(),
+						#pos.y() - rect.y()
+				#)
+				#last.setVisible(True)
+				#last.setEnabled(True)
+				self._scene.update()
 		except AttributeError:
 			pass
