@@ -52,11 +52,6 @@ class OGLWidget(qo.QGLWidget):
 
 	def initializeGL(self):
 		GL.glEnable(GL.GL_DEPTH_TEST)
-		GL.glEnable(GL.GL_CULL_FACE)
-
-		color = Qt.QColor()
-		color.black()
-		self.qglClearColor(color)
 
 		self._shaders.removeAllShaders()
 		self._shaders.addShaderFromSourceFile(qg.QOpenGLShader.Vertex,   "Shaders/couleurs.vsh")
