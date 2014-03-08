@@ -3,6 +3,7 @@
 from PyQt5 import Qt
 #from PyQt5 import QtOpenGL as qo
 from PyQt5 import QtGui as qg
+from PyQt5 import QtCore as qc
 from OpenGL import GL
 
 
@@ -22,9 +23,6 @@ class OGLWidget(Qt.QGraphicsScene):
 
         # Data class to plot:
         self._data = []
-
-        # Find how to use and implements those one:
-        #self._timer              = Qt.QBasicTimer()
 
         # Different matrix use for the on screen printing:
         self._projection = Qt.QMatrix4x4()
@@ -47,10 +45,7 @@ class OGLWidget(Qt.QGraphicsScene):
         self._mousePressPosition = False
         self._rotationAxis = Qt.QVector3D()
 
-    def getTimer(self, EventHandler):
-        timer = Qt.QBasicTimer()
-        timer.start(12, EventHandler)
-        return timer
+        self._timer = Qt.QBasicTimer()
 
     @property
     def lines(self):
@@ -77,7 +72,7 @@ class OGLWidget(Qt.QGraphicsScene):
                 self._shaders.log()
             )
 
-        #self._timer.start(12, self)
+        self._timer.start(12, self)
 
     def resizeGL(self, w, h):
         h = 1 if h == 0 else h
@@ -85,10 +80,7 @@ class OGLWidget(Qt.QGraphicsScene):
         self._projection.setToIdentity()
         self._projection.perspective(60.0, w / h, 0.001, 1000.0)
 
-        GL.glViewport(0, 0, w, h)
-
     def drawBackground(self, *args):
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
         cam_pos = Qt.QVector3D(0, 0, self._distance)
         cam_up = Qt.QVector3D(0, 1, 0)
@@ -108,31 +100,35 @@ class OGLWidget(Qt.QGraphicsScene):
 
         self._shaders.release()
 
-    def createDialog(self):
-        dialog = Qt.QDialog()
-        dialog.setLayout(Qt.QVBoxLayout())
-        dialog.layout().addWidget(Qt.QLabel("Hello"))
-        self.addWidget(dialog)
-
     def keyPressEvent(self, event):
-        pass
+        super(OGLWidget, self).keyPressEvent(event)
 
     def wheelEvent(self, event):
+        super(OGLWidget, self).wheelEvent(event)
+        if event.isAccepted():
+            return
         delta = event.delta()
 
-        if event.orientation() == Qt.Vertical:
-            if delta > 0:
+        if event.orientation() == qc.Qt.Vertical:
+            if delta < 0:
                 self._distance *= 1.1
-            elif delta < 0:
+            elif delta > 0:
                 self._distance *= 0.9
-            self.updateGL()
-
-        event.accept()
+            event.accept()
+            self.update()
 
     def mousePressEvent(self, event):
+        super(OGLWidget, self).mousePressEvent(event)
+        if event.isAccepted():
+            return
         self._mousePressPosition = True
+        event.accept()
+        self.update()
 
     def mouseMoveEvent(self, event):
+        super(OGLWidget, self).mouseMoveEvent(event)
+        if event.isAccepted():
+            return
         if self._mousePressPosition:
             diff = Qt.QVector2D(event.scenePos()) - \
                 Qt.QVector2D(event.lastScenePos())
@@ -144,13 +140,19 @@ class OGLWidget(Qt.QGraphicsScene):
                 self._rotationAxis,
                 self._angularSpeed,
             ) * self._rotate
+            event.accept()
             self.update()
 
     def mouseReleaseEvent(self, event):
+        super(OGLWidget, self).mouseReleaseEvent(event)
+        if event.isAccepted():
+            return
         self._mousePressPosition = False
+        event.accept()
+        self.update()
 
     def timerEvent(self, event):
-        event.ignore()
+        super(OGLWidget, self).timerEvent(event)
         self._angularSpeed *= 0.99
 
         if self._angularSpeed < 0.01:
@@ -160,4 +162,5 @@ class OGLWidget(Qt.QGraphicsScene):
                 self._rotationAxis,
                 self._angularSpeed,
             ) * self._rotate
-            self.update()
+        event.accept()
+        self.update()
