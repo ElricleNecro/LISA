@@ -3,6 +3,7 @@
 from PyQt5 import Qt
 #from PyQt5 import QtOpenGL as qo
 from PyQt5 import QtGui as qg
+from PyQt5 import QtCore as qc
 from OpenGL import GL
 
 
@@ -108,19 +109,13 @@ class OGLWidget(Qt.QGraphicsScene):
 
         self._shaders.release()
 
-    def createDialog(self):
-        dialog = Qt.QDialog()
-        dialog.setLayout(Qt.QVBoxLayout())
-        dialog.layout().addWidget(Qt.QLabel("Hello"))
-        self.addWidget(dialog)
-
     def keyPressEvent(self, event):
         pass
 
     def wheelEvent(self, event):
         delta = event.delta()
 
-        if event.orientation() == Qt.Vertical:
+        if event.orientation() == qc.Qt.Vertical:
             if delta > 0:
                 self._distance *= 1.1
             elif delta < 0:
