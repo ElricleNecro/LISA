@@ -52,9 +52,11 @@ class TestOGL(object):
         dialog.setWindowTitle(title)
         dialog.setLayout(Qt.QVBoxLayout())
         dialog.layout().addWidget(
-            Qt.QLabel("Ceci est un test d'affichage des widgets."))
+            Qt.QLabel("Ceci est un test d'affichage des widgets.")
+        )
         dialog.layout().addWidget(
-            Qt.QLabel("Ceci est un test d'affichage des widgets."))
+            Qt.QLabel("Ceci est un test d'affichage des widgets.")
+        )
 
         return dialog
 
