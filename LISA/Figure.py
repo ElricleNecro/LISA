@@ -4,43 +4,6 @@ import OGLWidget as og
 
 from PyQt5 import Qt, QtOpenGL as qo, QtGui as qg, QtCore as qc
 
-
-class Scene(Qt.QGraphicsScene):
-
-    def __init__(self, EventHandler, *args, **kwargs):
-        super(Scene, self).__init__(*args, **kwargs)
-        self._event_handler = EventHandler
-        self._timer = EventHandler.getTimer(self)
-
-    def wheelEvent(self, event):
-        if event.isAccepted():
-            return
-        self._event_handler.wheelEvent(self)
-        self.update()
-
-    def mousePressEvent(self, event):
-        if event.isAccepted():
-            return
-        self._event_handler.mousePressEvent(event)
-
-    def mouseMoveEvent(self, event):
-        if event.isAccepted():
-            return
-        if event.buttons() == qc.Qt.LeftButton:
-            self._event_handler.mouseMoveEvent(event)
-
-        self.update()
-
-    def mouseReleaseEvent(self, event):
-        if event.isAccepted():
-            return
-        self._event_handler.mouseReleaseEvent(event)
-
-    def timerEvent(self, event):
-        self._event_handler.timerEvent(event)
-        self.update()
-
-
 class Figure(Qt.QGraphicsView):
 
     def __init__(self, *args, **kwargs):
