@@ -56,7 +56,6 @@ class OGLWidget(Qt.QGraphicsScene):
         self._data.append(value)
 
     def initializeGL(self):
-        GL.glEnable(GL.GL_DEPTH_TEST)
 
         self._shaders = qg.QOpenGLShaderProgram(self)
 

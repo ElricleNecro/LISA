@@ -7,7 +7,6 @@ import OGLWidget as og
 import Figure as f
 
 from PyQt5 import Qt
-from PyQt5 import QtCore as qc
 from OpenGL import GL
 
 
@@ -44,10 +43,7 @@ class TestOGL(object):
         shaders.disableAttributeArray("in_Color")
 
     def createWidget(self, title="Dialogue de test.", parent=None):
-        dialog = Qt.QDialog(
-            parent=parent,
-            flags=qc.Qt.CustomizeWindowHint | qc.Qt.WindowTitleHint
-        )
+        dialog = Qt.QDialog(parent=parent)
         dialog.setWindowOpacity(0.4)
         dialog.setWindowTitle(title)
         dialog.setLayout(Qt.QVBoxLayout())
@@ -57,12 +53,16 @@ class TestOGL(object):
         dialog.layout().addWidget(
             Qt.QLabel("Ceci est un test d'affichage des widgets.")
         )
-        #but = Qt.QPushButton()
-        #but.setText("Un boutton !")
-        #but.clicked.connect(self._push_button)
-        #dialog.layout().addWidget(but)
+        but = Qt.QPushButton()
+        but.setText("Un bouton !")
+        but.clicked.connect(self._push_button)
+        dialog.layout().addWidget(but)
 
         return dialog
+
+    def _push_button(self):
+        pass
+
 
 def testOGLWidget():
     app = Qt.QApplication(sys.argv)

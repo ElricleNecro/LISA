@@ -4,6 +4,7 @@ import OGLWidget as og
 
 from PyQt5 import Qt, QtOpenGL as qo, QtGui as qg, QtCore as qc
 
+
 class Figure(Qt.QGraphicsView):
 
     def __init__(self, *args, **kwargs):
@@ -15,16 +16,16 @@ class Figure(Qt.QGraphicsView):
 
         # Creation of the Plotting class:
         # Then we add it as background of the View:
-        # self.setViewport(self._axes)
-        context = qo.QGLWidget(Qt.QGLFormat(Qt.QGL.SampleBuffers))
+        context = qo.QGLWidget(Qt.QGLFormat(Qt.QGL.NoAccumBuffer))
         self.setViewport(context)
+
+        # create the context for Opengl
         context.makeCurrent()
 
         # And we set it as scene for the View:
         self._axes = og.OGLWidget()
         self.setScene(self._axes)
         self._axes.initializeGL()
-        self.createDialog()
 
         # Set some properties and palette to have a black background:
         self.setAutoFillBackground(True)
@@ -33,7 +34,21 @@ class Figure(Qt.QGraphicsView):
                 self._color
             )
         )
+
+        # unset the context ???
         context.doneCurrent()
+
+    def addWidget(self, wid):
+        tmp = self.scene().addWidget(wid, qc.Qt.Window)
+        tmp.setFlag(
+            Qt.QGraphicsItem.ItemIsMovable
+        )
+        tmp.setFlag(
+            Qt.QGraphicsItem.ItemIsSelectable
+        )
+        tmp.setCacheMode(
+            Qt.QGraphicsItem.DeviceCoordinateCache
+        )
 
     def resizeEvent(self, event):
         if self._axes:
@@ -57,27 +72,6 @@ class Figure(Qt.QGraphicsView):
     def __delitem__(self, ind):
         pass
 
-    def addWidget(self, wid):
-        if self.scene():
-            tmp = self.scene().addWidget(wid, qc.Qt.Window)
-            tmp.setFlag(
-                Qt.QGraphicsItem.ItemIsMovable
-            )
-            tmp.setFlag(
-                Qt.QGraphicsItem.ItemIsSelectable
-            )
-            tmp.setCacheMode(
-                Qt.QGraphicsItem.DeviceCoordinateCache
-            )
-
-    def createDialog(self):
-        dialog = Qt.QDialog(
-            flags=qc.Qt.CustomizeWindowHint | qc.Qt.WindowTitleHint
-        )
-        dialog.setLayout(Qt.QVBoxLayout())
-        dialog.layout().addWidget(Qt.QLabel("Hello"))
-        self.addWidget(dialog)
-
     @property
     def axes(self):
         return self._axes.lines
@@ -89,6 +83,6 @@ class Figure(Qt.QGraphicsView):
         try:
             wid = value.createWidget()
             if wid:
-                self.newWidget(wid)
+                self.addWidget(wid)
         except AttributeError:
             pass
