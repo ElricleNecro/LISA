@@ -44,11 +44,15 @@ class TestOGL(object):
 
 	def createWidget(self, title="Dialogue de test.", parent=None):
 		dialog = Qt.QDialog(parent=parent, flags=qc.Qt.CustomizeWindowHint | qc.Qt.WindowTitleHint)
-		dialog.setWindowOpacity(0.4)
+		#dialog.setWindowOpacity(0.4)
 		dialog.setWindowTitle(title)
 		dialog.setLayout(Qt.QVBoxLayout())
 		dialog.layout().addWidget(Qt.QLabel("Ceci est un test d'affichage des widgets."))
 		dialog.layout().addWidget(Qt.QLabel("Ceci est un test d'affichage des widgets."))
+		#but = Qt.QPushButton()
+		#but.setText("Un boutton !")
+		#but.clicked.connect(self._push_button)
+		#dialog.layout().addWidget(but)
 
 		return dialog
 

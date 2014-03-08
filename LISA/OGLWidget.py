@@ -121,6 +121,12 @@ class OGLWidget(qo.QGLWidget):
 			acc                = diff.length()/90.0
 			self._rotationAxis = (n*acc).normalized()
 			self._angularSpeed = acc
+			self._rotate = qg.QQuaternion.fromAxisAndAngle(
+							self._rotationAxis,
+							diff.length()
+							#self._angularSpeed
+					) * self._rotate
+			self.updateGL()
 
 	def mouseReleaseEvent(self, event):
 		self._mousePressPosition = False

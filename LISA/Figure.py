@@ -8,7 +8,7 @@ class Scene(Qt.QGraphicsScene):
 	def __init__(self, EventHandler, *args, **kwargs):
 		super(Scene, self).__init__(*args, **kwargs)
 		self._event_handler = EventHandler
-		self._timer = EventHandler.getTimer(self)
+		#self._timer = EventHandler.getTimer(self)
 
 	def wheelEvent(self, event):
 		if event.isAccepted():
@@ -20,23 +20,23 @@ class Scene(Qt.QGraphicsScene):
 		if event.isAccepted():
 			return
 		self._event_handler.mousePressEvent(event)
+		self.update()
 
 	def mouseMoveEvent(self, event):
 		if event.isAccepted():
 			return
 		if event.buttons() == qc.Qt.LeftButton:
 			self._event_handler.mouseMoveEvent(event)
-
 		self.update()
 
 	def mouseReleaseEvent(self, event):
 		if event.isAccepted():
 			return
 		self._event_handler.mouseReleaseEvent(event)
-
-	def timerEvent(self, event):
-		self._event_handler.timerEvent(event)
 		self.update()
+
+	#def timerEvent(self, event):
+		#self._event_handler.timerEvent(event)
 
 class Figure(Qt.QGraphicsView):
 	def __init__(self, *args, **kwargs):
@@ -47,14 +47,14 @@ class Figure(Qt.QGraphicsView):
 		self._color.black()
 
 		# Creation of the Plotting class:
-		self._axes  = og.OGLWidget()
+		self._axes  = og.OGLWidget(qo.QGLFormat(qo.QGL.SampleBuffers))
 		# Then we add it as background of the View:
 		self.setViewport(self._axes)
-		self.setViewportUpdateMode(Qt.QGraphicsView.FullViewportUpdate)
+		self.setViewportUpdateMode(Qt.QGraphicsView.BoundingRectViewportUpdate)
+		#self.setViewportUpdateMode(Qt.QGraphicsView.FullViewportUpdate)
 
 		# We create the scene object which will contain all widget:
 		self._scene = Scene(self._axes, self)
-		#self._scene = Qt.QGraphicsScene(self)
 		# And we set it as scene for the View:
 		self.setScene(self._scene)
 
