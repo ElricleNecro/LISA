@@ -4,43 +4,6 @@ import OGLWidget as og
 
 from PyQt5 import Qt, QtOpenGL as qo, QtGui as qg, QtCore as qc
 
-
-class Scene(Qt.QGraphicsScene):
-
-    def __init__(self, EventHandler, *args, **kwargs):
-        super(Scene, self).__init__(*args, **kwargs)
-        self._event_handler = EventHandler
-        self._timer = EventHandler.getTimer(self)
-
-    def wheelEvent(self, event):
-        if event.isAccepted():
-            return
-        self._event_handler.wheelEvent(self)
-        self.update()
-
-    def mousePressEvent(self, event):
-        if event.isAccepted():
-            return
-        self._event_handler.mousePressEvent(event)
-
-    def mouseMoveEvent(self, event):
-        if event.isAccepted():
-            return
-        if event.buttons() == qc.Qt.LeftButton:
-            self._event_handler.mouseMoveEvent(event)
-
-        self.update()
-
-    def mouseReleaseEvent(self, event):
-        if event.isAccepted():
-            return
-        self._event_handler.mouseReleaseEvent(event)
-
-    def timerEvent(self, event):
-        self._event_handler.timerEvent(event)
-        self.update()
-
-
 class Figure(Qt.QGraphicsView):
 
     def __init__(self, *args, **kwargs):
@@ -60,7 +23,6 @@ class Figure(Qt.QGraphicsView):
 
         # And we set it as scene for the View:
         self._axes = og.OGLWidget()
-        self._axes.createDialog()
         self.setScene(self._axes)
         self._axes.initializeGL()
 
@@ -77,10 +39,10 @@ class Figure(Qt.QGraphicsView):
         self._axes.resizeGL(event.size().width(), event.size().height())
 
     def keyPressEvent(self, event):
-        if (
-            event.modifiers() == qc.Qt.ControlModifier and
-            event.key() == qc.Qt.Key_W
-        ) or event.key() == qc.Qt.Key_Escape:
+        if ( event.modifiers() == qc.Qt.ControlModifier and
+             event.key()       == qc.Qt.Key_W
+           ) or
+             event.key()       == qc.Qt.Key_Escape:
             print("Quiting!")
             self.close()
         else:
@@ -93,7 +55,7 @@ class Figure(Qt.QGraphicsView):
         pass
 
     def newWidget(self, wid):
-        tmp = self._scene.addWidget(wid, qc.Qt.Window)
+        tmp = self._axes.addWidget(wid, qc.Qt.Window)
         tmp.setFlag(
             Qt.QGraphicsItem.ItemIsMovable
         )
