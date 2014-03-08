@@ -1,146 +1,158 @@
 # -*- coding:Utf8 -*-
 
-from PyQt5 import Qt, QtOpenGL as qo, QtGui as qg
+from PyQt5 import Qt
+#from PyQt5 import QtOpenGL as qo
+from PyQt5 import QtGui as qg
+from PyQt5 import QtCore as qc
 from OpenGL import GL
 
+
 class ShadersNotLinked(Exception):
-	def __init__(self, msg):
-		self._msg = msg
 
-	def __str__(self):
-		return self._msg
+    def __init__(self, msg):
+        self._msg = msg
 
-class OGLWidget(qo.QGLWidget):
-	def __init__(self, *args, **kwargs):
-		super(OGLWidget, self).__init__(*args, **kwargs)
+    def __str__(self):
+        return self._msg
 
-		# Data class to plot:
-		self._data               = []
 
-		# Find how to use and implements those one:
-		#self._timer              = Qt.QBasicTimer()
+class OGLWidget(Qt.QGraphicsScene):
 
-		self._shaders            = qg.QOpenGLShaderProgram(self)
+    def __init__(self, *args, **kwargs):
+        super(OGLWidget, self).__init__(*args, **kwargs)
 
-		# Different matrix use for the on screen printing:
-		self._projection         = Qt.QMatrix4x4()
-		self._projection.setToIdentity()
-		self._model              = Qt.QMatrix4x4()
-		self._model.setToIdentity()
-		self._view               = Qt.QMatrix4x4()
-		self._view.setToIdentity()
-		self._camera             = Qt.QMatrix4x4()
-		self._camera.setToIdentity()
+        # Data class to plot:
+        self._data = []
 
-		# Some variables use to parametrized printing:
-		self._angularSpeed       = 0.0
-		self._distance           = 1.0
+        # Find how to use and implements those one:
+        #self._timer              = Qt.QBasicTimer()
 
-		# Some variables use to keep track of what we are doing with events:
-		self._lastMousePosition  = Qt.QPoint()
-		self._rotate             = qg.QQuaternion()
+        # Different matrix use for the on screen printing:
+        self._projection = Qt.QMatrix4x4()
+        self._projection.setToIdentity()
+        self._model = Qt.QMatrix4x4()
+        self._model.setToIdentity()
+        self._view = Qt.QMatrix4x4()
+        self._view.setToIdentity()
+        self._camera = Qt.QMatrix4x4()
+        self._camera.setToIdentity()
 
-		self._mousePressPosition = Qt.QVector2D()
-		self._rotationAxis       = Qt.QVector3D()
+        # Some variables use to parametrized printing:
+        self._angularSpeed = 0.0
+        self._distance = 1.0
 
-	def getTimer(self, EventHandler):
-		timer = Qt.QBasicTimer()
-		timer.start(12, EventHandler)
-		return timer
+        # Some variables use to keep track of what we are doing with events:
+        self._lastMousePosition = Qt.QPoint()
+        self._rotate = qg.QQuaternion()
 
-	@property
-	def lines(self):
-		return self._data
-	@lines.setter
-	def lines(self, value):
-		self._data.append(value)
+        self._mousePressPosition = False
+        self._rotationAxis = Qt.QVector3D()
 
-	def initializeGL(self):
-		GL.glEnable(GL.GL_DEPTH_TEST)
+    def getTimer(self, EventHandler):
+        timer = Qt.QBasicTimer()
+        timer.start(12, EventHandler)
+        return timer
 
-		self._shaders.removeAllShaders()
-		self._shaders.addShaderFromSourceFile(qg.QOpenGLShader.Vertex,   "Shaders/couleurs.vsh")
-		self._shaders.addShaderFromSourceFile(qg.QOpenGLShader.Fragment, "Shaders/couleurs.fsh")
+    @property
+    def lines(self):
+        return self._data
 
-		if not self._shaders.link():
-			raise ShadersNotLinked("Linking shaders in OGLWidget.initialiseGL has failed! " + self._shaders.log())
+    @lines.setter
+    def lines(self, value):
+        self._data.append(value)
 
-		#self._timer.start(12, self)
+    def initializeGL(self):
+        GL.glEnable(GL.GL_DEPTH_TEST)
 
-	def resizeGL(self, w, h):
-		h = 1 if h == 0 else h
+        self._shaders = qg.QOpenGLShaderProgram(self)
 
-		self._projection.setToIdentity()
-		self._projection.perspective(60.0, w/h, 0.001, 1000.0)
+        self._shaders.removeAllShaders()
+        self._shaders.addShaderFromSourceFile(
+            qg.QOpenGLShader.Vertex,   "Shaders/couleurs.vsh")
+        self._shaders.addShaderFromSourceFile(
+            qg.QOpenGLShader.Fragment, "Shaders/couleurs.fsh")
 
-		GL.glViewport(0, 0, w, h)
+        if not self._shaders.link():
+            raise ShadersNotLinked(
+                "Linking shaders in OGLWidget.initialiseGL has failed! " +
+                self._shaders.log()
+            )
 
-	def paintGL(self):
-		GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        #self._timer.start(12, self)
 
-		cam_pos = Qt.QVector3D(0, 0, self._distance)
-		cam_up  = Qt.QVector3D(0, 1, 0)
+    def resizeGL(self, w, h):
+        h = 1 if h == 0 else h
 
-		self._view.setToIdentity()
+        self._projection.setToIdentity()
+        self._projection.perspective(60.0, w / h, 0.001, 1000.0)
 
-		self._view.lookAt(cam_pos, Qt.QVector3D(0, 0, 0), cam_up)
+        GL.glViewport(0, 0, w, h)
 
-		self._view.rotate(self._rotate)
+    def drawBackground(self, *args):
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-		self._shaders.bind()
+        cam_pos = Qt.QVector3D(0, 0, self._distance)
+        cam_up = Qt.QVector3D(0, 1, 0)
 
-		matrice = self._projection * self._view * self._model
+        self._view.setToIdentity()
 
-		for data in self._data:
-			data.show(self._shaders, matrice)
+        self._view.lookAt(cam_pos, Qt.QVector3D(0, 0, 0), cam_up)
 
-		self._shaders.release()
+        self._view.rotate(self._rotate)
 
-	def keyPressEvent(self, event):
-		pass
+        self._shaders.bind()
 
-	def wheelEvent(self, event):
-		delta = event.delta()
+        matrice = self._projection * self._view * self._model
 
-		if event.orientation() == qc.Qt.Vertical:
-			if delta > 0:
-				self._distance *= 1.1
-			elif delta < 0:
-				self._distance *= 0.9
-			self.updateGL()
+        for data in self._data:
+            data.show(self._shaders, matrice)
 
-		event.accept()
+        self._shaders.release()
 
-	def mousePressEvent(self, event):
-		self._mousePressPosition = True #Qt.QVector2D(event.scenePos())
+    def keyPressEvent(self, event):
+        pass
 
-	def mouseMoveEvent(self, event):
-		if self._mousePressPosition:
-			diff               = Qt.QVector2D(event.scenePos()) - Qt.QVector2D(event.lastScenePos()) #self._mousePressPosition
-			n                  = Qt.QVector3D(diff.y(), diff.x(), 0.0).normalized()
-			acc                = diff.length()/90.0
-			self._rotationAxis = (n*acc).normalized()
-			self._angularSpeed = acc
-			self._rotate = qg.QQuaternion.fromAxisAndAngle(
-							self._rotationAxis,
-							diff.length()
-							#self._angularSpeed
-					) * self._rotate
-			self.updateGL()
+    def wheelEvent(self, event):
+        delta = event.delta()
 
-	def mouseReleaseEvent(self, event):
-		self._mousePressPosition = False
+        if event.orientation() == qc.Qt.Vertical:
+            if delta > 0:
+                self._distance *= 1.1
+            elif delta < 0:
+                self._distance *= 0.9
+            self.updateGL()
 
-	def timerEvent(self, event):
-		event.ignore()
-		self._angularSpeed *= 0.99
+        event.accept()
 
-		if self._angularSpeed < 0.01:
-			self._angularSpeed = 0.0
-		else:
-			self._rotate = qg.QQuaternion.fromAxisAndAngle(
-							self._rotationAxis,
-							self._angularSpeed
-					) * self._rotate
-			self.updateGL()
+    def mousePressEvent(self, event):
+        self._mousePressPosition = True
 
+    def mouseMoveEvent(self, event):
+        if self._mousePressPosition:
+            diff = Qt.QVector2D(event.scenePos()) - \
+                Qt.QVector2D(event.lastScenePos())
+            n = Qt.QVector3D(diff.y(), diff.x(), 0.0).normalized()
+            acc = diff.length()
+            self._rotationAxis = (n * acc).normalized()
+            self._angularSpeed = acc
+            self._rotate = qg.QQuaternion.fromAxisAndAngle(
+                self._rotationAxis,
+                self._angularSpeed,
+            ) * self._rotate
+            self.update()
+
+    def mouseReleaseEvent(self, event):
+        self._mousePressPosition = False
+
+    def timerEvent(self, event):
+        event.ignore()
+        self._angularSpeed *= 0.99
+
+        if self._angularSpeed < 0.01:
+            self._angularSpeed = 0.0
+        else:
+            self._rotate = qg.QQuaternion.fromAxisAndAngle(
+                self._rotationAxis,
+                self._angularSpeed,
+            ) * self._rotate
+            self.update()
