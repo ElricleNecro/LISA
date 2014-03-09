@@ -3,6 +3,9 @@
 import OGLWidget as og
 
 from PyQt5 import Qt, QtOpenGL as qo, QtGui as qg, QtCore as qc
+from OpenGL.arrays import numpymodule
+
+numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 
 class Figure(Qt.QGraphicsView):

@@ -8,6 +8,25 @@ import Figure as f
 
 from PyQt5 import Qt
 from OpenGL import GL
+from OpenGL.arrays import numpymodule
+from OpenGL import contextdata
+
+numpymodule.NumpyHandler.ERROR_ON_COPY = True
+
+
+def cleanupCallback(context=None):
+    """
+    Create a cleanup callback to clear context-specific storage for the
+    current context.
+    """
+
+    def callback(context=contextdata.getContext(context)):
+        """
+        Clean up the context, assumes that the context will *not* render again!
+        """
+        contextdata.cleanupContext(context)
+
+    return callback
 
 
 class TestOGL(object):

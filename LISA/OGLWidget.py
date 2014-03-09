@@ -5,6 +5,9 @@ from PyQt5 import Qt
 from PyQt5 import QtGui as qg
 from PyQt5 import QtCore as qc
 from OpenGL import GL
+from OpenGL.arrays import numpymodule
+
+numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 
 class ShadersNotLinked(Exception):
