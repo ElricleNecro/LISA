@@ -19,11 +19,11 @@ class Figure(Qt.QGraphicsView):
 
         # Creation of the Plotting class:
         # Then we add it as background of the View:
-        context = qo.QGLWidget(Qt.QGLFormat(Qt.QGL.NoAccumBuffer))
-        self.setViewport(context)
+        self._context = qo.QGLWidget(Qt.QGLFormat(Qt.QGL.NoAccumBuffer))
+        self.setViewport(self._context)
 
         # create the context for Opengl
-        context.makeCurrent()
+        self._context.makeCurrent()
 
         # And we set it as scene for the View:
         self._axes = og.OGLWidget()
@@ -39,7 +39,7 @@ class Figure(Qt.QGraphicsView):
         )
 
         # unset the context ???
-        context.doneCurrent()
+        self._context.doneCurrent()
 
     def addWidget(self, wid):
         tmp = self.scene().addWidget(wid, qc.Qt.Window)
@@ -82,7 +82,6 @@ class Figure(Qt.QGraphicsView):
     @axes.setter
     def axes(self, value):
         self._axes.lines = value
-
         try:
             wid = value.createWidget()
             if wid:
