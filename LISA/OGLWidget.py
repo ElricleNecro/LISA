@@ -60,20 +60,6 @@ class OGLWidget(Qt.QGraphicsScene):
 
     def initializeGL(self):
 
-        self._shaders = qg.QOpenGLShaderProgram(self)
-
-        self._shaders.removeAllShaders()
-        self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Vertex,   "Shaders/couleurs.vsh")
-        self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Fragment, "Shaders/couleurs.fsh")
-
-        if not self._shaders.link():
-            raise ShadersNotLinked(
-                "Linking shaders in OGLWidget.initialiseGL has failed! " +
-                self._shaders.log()
-            )
-
         self._timer.start(12, self)
 
     def resizeGL(self, w, h):
@@ -93,14 +79,10 @@ class OGLWidget(Qt.QGraphicsScene):
 
         self._view.rotate(self._rotate)
 
-        self._shaders.bind()
-
         matrice = self._projection * self._view * self._model
 
         for data in self._data:
-            data.show(self._shaders, matrice)
-
-        self._shaders.release()
+            data.show(matrice)
 
     def keyPressEvent(self, event):
         super(OGLWidget, self).keyPressEvent(event)

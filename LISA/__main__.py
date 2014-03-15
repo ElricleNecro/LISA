@@ -7,26 +7,11 @@ import OGLWidget as og
 import Figure as f
 
 from PyQt5 import Qt
+from PyQt5 import QtGui as qg
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
-from OpenGL import contextdata
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
-
-
-def cleanupCallback(context=None):
-    """
-    Create a cleanup callback to clear context-specific storage for the
-    current context.
-    """
-
-    def callback(context=contextdata.getContext(context)):
-        """
-        Clean up the context, assumes that the context will *not* render again!
-        """
-        contextdata.cleanupContext(context)
-
-    return callback
 
 
 class TestOGL(object):
@@ -47,14 +32,32 @@ class TestOGL(object):
             ]
         ).T.flatten()
 
-    def show(self, shaders, matrice):
-        shaders.setUniformValue("modelview", matrice)
+    def createShaders(self, parent):
 
-        vertex_id = shaders.attributeLocation("in_Vertex")
-        color_id = shaders.attributeLocation("in_Color")
+        self._shaders = qg.QOpenGLShaderProgram(parent)
 
-        shaders.enableAttributeArray("in_Vertex")
-        shaders.enableAttributeArray("in_Color")
+        self._shaders.removeAllShaders()
+        self._shaders.addShaderFromSourceFile(
+            qg.QOpenGLShader.Vertex,   "Shaders/couleurs.vsh")
+        self._shaders.addShaderFromSourceFile(
+            qg.QOpenGLShader.Fragment, "Shaders/couleurs.fsh")
+
+        if not self._shaders.link():
+            raise ShadersNotLinked(
+                "Linking shaders in OGLWidget.initialiseGL has failed! " +
+                self._shaders.log()
+            )
+
+    def show(self, matrice):
+
+        self._shaders.bind()
+        self._shaders.setUniformValue("modelview", matrice)
+
+        vertex_id = self._shaders.attributeLocation("in_Vertex")
+        color_id = self._shaders.attributeLocation("in_Color")
+
+        self._shaders.enableAttributeArray("in_Vertex")
+        self._shaders.enableAttributeArray("in_Color")
 
         GL.glVertexAttribPointer(
             vertex_id,
@@ -75,8 +78,10 @@ class TestOGL(object):
 
         GL.glDrawArrays(GL.GL_POINTS, 0, self._pos.shape[0] // 3)
 
-        shaders.disableAttributeArray("in_Vertex")
-        shaders.disableAttributeArray("in_Color")
+        self._shaders.disableAttributeArray("in_Vertex")
+        self._shaders.disableAttributeArray("in_Color")
+
+        self._shaders.release()
 
     def createWidget(self, title="Dialogue de test.", parent=None):
         dialog = Qt.QDialog(parent=parent)

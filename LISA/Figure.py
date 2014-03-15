@@ -81,7 +81,19 @@ class Figure(Qt.QGraphicsView):
 
     @axes.setter
     def axes(self, value):
+
+        # store the instance for plots
         self._axes.lines = value
+
+        # create shaders if there is one
+        self._context.makeCurrent()
+        try:
+            value.createShaders(self._context)
+        except:
+            pass
+        self._context.doneCurrent()
+
+        # add widget created by user
         try:
             wid = value.createWidget()
             if wid:
