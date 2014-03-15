@@ -89,7 +89,7 @@ class Figure(Qt.QGraphicsView):
         self._context.makeCurrent()
         try:
             value.createShaders(self._context)
-        except:
+        except AttributeError:
             pass
         self._context.doneCurrent()
 

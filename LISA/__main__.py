@@ -10,8 +10,19 @@ from PyQt5 import Qt
 from PyQt5 import QtGui as qg
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
+from examples.rippler.rippler import Rippler
+from examples.heightmap.heightmap import HeightMap
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
+
+
+class ShadersNotLinked(Exception):
+
+    def __init__(self, msg):
+        self._msg = msg
+
+    def __str__(self):
+        return self._msg
 
 
 class TestOGL(object):
@@ -130,7 +141,9 @@ if __name__ == "__main__":
     app = Qt.QApplication(sys.argv)
 
     fig = f.Figure()
-    fig.axes = TestOGL()
+    #fig.axes = TestOGL()
+    #fig.axes = Rippler()
+    fig.axes = HeightMap()
     fig.show()
 
     sys.exit(app.exec_())

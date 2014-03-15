@@ -10,15 +10,6 @@ from OpenGL.arrays import numpymodule
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 
-class ShadersNotLinked(Exception):
-
-    def __init__(self, msg):
-        self._msg = msg
-
-    def __str__(self):
-        return self._msg
-
-
 class OGLWidget(Qt.QGraphicsScene):
 
     def __init__(self, *args, **kwargs):
