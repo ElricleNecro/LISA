@@ -9,3 +9,4 @@ Hello
 Makefile
 LISA/.ropeproject
 LISA/__pycache__
+*.pyc
