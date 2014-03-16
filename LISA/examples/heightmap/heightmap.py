@@ -6,7 +6,7 @@ import sip
 import sys
 import datetime
 
-from PyQt5 import Qt
+#from PyQt5 import Qt
 from PyQt5 import QtGui as qg
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
@@ -24,13 +24,12 @@ class ShadersNotLinked(Exception):
         return self._msg
 
 
-
 class HeightMap(object):
 
     def __init__(self, *args, **kwargs):
 
         # create mesh
-        self.npoints = 30
+        self.npoints = 80
         X = np.linspace(-1, 1, self.npoints)
         Y = np.linspace(-1, 1, self.npoints)
         Z = np.zeros(self.npoints, dtype=np.float64)
@@ -64,14 +63,42 @@ class HeightMap(object):
         self._shaders.addShaderFromSourceFile(
             qg.QOpenGLShader.Fragment, "Shaders/heightmap/heightmap.fsh")
 
-        self._texture = parent.bindTexture("textures/heightmap/one.png")
-        self._textdata = imread("textures/heightmap/one.png")
-        print(self._textdata.dtype)
-        #sys.exit(1)
-
+        self._texture = GL.glGenTextures(1)
+        im = imread("textures/heightmap/two.png")
+        im.astype(np.int8)
+        GL.glEnable(GL.GL_TEXTURE_2D)
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
-        GL.glBindTexture(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                         GL.GL_NEAREST)
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D,
+            GL.GL_TEXTURE_MIN_FILTER,
+            GL.GL_LINEAR,
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D,
+            GL.GL_TEXTURE_MAG_FILTER,
+            GL.GL_LINEAR,
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D,
+            GL.GL_TEXTURE_WRAP_S,
+            GL.GL_CLAMP,
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D,
+            GL.GL_TEXTURE_WRAP_T,
+            GL.GL_CLAMP,
+        )
+        GL.glTexImage2D(
+            GL.GL_TEXTURE_2D,
+            0,
+            3,
+            im.shape[0],
+            im.shape[1],
+            0,
+            GL.GL_RGBA,
+            GL.GL_UNSIGNED_BYTE,
+            im,
+        )
 
         if not self._shaders.link():
             raise ShadersNotLinked(
@@ -83,10 +110,9 @@ class HeightMap(object):
         # create buffers
         self._vertices = qg.QOpenGLBuffer(qg.QOpenGLBuffer.VertexBuffer)
         self._index = qg.QOpenGLBuffer(qg.QOpenGLBuffer.IndexBuffer)
-        self._text = qg.QOpenGLBuffer(qg.QOpenGLBuffer.VertexBuffer)
+        self._vertices = qg.QOpenGLBuffer(qg.QOpenGLBuffer.VertexBuffer)
         self._vertices.create()
         self._index.create()
-        self._text.create()
 
         # allocate buffers
         self._vertices.bind()
@@ -102,20 +128,9 @@ class HeightMap(object):
         )
         self._index.release()
 
-        # texture
-        self._text.bind()
-        self._text.allocate(
-            sip.voidptr(self._textdata.ctypes.data),
-            self._textdata.size
-        )
-        self._text.release()
-
     def show(self, matrice):
         self._shaders.bind()
         self._shaders.setUniformValue("modelview", matrice)
-        dt = datetime.datetime.now() - self._time
-        second = float((dt.seconds * 1000000 + dt.microseconds) * 0.000006)
-        self._shaders.setUniformValue("time", second)
 
         self._vertices.bind()
         self._shaders.enableAttributeArray("in_Vertex")
@@ -126,16 +141,6 @@ class HeightMap(object):
             3
         )
         self._vertices.release()
-
-        self._text.bind()
-        self._shaders.enableAttributeArray("heighttexture")
-        self._shaders.setAttributeBuffer(
-            "heighttexture",
-            GL.GL_UNSIGNED_SHORT,
-            0,
-            4
-        )
-        self._text.release()
 
         self._index.bind()
         GL.glDrawElements(
