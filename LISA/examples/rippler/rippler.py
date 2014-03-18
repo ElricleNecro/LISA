@@ -94,7 +94,7 @@ class Rippler(object):
     def show(self, matrice):
         self._shaders.bind()
 
-        GL.glBindTexture(GL.GL_TEXTURE_2D, self._texture)
+        #GL.glBindTexture(GL.GL_TEXTURE_2D, self._texture)
 
         self._shaders.setUniformValue("modelview", matrice)
         dt = datetime.datetime.now() - self._time
