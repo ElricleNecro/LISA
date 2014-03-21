@@ -11,6 +11,8 @@ from PyQt5 import QtGui as qg
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
+import common as c
+
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 
@@ -58,9 +60,19 @@ class Rippler(object):
 
         self._shaders.removeAllShaders()
         self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Vertex,   "Shaders/rippler/rippler.vsh")
+            qg.QOpenGLShader.Vertex,
+            c.os.path.join(
+                c.SHADERS_DIR,
+                "rippler/rippler.vsh"
+            )
+        )
         self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Fragment, "Shaders/rippler/rippler.fsh")
+            qg.QOpenGLShader.Fragment,
+            c.os.path.join(
+                c.SHADERS_DIR,
+                "rippler/rippler.fsh"
+            )
+        )
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
 

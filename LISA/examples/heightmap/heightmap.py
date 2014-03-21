@@ -12,6 +12,8 @@ from OpenGL import GL
 from OpenGL.arrays import numpymodule
 from scipy.misc import imread
 
+import common as c
+
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 
@@ -59,12 +61,27 @@ class HeightMap(object):
 
         self._shaders.removeAllShaders()
         self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Vertex,   "Shaders/heightmap/heightmap.vsh")
+            qg.QOpenGLShader.Vertex,
+            c.os.path.join(
+                c.SHADERS_DIR,
+                "heightmap/heightmap.vsh"
+            )
+        )
         self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Fragment, "Shaders/heightmap/heightmap.fsh")
+            qg.QOpenGLShader.Fragment,
+            c.os.path.join(
+                c.SHADERS_DIR,
+                "heightmap/heightmap.fsh"
+            )
+        )
 
         self._texture = GL.glGenTextures(1)
-        im = imread("textures/heightmap/two.png")
+        im = imread(
+                c.os.path.join(
+                    c.TEXTURE_DIR,
+                    "heightmap/two.png"
+                )
+        )
         im.astype(np.int8)
         GL.glEnable(GL.GL_TEXTURE_2D)
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
