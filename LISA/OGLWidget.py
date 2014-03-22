@@ -58,22 +58,23 @@ class OGLWidget(Qt.QGraphicsScene):
 
         self._projection.setToIdentity()
         self._projection.perspective(60.0, w / h, 0.001, 1000.0)
+        self._screensize = Qt.QVector2D(w, h)
 
     def drawBackground(self, *args):
 
-        cam_pos = Qt.QVector3D(0, 0, self._distance)
+        self._cam_pos = Qt.QVector3D(0, 0, self._distance)
         cam_up = Qt.QVector3D(0, 1, 0)
 
         self._view.setToIdentity()
 
-        self._view.lookAt(cam_pos, Qt.QVector3D(0, 0, 0), cam_up)
+        self._view.lookAt(self._cam_pos, Qt.QVector3D(0, 0, 0), cam_up)
 
         self._view.rotate(self._rotate)
 
-        matrice = self._projection * self._view * self._model
+        #matrice = self._projection * self._view * self._model
 
         for data in self._data:
-            data.show(matrice)
+            data.show(self)
 
     def keyPressEvent(self, event):
         super(OGLWidget, self).keyPressEvent(event)
