@@ -2,6 +2,7 @@
 #-*- coding: utf-8 -*-
 
 import numpy as np
+import common as c
 
 from PyQt5 import Qt
 from PyQt5 import QtGui as qg
@@ -45,9 +46,19 @@ class Sprites(object):
 
         self._shaders.removeAllShaders()
         self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Vertex,   "Shaders/couleurs.vsh")
+            qg.QOpenGLShader.Vertex,
+            c.os.path.join(
+                c.SHADERS_DIR,
+                "couleurs.vsh"
+            )
+        )
         self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Fragment, "Shaders/couleurs.fsh")
+            qg.QOpenGLShader.Fragment,
+            c.os.path.join(
+                c.SHADERS_DIR,
+                "couleurs.fsh"
+            )
+        )
 
         if not self._shaders.link():
             raise ShadersNotLinked(
