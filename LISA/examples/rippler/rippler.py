@@ -91,12 +91,15 @@ class Rippler(object):
         )
         self._index.release()
 
-    def show(self, matrice):
+    def show(self, parent):
         self._shaders.bind()
 
         #GL.glBindTexture(GL.GL_TEXTURE_2D, self._texture)
 
-        self._shaders.setUniformValue("modelview", matrice)
+        self._shaders.setUniformValue(
+            "modelview",
+            parent._projection * parent._view * parent._model
+        )
         dt = datetime.datetime.now() - self._time
         second = float((dt.seconds * 1000000 + dt.microseconds) * 0.000006)
         self._shaders.setUniformValue("time", second)

@@ -154,8 +154,8 @@ if __name__ == "__main__":
 
     fig = f.Figure()
     fig.axes = TestOGL()
-    #fig.axes = Rippler()
-    #fig.axes = HeightMap()
+    fig.axes = Rippler()
+    fig.axes = HeightMap()
     fig.show()
 
     sys.exit(app.exec_())

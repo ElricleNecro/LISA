@@ -110,7 +110,6 @@ class HeightMap(object):
         # create buffers
         self._vertices = qg.QOpenGLBuffer(qg.QOpenGLBuffer.VertexBuffer)
         self._index = qg.QOpenGLBuffer(qg.QOpenGLBuffer.IndexBuffer)
-        self._vertices = qg.QOpenGLBuffer(qg.QOpenGLBuffer.VertexBuffer)
         self._vertices.create()
         self._index.create()
 
@@ -128,9 +127,12 @@ class HeightMap(object):
         )
         self._index.release()
 
-    def show(self, matrice):
+    def show(self, parent):
         self._shaders.bind()
-        self._shaders.setUniformValue("modelview", matrice)
+        self._shaders.setUniformValue(
+            "modelview",
+            parent._projection * parent._view * parent._model
+        )
 
         self._vertices.bind()
         self._shaders.enableAttributeArray("in_Vertex")
