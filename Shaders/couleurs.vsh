@@ -1,14 +1,18 @@
 #version 130
-
-in vec3 in_Vertex;
-in vec3 in_Color;
-
-out vec3 color;
+#pragma debug(on)
 
 uniform mat4 modelview;
+uniform mat4 projection;
+uniform vec2 screenSize;
+uniform float voxelSize;
 
-void main()
+in vec3 position;
+
+void main(void)
 {
-    gl_Position = modelview * vec4(in_Vertex, 1.0);
-    color = in_Color;
+    vec4 eyePos = modelview * vec4(position, 1);
+    vec4 projVoxel = projection * vec4(voxelSize, voxelSize, eyePos.z, eyePos.w);
+    vec2 projSize = screenSize * projVoxel.xy / projVoxel.w;
+    gl_PointSize = 0.25 * (projSize.x+projSize.y);
+    gl_Position = projection * eyePos;
 }
