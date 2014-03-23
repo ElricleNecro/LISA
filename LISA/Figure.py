@@ -10,8 +10,23 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 from OpenGL.arrays import numpymodule
 from LISA.OGLWidget import OGLWidget
+from IPython.lib import guisupport as gui
+from IPython.lib.inputhook import InputHookManager
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
+
+# create class managing hook for event loop in ipython
+hook = InputHookManager()
+
+# get the QApplication, creating one if not existing
+app = gui.get_app_qt4()
+
+# add the application to the hook
+hook.enable_qt4(app)
+
+# if event loop not running, run it for ipython
+if not gui.is_event_loop_running_qt4(app):
+    gui.start_event_loop_qt4(app)
 
 
 class Figure(QGraphicsView):
