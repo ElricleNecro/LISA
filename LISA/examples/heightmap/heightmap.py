@@ -6,13 +6,15 @@ import sip
 import sys
 import datetime
 
-#from PyQt5 import Qt
-from PyQt5 import QtGui as qg
+#from PyQt5.QtGui import *
+from PyQt4.QtOpenGL import QGLShaderProgram as QOpenGLShaderProgram
+from PyQt4.QtOpenGL import QGLBuffer as QOpenGLBuffer
+from PyQt4.QtOpenGL import QGLShader as QOpenGLShader
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 from scipy.misc import imread
 
-import common as c
+import LISA.common as c
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
@@ -57,18 +59,18 @@ class HeightMap(object):
 
     def createShaders(self, parent):
 
-        self._shaders = qg.QOpenGLShaderProgram(parent)
+        self._shaders = QOpenGLShaderProgram(parent)
 
         self._shaders.removeAllShaders()
         self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Vertex,
+            QOpenGLShader.Vertex,
             c.os.path.join(
                 c.SHADERS_DIR,
                 "heightmap/heightmap.vsh"
             )
         )
         self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Fragment,
+            QOpenGLShader.Fragment,
             c.os.path.join(
                 c.SHADERS_DIR,
                 "heightmap/heightmap.fsh"
@@ -77,10 +79,10 @@ class HeightMap(object):
 
         self._texture = GL.glGenTextures(1)
         im = imread(
-                c.os.path.join(
-                    c.TEXTURE_DIR,
-                    "heightmap/two.png"
-                )
+            c.os.path.join(
+                c.TEXTURE_DIR,
+                "heightmap/two.png"
+            )
         )
         im.astype(np.int8)
         GL.glEnable(GL.GL_TEXTURE_2D)
@@ -125,8 +127,8 @@ class HeightMap(object):
             sys.exit(1)
 
         # create buffers
-        self._vertices = qg.QOpenGLBuffer(qg.QOpenGLBuffer.VertexBuffer)
-        self._index = qg.QOpenGLBuffer(qg.QOpenGLBuffer.IndexBuffer)
+        self._vertices = QOpenGLBuffer(QOpenGLBuffer.VertexBuffer)
+        self._index = QOpenGLBuffer(QOpenGLBuffer.IndexBuffer)
         self._vertices.create()
         self._index.create()
 

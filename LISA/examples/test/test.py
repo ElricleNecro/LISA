@@ -2,10 +2,13 @@
 #-*- coding: utf-8 -*-
 
 import numpy as np
-import common as c
+import LISA.common as c
 
-from PyQt5 import Qt
-from PyQt5 import QtGui as qg
+#from PyQt5.QtGui import *
+from PyQt4.QtOpenGL import QGLShaderProgram as QOpenGLShaderProgram
+#from PyQt4.QtOpenGL import QGLBuffer as QOpenGLBuffer
+from PyQt4.QtOpenGL import QGLShader as QOpenGLShader
+from PyQt4 import QtGui as Qt
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
@@ -42,18 +45,18 @@ class Sprites(object):
 
     def createShaders(self, parent):
 
-        self._shaders = qg.QOpenGLShaderProgram(parent)
+        self._shaders = QOpenGLShaderProgram(parent)
 
         self._shaders.removeAllShaders()
         self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Vertex,
+            QOpenGLShader.Vertex,
             c.os.path.join(
                 c.SHADERS_DIR,
                 "couleurs.vsh"
             )
         )
         self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Fragment,
+            QOpenGLShader.Fragment,
             c.os.path.join(
                 c.SHADERS_DIR,
                 "couleurs.fsh"

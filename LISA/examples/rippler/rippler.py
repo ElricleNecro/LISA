@@ -6,12 +6,14 @@ import sip
 import sys
 import datetime
 
-from PyQt5 import Qt
-from PyQt5 import QtGui as qg
+#from PyQt5.QtGui import *
+from PyQt4.QtOpenGL import QGLShaderProgram as QOpenGLShaderProgram
+from PyQt4.QtOpenGL import QGLBuffer as QOpenGLBuffer
+from PyQt4.QtOpenGL import QGLShader as QOpenGLShader
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
-import common as c
+import LISA.common as c
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
@@ -56,18 +58,18 @@ class Rippler(object):
 
     def createShaders(self, parent):
 
-        self._shaders = qg.QOpenGLShaderProgram(parent)
+        self._shaders = QOpenGLShaderProgram(parent)
 
         self._shaders.removeAllShaders()
         self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Vertex,
+            QOpenGLShader.Vertex,
             c.os.path.join(
                 c.SHADERS_DIR,
                 "rippler/rippler.vsh"
             )
         )
         self._shaders.addShaderFromSourceFile(
-            qg.QOpenGLShader.Fragment,
+            QOpenGLShader.Fragment,
             c.os.path.join(
                 c.SHADERS_DIR,
                 "rippler/rippler.fsh"
@@ -84,8 +86,8 @@ class Rippler(object):
             sys.exit(1)
 
         # create buffers
-        self._vertices = qg.QOpenGLBuffer(qg.QOpenGLBuffer.VertexBuffer)
-        self._index = qg.QOpenGLBuffer(qg.QOpenGLBuffer.IndexBuffer)
+        self._vertices = QOpenGLBuffer(QOpenGLBuffer.VertexBuffer)
+        self._index = QOpenGLBuffer(QOpenGLBuffer.IndexBuffer)
         self._vertices.create()
         self._index.create()
 

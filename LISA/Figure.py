@@ -1,39 +1,46 @@
 # -*- coding:Utf8 -*-
 
-import OGLWidget as og
-
-from PyQt5 import Qt, QtOpenGL as qo, QtGui as qg, QtCore as qc
+#from PyQt5.Qt import *
+#from PyQt5.QtOpenGL import *
+#from PyQt5.QtGui import *
+#from PyQt5.QtCore import *
+from PyQt4.Qt import *
+from PyQt4.QtOpenGL import *
+from PyQt4.QtGui import *
+from PyQt4.QtCore import *
 from OpenGL.arrays import numpymodule
+from LISA.OGLWidget import OGLWidget
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 
-class Figure(Qt.QGraphicsView):
+class Figure(QGraphicsView):
 
     def __init__(self, *args, **kwargs):
+
         super(Figure, self).__init__(*args, **kwargs)
 
         # A color we need a lot of times:
-        self._color = Qt.QColor()
+        self._color = QColor()
         self._color.black()
 
         # Creation of the Plotting class:
         # Then we add it as background of the View:
-        self._context = qo.QGLWidget(Qt.QGLFormat(Qt.QGL.NoAccumBuffer))
+        self._context = QGLWidget(QGLFormat(QGL.NoAccumBuffer))
         self.setViewport(self._context)
 
         # create the context for Opengl
         self._context.makeCurrent()
 
         # And we set it as scene for the View:
-        self._axes = og.OGLWidget()
+        self._axes = OGLWidget()
         self.setScene(self._axes)
         self._axes.initializeGL()
 
         # Set some properties and palette to have a black background:
         self.setAutoFillBackground(True)
         self.setPalette(
-            qg.QPalette(
+            QPalette(
                 self._color
             )
         )
@@ -42,15 +49,15 @@ class Figure(Qt.QGraphicsView):
         self._context.doneCurrent()
 
     def addWidget(self, wid):
-        tmp = self.scene().addWidget(wid, qc.Qt.Window)
+        tmp = self.scene().addWidget(wid, Qt.Window)
         tmp.setFlag(
-            Qt.QGraphicsItem.ItemIsMovable
+            QGraphicsItem.ItemIsMovable
         )
         tmp.setFlag(
-            Qt.QGraphicsItem.ItemIsSelectable
+            QGraphicsItem.ItemIsSelectable
         )
         tmp.setCacheMode(
-            Qt.QGraphicsItem.DeviceCoordinateCache
+            QGraphicsItem.DeviceCoordinateCache
         )
 
     def resizeEvent(self, event):
@@ -61,9 +68,9 @@ class Figure(Qt.QGraphicsView):
     def keyPressEvent(self, event):
         super(Figure, self).keyPressEvent(event)
         if (
-            event.modifiers() == qc.Qt.ControlModifier and
-            event.key() == qc.Qt.Key_W
-        ) or event.key() == qc.Qt.Key_Escape:
+            event.modifiers() == Qt.ControlModifier and
+            event.key() == Qt.Key_W
+        ) or event.key() == Qt.Key_Escape:
             print("Quiting!")
             self.close()
         else:
