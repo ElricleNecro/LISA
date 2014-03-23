@@ -41,7 +41,7 @@ class OGLWidget(QGraphicsScene):
         self._mousePressPosition = False
         self._rotationAxis = QVector3D()
 
-        self._timer = QBasicTimer()
+        #self._timer = QBasicTimer()
 
     @property
     def lines(self):
@@ -53,7 +53,8 @@ class OGLWidget(QGraphicsScene):
 
     def initializeGL(self):
 
-        self._timer.start(12, self)
+        pass
+        #self._timer.start(12, self)
 
     def resizeGL(self, w, h):
         h = 1 if h == 0 else h
@@ -127,16 +128,16 @@ class OGLWidget(QGraphicsScene):
         event.accept()
         self.update()
 
-    def timerEvent(self, event):
-        super(OGLWidget, self).timerEvent(event)
-        self._angularSpeed *= 0.99
+    #def timerEvent(self, event):
+        #super(OGLWidget, self).timerEvent(event)
+        #self._angularSpeed *= 0.99
 
-        if self._angularSpeed < 0.01:
-            self._angularSpeed = 0.0
-        else:
-            self._rotate = QQuaternion.fromAxisAndAngle(
-                self._rotationAxis,
-                self._angularSpeed,
-            ) * self._rotate
-        event.accept()
-        self.update()
+        #if self._angularSpeed < 0.01:
+            #self._angularSpeed = 0.0
+        #else:
+            #self._rotate = QQuaternion.fromAxisAndAngle(
+                #self._rotationAxis,
+                #self._angularSpeed,
+            #) * self._rotate
+        #event.accept()
+        #self.update()
