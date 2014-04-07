@@ -13,3 +13,4 @@ LISA/__pycache__
 .ropeproject/
 __pycache__/
 build/
+*.c
