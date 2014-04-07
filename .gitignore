@@ -13,4 +13,6 @@ LISA/__pycache__
 .ropeproject/
 __pycache__/
 build/
+dist/
+*egg-info/
 *.c
