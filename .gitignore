@@ -13,6 +13,8 @@ LISA/__pycache__
 .ropeproject/
 __pycache__/
 build/
+dist/
+*egg-info/
 *.c
 LISA_is_a_Simulation_Analyzer.egg-info/
 dist/
