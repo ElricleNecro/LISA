@@ -14,3 +14,6 @@ LISA/__pycache__
 __pycache__/
 build/
 *.c
+LISA_is_a_Simulation_Analyzer.egg-info/
+dist/
+test_env/
