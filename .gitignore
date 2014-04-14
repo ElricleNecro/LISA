@@ -9,3 +9,10 @@ Hello
 Makefile
 LISA/.ropeproject
 LISA/__pycache__
+*.pyc
+.ropeproject/
+__pycache__/
+build/
+dist/
+*egg-info/
+*.c
