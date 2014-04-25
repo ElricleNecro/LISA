@@ -39,19 +39,19 @@ class ShaderProgram(object):
     def link(self):
         GL.glLinkProgram(self.id)
 
-        #log = GL.gGetProgramiv(
-            #self.id,
-            #GL.GL_LINK_STATUS
-        #)
-        #if not log:
+        # log = GL.gGetProgramiv(
+            # self.id,
+            # GL.GL_LINK_STATUS
+        # )
+        # if not log:
         log = GL.glGetShaderInfoLog(self.id)
         if log:
             raise ShadersNotLinked(log)
 
-    def use(self):
+    def bind(self):
         GL.glUseProgram(self.id)
 
-    def unuse(self):
+    def release(self):
         GL.glUseProgram(0)
 
     def __add__(self, val):
