@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import numpy as np
 import sip
-import sys
 import datetime
 
-#from PyQt5.QtGui import *
-from PyQt4.QtOpenGL import QGLShaderProgram as QOpenGLShaderProgram
+# from PyQt5.QtGui import *
+# from PyQt4.QtOpenGL import QGLShaderProgram as QOpenGLShaderProgram
 from PyQt4.QtOpenGL import QGLBuffer as QOpenGLBuffer
-from PyQt4.QtOpenGL import QGLShader as QOpenGLShader
+# from PyQt4.QtOpenGL import QGLShader as QOpenGLShader
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 from scipy.misc import imread
 
-import LISA.common as c
+from LISA import Shaders as s
+from LISA import common as c
+# import LISA.common as c
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
@@ -59,18 +60,12 @@ class HeightMap(object):
 
     def createShaders(self, parent):
 
-        self._shaders = QOpenGLShaderProgram(parent)
-
-        self._shaders.removeAllShaders()
-        self._shaders.addShaderFromSourceFile(
-            QOpenGLShader.Vertex,
+        self._shaders = s.CreateShaderFromFile(
             c.os.path.join(
                 c.SHADERS_DIR,
                 "heightmap/heightmap.vsh"
             )
-        )
-        self._shaders.addShaderFromSourceFile(
-            QOpenGLShader.Fragment,
+        ) + s.CreateShaderFromFile(
             c.os.path.join(
                 c.SHADERS_DIR,
                 "heightmap/heightmap.fsh"
@@ -119,12 +114,7 @@ class HeightMap(object):
             im,
         )
 
-        if not self._shaders.link():
-            raise ShadersNotLinked(
-                "Linking shaders in OGLWidget.initialiseGL has failed! " +
-                self._shaders.log()
-            )
-            sys.exit(1)
+        self._shaders.link()
 
         # create buffers
         self._vertices = QOpenGLBuffer(QOpenGLBuffer.VertexBuffer)
@@ -148,9 +138,10 @@ class HeightMap(object):
 
     def show(self, parent):
         self._shaders.bind()
+        mat = parent._projection * parent._view * parent._model
         self._shaders.setUniformValue(
             "modelview",
-            parent._projection * parent._view * parent._model
+            mat.constData()
         )
 
         self._vertices.bind()
