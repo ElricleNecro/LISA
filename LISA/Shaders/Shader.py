@@ -1,12 +1,19 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
+import os
 from OpenGL import GL
 from . import ShaderProgram as s
 
 
 VERTEX_SHADER = GL.GL_VERTEX_SHADER
 FRAGMENT_SHADER = GL.GL_FRAGMENT_SHADER
+
+
+Extension = dict(
+    fsh=FRAGMENT_SHADER,
+    vsh=VERTEX_SHADER,
+)
 
 
 class ShaderCompileError(Exception):
@@ -63,7 +70,13 @@ class Shader(object):
     def __radd__(self, val):
         return self._addShader(val)
 
-def CreateShaderFromFile(filename, stype):
+
+def CreateShaderFromFile(filename, stype=None):
+    # What is the type of the shader, if not given:
+    if stype is None:
+        ext = os.path.splitext(filename)[1].lower()
+        stype = Extension[ext]
+
     # Read the file:
     with open(filename, "r") as f:
         src = f.readlines()
