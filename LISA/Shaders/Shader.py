@@ -27,6 +27,7 @@ class ShaderCompileError(Exception):
 
 class Shader(object):
     def __init__(self, src, stype):
+        print(stype)
         self.id = stype
         self.src = src
 
@@ -52,7 +53,7 @@ class Shader(object):
 
     @id.setter
     def id(self, val):
-        self._id = GL.createShader(
+        self._id = GL.glCreateShader(
             val
         )
 
@@ -74,12 +75,13 @@ class Shader(object):
 def CreateShaderFromFile(filename, stype=None):
     # What is the type of the shader, if not given:
     if stype is None:
-        ext = os.path.splitext(filename)[1].lower()
+        ext = os.path.splitext(filename)[1][1:].lower()
         stype = Extension[ext]
 
     # Read the file:
     with open(filename, "r") as f:
-        src = f.readlines()
+        src = f.read()
+    print(src)
 
     # Give it to the Shader class and return the resulting object:
     return Shader(src, stype)
