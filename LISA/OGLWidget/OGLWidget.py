@@ -9,6 +9,8 @@ from PyQt4.QtCore import *
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
+from LISA import Matrice as m
+
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 
@@ -21,14 +23,10 @@ class OGLWidget(QGraphicsScene):
         self._data = []
 
         # Different matrix use for the on screen printing:
-        self._projection = QMatrix4x4()
-        self._projection.setToIdentity()
-        self._model = QMatrix4x4()
-        self._model.setToIdentity()
-        self._view = QMatrix4x4()
-        self._view.setToIdentity()
-        self._camera = QMatrix4x4()
-        self._camera.setToIdentity()
+        self._projection = m.Identity()
+        self._model = m.Identity()
+        self._view = m.Identity()
+        self._camera = m.Identity()
 
         # Some variables use to parametrized printing:
         self._angularSpeed = 0.0
@@ -36,10 +34,10 @@ class OGLWidget(QGraphicsScene):
 
         # Some variables use to keep track of what we are doing with events:
         self._lastMousePosition = QPoint()
-        self._rotate = QQuaternion()
+        self._rotate = m.Identity()
 
         self._mousePressPosition = False
-        self._rotationAxis = QVector3D()
+        self._rotationAxis = m.Vector(0., 0., 0.)
 
         #self._timer = QBasicTimer()
 
@@ -61,18 +59,19 @@ class OGLWidget(QGraphicsScene):
 
         self._projection.setToIdentity()
         self._projection.perspective(60.0, w / h, 0.001, 1000.0)
-        self._screensize = QVector2D(w, h)
+        self._screensize = m.Vector(w, h)
 
     def drawBackground(self, *args):
 
-        self._cam_pos = QVector3D(0, 0, self._distance)
-        cam_up = QVector3D(0, 1, 0)
+        self._cam_pos = m.Vector(0, 0, self._distance)
+        cam_up = m.Vector(0, 1, 0)
 
         self._view.setToIdentity()
 
-        self._view.lookAt(self._cam_pos, QVector3D(0, 0, 0), cam_up)
+        self._view.lookAt(self._cam_pos, m.Vector(0, 0, 0), cam_up)
 
-        self._view.rotate(self._rotate)
+        self._view = self._view * self._rotate
+        # self._view.rotate(self._rotate)
 
         for data in self._data:
             data.show(self)
@@ -109,14 +108,18 @@ class OGLWidget(QGraphicsScene):
         if self._mousePressPosition:
             diff = QVector2D(event.scenePos()) - \
                 QVector2D(event.lastScenePos())
-            n = QVector3D(diff.y(), diff.x(), 0.0).normalized()
+            n = m.Vector(diff.y(), diff.x(), 0.0).normalized()
             acc = diff.length()
             self._rotationAxis = (n * acc).normalized()
             self._angularSpeed = acc
-            self._rotate = QQuaternion.fromAxisAndAngle(
-                self._rotationAxis,
+            self._rotate = m.Quaternion(
                 self._angularSpeed,
+                self._rotationAxis
             ) * self._rotate
+            # self._rotate = QQuaternion.fromAxisAndAngle(
+                # self._rotationAxis,
+                # self._angularSpeed,
+            # ) * self._rotate
             event.accept()
             self.update()
 
