@@ -75,10 +75,10 @@ setup(
     include_package_data=True,
     package_data={
         'LISA': [
-            "Shaders/heightmap/*.*sh",
-            "Shaders/rippler/*.*sh",
-            'Shaders/*.*sh',
-            'Textures/heightmap/*.png',
+            "Data/Shaders/heightmap/*.*sh",
+            "Data/Shaders/rippler/*.*sh",
+            'Data/Shaders/*.*sh',
+            'Data/Textures/heightmap/*.png',
         ]
     },
     ext_modules=cythonize(
