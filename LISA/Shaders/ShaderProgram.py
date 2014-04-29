@@ -8,8 +8,8 @@ from OpenGL import GL
 _GL_ns = vars(GL)
 _TypeNP_OGL = dict(
 )
-_TypeNP_OGL[np.float64] = GL.GL_DOUBLE
-_TypeNP_OGL[np.float32] = GL.GL_FLOAT
+_TypeNP_OGL["float64"] = GL.GL_DOUBLE
+_TypeNP_OGL["float32"] = GL.GL_FLOAT
 
 
 class ShadersNotLinked(Exception):
@@ -26,6 +26,7 @@ class ShaderProgram(object):
         self._id = GL.glCreateProgram()
         self._shaders = list()
         self._last_id = 0
+        self._enableAttrib = dict()
 
     @property
     def id(self):
@@ -33,19 +34,25 @@ class ShaderProgram(object):
 
     def setUniformValue(self, name, data):
         var_id = GL.glGetUniformLocation(self.id, name.encode())
-        _GL_ns[data._dim_str](var_id, 1, GL.GL_TRUE, data.flatten())
+        data._setUniformValue(var_id, _GL_ns)
+        # _GL_ns[data._dim_str](var_id, 1, GL.GL_TRUE, data.flatten())
 
-    def enableAttributeArray(self, name, data):
-        GL.glBindAttribLocation(self.id, self._last_id, name)
-        GL.glEnableVertexAttribArray(self._last_id)
-        self._enableAttrib[name] = self._last_id
-        self._last_id += 1
+    def enableAttributeArray(self, name):
+        if not name in self._enableAttrib:
+            GL.glBindAttribLocation(self.id, self._last_id, name.encode())
+            self._enableAttrib[name] = self._last_id
+            self._last_id += 1
+
+        GL.glEnableVertexAttribArray(
+            self._enableAttrib[name]
+        )
+        # GL.glEnableVertexAttribArray(self._last_id)
 
     def setAttributeArray(self, name, data):
         GL.glVertexAttribPointer(
             self._enableAttrib[name],
             3,
-            _TypeNP_OGL[data.dtype],
+            _TypeNP_OGL[data.dtype.name],
             GL.GL_FALSE,
             0,
             data
@@ -53,7 +60,7 @@ class ShaderProgram(object):
 
     def disableAttributeArray(self, name):
         GL.glDisableVertexAttribArray(self._enableAttrib[name])
-        del self._enableAttrib[name]
+        # del self._enableAttrib[name]
 
     def addShader(self, val):
         self._shaders.append(val)
