@@ -7,7 +7,7 @@ import numpy as np
 class Vector(np.ndarray):
 
     """Vector dealing class"""
-    def __new__(cls, *args, dtype=np.float64, **kwargs):
+    def __new__(cls, *args, dtype=np.float32, **kwargs):
         buf = np.array(args, dtype=dtype)
         if len(buf.shape) != 1:
             raise ValueError(
@@ -30,7 +30,7 @@ class Vector(np.ndarray):
 
         if self.dtype == np.float32:
             self._dim_str += "f"
-        elif self.dtype == np.float64:
+        elif self.dtype == np.float32:
             self._dim_str += "d"
         self._dim_str = "glUniform" + self._dim_str + "v"
 

@@ -21,7 +21,7 @@ class Matrix(np.ndarray):
 
             if self.dtype == np.float32:
                 self._dim_str += "f"
-            elif self.dtype == np.float64:
+            elif self.dtype == np.float32:
                 self._dim_str += "d"
             self._dim_str = "glUniformMatrix" + self._dim_str + "v"
         else:
@@ -39,7 +39,7 @@ class Matrix(np.ndarray):
 
             if self.dtype == np.float32:
                 self._dim_str += "f"
-            elif self.dtype == np.float64:
+            elif self.dtype == np.float32:
                 self._dim_str += "d"
             self._dim_str = "glUniformMatrix" + self._dim_str + "v"
         else:
@@ -78,13 +78,13 @@ class Matrix(np.ndarray):
         return self
 
 
-def Identity(shape=(4, 4), dtype=np.float64):
+def Identity(shape=(4, 4), dtype=np.float32):
     mat = Matrix(shape, dtype, order='C')
     mat.setToIdentity()
     return mat
 
 
-def Perspective(FoV, ratio, near, far, dtype=np.float64):
+def Perspective(FoV, ratio, near, far, dtype=np.float32):
     mat = Matrix((4, 4), dtype, order='C')
     f = 1. / m.tan(FoV/2.0 * np.pi / 180.)
     mat[0, 0] = f / ratio
@@ -96,7 +96,7 @@ def Perspective(FoV, ratio, near, far, dtype=np.float64):
     return mat
 
 
-def LookAt(pos: Vector, center: Vector, up: Vector, dtype=np.float64):
+def LookAt(pos: Vector, center: Vector, up: Vector, dtype=np.float32):
     mat = Matrix((4, 4), dtype, order='C')
 
     regard = center - pos
