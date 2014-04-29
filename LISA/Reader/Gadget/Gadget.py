@@ -31,7 +31,8 @@ class Sprites(GadgetReader):
     def __init__(self, *args, **kwargs):
         super(Sprites, self).__init__(*args, **kwargs)
         self.Read()
-        self._pos = self.positions.astype(np.float64)
+        self._pos = self.positions
+        # self._pos = self.positions.astype(np.float64)
 
     def createShaders(self, parent):
 
