@@ -47,6 +47,9 @@ class Matrix(np.ndarray):
 
         return self._dim_str
 
+    def _setUniformValue(self, id, GL_ns):
+        GL_ns[self._dim_str](id, 1, GL_ns["GL_TRUE"], self.flatten())
+
     def setToIdentity(self):
         self[:] = 0.
         self.ravel()[0::self.shape[1]+1] = 1.

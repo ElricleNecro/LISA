@@ -34,6 +34,9 @@ class Vector(np.ndarray):
             self._dim_str += "d"
         self._dim_str = "glUniform" + self._dim_str + "v"
 
+    def _setUniformValue(self, id, GL_ns):
+        GL_ns[self._dim_str](id, 1, self.flatten())
+
     def __mul__(self, a):
         if isinstance(a, Vector):
             return Vector(*np.cross(self, a).tolist())
