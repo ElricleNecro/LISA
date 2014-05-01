@@ -12,7 +12,6 @@ class Matrix(np.ndarray):
     """An upper class over numpy.ndarray to deal with our module matrices."""
 
     def __init__(self, *args, **kwargs):
-        print(len(self.shape))
         if len(self.shape) == 2:
             if self.shape[0] != self.shape[1]:
                 self._dim_str = str(self.shape[0]) + "x" + str(self.shape[1])
@@ -55,10 +54,13 @@ class Matrix(np.ndarray):
         self.ravel()[0::self.shape[1]+1] = 1.
 
     def perspective(self, FoV, ratio, near, far):
-        self = self * Perspective(FoV, ratio, near, far)
+        res = self * Perspective(FoV, ratio, near, far)
+        self[:] = res[:]
 
     def lookAt(self, pos, center, up):
-        self = self * LookAt(pos, center, up)
+        tmp = self * LookAt(pos, center, up)
+        res = tmp * Translation(-pos)
+        self[:] = res[:]
 
     def __mul__(self, a):
         res = np.dot(self, a)
@@ -77,8 +79,8 @@ class Matrix(np.ndarray):
         return mat
 
     def __imul__(self, a):
-        self = self * a
-        return self
+        tmp = self * a
+        return tmp
 
 
 def Identity(shape=(4, 4), dtype=np.float32):
@@ -103,8 +105,8 @@ def LookAt(pos: Vector, center: Vector, up: Vector, dtype=np.float32):
     mat = Matrix((4, 4), dtype, order='C')
 
     regard = center - pos
-    normal = regard*up
-    n_axe = normal*regard
+    normal = regard * up
+    n_axe = normal * regard
 
     normal /= normal.norm()
     n_axe /= n_axe.norm()
@@ -114,6 +116,15 @@ def LookAt(pos: Vector, center: Vector, up: Vector, dtype=np.float32):
     mat[1, :3] = n_axe
     mat[2, :3] = -regard
     mat[3, 3] = 1.
+
+    return mat
+
+
+def Translation(pos: Vector, dtype=None):
+    if not dtype:
+        dtype = pos.dtype
+    mat = Identity(dtype=dtype)
+    mat[:3, 3] = pos[:]
 
     return mat
 
