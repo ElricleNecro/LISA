@@ -39,7 +39,7 @@ class OGLWidget(QGraphicsScene):
         self._mousePressPosition = False
         self._rotationAxis = m.Vector(0., 0., 0.)
 
-        #self._timer = QBasicTimer()
+        # self._timer = QBasicTimer()
 
     @property
     def lines(self):
@@ -52,13 +52,14 @@ class OGLWidget(QGraphicsScene):
     def initializeGL(self):
 
         pass
-        #self._timer.start(12, self)
+        # self._timer.start(12, self)
 
     def resizeGL(self, w, h):
         h = 1 if h == 0 else h
 
         self._projection.setToIdentity()
         self._projection.perspective(60.0, w / h, 0.001, 1000.0)
+
         self._screensize = m.Vector(w, h)
 
     def drawBackground(self, *args):
@@ -108,7 +109,12 @@ class OGLWidget(QGraphicsScene):
         if self._mousePressPosition:
             diff = QVector2D(event.scenePos()) - \
                 QVector2D(event.lastScenePos())
-            n = m.Vector(diff.y(), diff.x(), 0.0).normalized()
+            x = diff.x()
+            y = diff.y()
+            if x == 0 and y == 0:
+                event.accept()
+                return
+            n = m.Vector(y, x, 0.0).normalized()
             acc = diff.length()
             self._rotationAxis = (n * acc).normalized()
             self._angularSpeed = acc
