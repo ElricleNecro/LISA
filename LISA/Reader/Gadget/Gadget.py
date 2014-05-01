@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import numpy as np
+# import numpy as np
 import LISA.common as c
 
-#from PyQt5.QtGui import *
-#from PyQt4.QtOpenGL import QGLBuffer as QOpenGLBuffer
+# from PyQt5.QtGui import *
+# from PyQt4.QtOpenGL import QGLBuffer as QOpenGLBuffer
 from PyQt4 import QtGui as Qt
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
@@ -36,7 +36,6 @@ class Sprites(GadgetReader):
 
     def createShaders(self, parent):
 
-        print("In CreateShaders")
         self._shaders = s.CreateShaderFromFile(
             c.os.path.join(
                 c.SHADERS_DIR,
@@ -48,7 +47,6 @@ class Sprites(GadgetReader):
                 "couleurs.fsh"
             )
         )
-        print("In CreateShaders")
 
         self._shaders.link()
 
@@ -69,10 +67,10 @@ class Sprites(GadgetReader):
         self._shaders.setUniformValue("voxelSize", m.Vector(0.01))
 
         # vertex_id = self._shaders.attributeLocation("position")
-        #color_id = self._shaders.attributeLocation("in_Color")
+        # color_id = self._shaders.attributeLocation("in_Color")
 
         self._shaders.enableAttributeArray("position")
-        #self._shaders.enableAttributeArray("in_Color")
+        # self._shaders.enableAttributeArray("in_Color")
 
         self._shaders.setAttributeArray("position", self._pos)
         # GL.glVertexAttribPointer(
@@ -87,7 +85,7 @@ class Sprites(GadgetReader):
         GL.glDrawArrays(GL.GL_POINTS, 0, self._pos.shape[0] // 3)
 
         self._shaders.disableAttributeArray("position")
-        #self._shaders.disableAttributeArray("in_Color")
+        # self._shaders.disableAttributeArray("in_Color")
 
         self._shaders.release()
 

@@ -27,7 +27,6 @@ class ShaderCompileError(Exception):
 
 class Shader(object):
     def __init__(self, src, stype):
-        print(stype)
         self.id = stype
         self.src = src
 
@@ -81,7 +80,6 @@ def CreateShaderFromFile(filename, stype=None):
     # Read the file:
     with open(filename, "r") as f:
         src = f.read()
-    print(src)
 
     # Give it to the Shader class and return the resulting object:
     return Shader(src, stype)
