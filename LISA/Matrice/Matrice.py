@@ -139,18 +139,27 @@ def Quaternion(angle, axe: Vector, dtype=None):
 
     axe /= axe.norm()
     angle *= D2R
+    cos = m.cos(angle)
+    sin = m.sin(angle)
+    onecos = 1 - cos
+    a01 = axe[0] * axe[1] * onecos
+    a02 = axe[0] * axe[2] * onecos
+    a12 = axe[1] * axe[2] * onecos
+    a0s = axe[0] * sin
+    a1s = axe[1] * sin
+    a2s = axe[2] * sin
 
-    mat[0, 0] = axe[0] * axe[0] * (1 - m.cos(angle)) + m.cos(angle)
-    mat[0, 1] = axe[0] * axe[1] * (1 - m.cos(angle)) - axe[2] * m.sin(angle)
-    mat[0, 2] = axe[0] * axe[2] * (1 - m.cos(angle)) + axe[1] * m.sin(angle)
+    mat[0, 0] = axe[0] * axe[0] * onecos + cos
+    mat[0, 1] = a01 - a2s
+    mat[0, 2] = a02 + a1s
 
-    mat[1, 0] = axe[0] * axe[1] * (1 - m.cos(angle)) + axe[2] * m.sin(angle)
-    mat[1, 1] = axe[1] * axe[1] * (1 - m.cos(angle)) + m.cos(angle)
-    mat[1, 2] = axe[1] * axe[2] * (1 - m.cos(angle)) - axe[0] * m.sin(angle)
+    mat[1, 0] = a01 + a2s
+    mat[1, 1] = axe[1] * axe[1] * onecos + cos
+    mat[1, 2] = a12 - a0s
 
-    mat[2, 0] = axe[0] * axe[2] * (1 - m.cos(angle)) - axe[1] * m.sin(angle)
-    mat[2, 1] = axe[1] * axe[2] * (1 - m.cos(angle)) + axe[0] * m.sin(angle)
-    mat[2, 2] = axe[2] * axe[2] * (1 - m.cos(angle)) + m.cos(angle)
+    mat[2, 0] = a02 - a1s
+    mat[2, 1] = a12 + a0s
+    mat[2, 2] = axe[2] * axe[2] * onecos + cos
 
     mat[3, 3] = 1.0
 

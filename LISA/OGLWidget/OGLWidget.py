@@ -123,9 +123,6 @@ class OGLWidget(QGraphicsScene):
             # make the angular speed to its norm
             self._angularSpeed = self._rotationAxis.norm()
 
-            # normalize axis for quaternion
-            self._rotationAxis = self._rotationAxis.normalized()
-
             # create the quaternion matrix and apply it to the last state
             self._rotate = m.Quaternion(
                 self._angularSpeed,
