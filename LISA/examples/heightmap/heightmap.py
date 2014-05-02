@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import sip
+# import sip
 import datetime
 
 # from PyQt5.QtGui import *
 # from PyQt4.QtOpenGL import QGLShaderProgram as QOpenGLShaderProgram
-from PyQt4.QtOpenGL import QGLBuffer as QOpenGLBuffer
+# from PyQt4.QtOpenGL import QGLBuffer as QOpenGLBuffer
 # from PyQt4.QtOpenGL import QGLShader as QOpenGLShader
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
@@ -15,7 +15,7 @@ from scipy.misc import imread
 
 from LISA import Shaders as s
 from LISA import common as c
-# import LISA.common as c
+from LISA import Buffers as buf
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
@@ -37,9 +37,9 @@ class HeightMap(object):
         self.npoints = 80
         X = np.linspace(-1, 1, self.npoints)
         Y = np.linspace(-1, 1, self.npoints)
-        Z = np.zeros(self.npoints, dtype=np.float64)
+        Z = np.zeros(self.npoints, dtype=np.float32)
         x, y, z = np.meshgrid(X, Y, Z)
-        self._mesh = np.array([x, y, z], dtype=np.float64).T.flatten()
+        self._mesh = np.array([x, y, z], dtype=np.float32).T.flatten()
 
         # create the indices for triangles
         self._indices = np.empty(
@@ -117,21 +117,21 @@ class HeightMap(object):
         self._shaders.link()
 
         # create buffers
-        self._vertices = QOpenGLBuffer(QOpenGLBuffer.VertexBuffer)
-        self._index = QOpenGLBuffer(QOpenGLBuffer.IndexBuffer)
+        self._vertices = buf.Buffer(buf.VERTEX_BUFFER)
+        self._index = buf.Buffer(buf.INDEX_BUFFER)
         self._vertices.create()
         self._index.create()
 
         # allocate buffers
         self._vertices.bind()
         self._vertices.allocate(
-            sip.voidptr(self._mesh.ctypes.data),
-            len(self._mesh) * 8
+            self._mesh,
+            len(self._mesh) * 4
         )
         self._vertices.release()
         self._index.bind()
         self._index.allocate(
-            sip.voidptr(self._indices.ctypes.data),
+            self._indices,
             len(self._indices) * 4
         )
         self._index.release()
@@ -141,29 +141,42 @@ class HeightMap(object):
         mat = parent._projection * parent._view * parent._model
         self._shaders.setUniformValue(
             "modelview",
-            mat.constData()
+            mat,
         )
 
+        # to use the vertex buffer
         self._vertices.bind()
+
+        # get the location and enabsle the attribute array
         self._shaders.enableAttributeArray("in_Vertex")
+
+        # send data from buffer
         self._shaders.setAttributeBuffer(
             "in_Vertex",
-            GL.GL_DOUBLE,
-            0,
-            3
+            self._mesh,
         )
+
+        # make available the vertex buffer again
         self._vertices.release()
 
+        # use the index buffer
         self._index.bind()
+
+        # use it to draw where the indices are taken from the binded buffer
+        # to draw the mesh
         GL.glDrawElements(
             GL.GL_TRIANGLES,
             6 * (self.npoints - 1) ** 2,
             GL.GL_UNSIGNED_INT,
-            None
+            None,
         )
+
+        # make available the buffer again
         self._index.release()
 
+        # realeas all
         self._shaders.disableAttributeArray("in_Vertex")
         self._shaders.release()
+
 
 # vim: set tw=79 :
