@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-import numpy as np
 from OpenGL import GL
 
 
@@ -38,7 +37,7 @@ class ShaderProgram(object):
         # _GL_ns[data._dim_str](var_id, 1, GL.GL_TRUE, data.flatten())
 
     def enableAttributeArray(self, name):
-        if not name in self._enableAttrib:
+        if name not in self._enableAttrib:
             GL.glBindAttribLocation(self.id, self._last_id, name.encode())
             self._enableAttrib[name] = self._last_id
             self._last_id += 1
@@ -53,9 +52,19 @@ class ShaderProgram(object):
             self._enableAttrib[name],
             3,
             _TypeNP_OGL[data.dtype.name],
-            GL.GL_FALSE,
+            GL.GL_TRUE,
             0,
             data
+        )
+
+    def setAttributeBuffer(self, name, data):
+        GL.glVertexAttribPointer(
+            self._enableAttrib[name],
+            3,
+            _TypeNP_OGL[data.dtype.name],
+            GL.GL_TRUE,
+            0,
+            None,
         )
 
     def disableAttributeArray(self, name):
