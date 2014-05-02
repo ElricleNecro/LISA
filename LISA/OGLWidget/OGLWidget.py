@@ -6,7 +6,6 @@
 from PyQt4.Qt import *
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
-from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
 from LISA import Matrice as m
@@ -71,8 +70,7 @@ class OGLWidget(QGraphicsScene):
 
         self._view.lookAt(self._cam_pos, m.Vector(0, 0, 0), cam_up)
 
-        self._view = self._view * self._rotate
-        # self._view.rotate(self._rotate)
+        self._view *= self._rotate
 
         for data in self._data:
             data.show(self)
@@ -107,21 +105,34 @@ class OGLWidget(QGraphicsScene):
         if event.isAccepted():
             return
         if self._mousePressPosition:
-            diff = QVector2D(event.scenePos()) - \
-                QVector2D(event.lastScenePos())
-            x = diff.x()
-            y = diff.y()
+
+            # get event for the current position and last one
+            new, last = event.scenePos(), event.lastScenePos()
+
+            # compute the movement of the mouse
+            x, y = new.x() - last.x(), new.y() - last.y()
+
+            # if no movement, do nothing
             if x == 0 and y == 0:
                 event.accept()
                 return
-            n = m.Vector(y, x, 0.0).normalized()
-            acc = diff.length()
-            self._rotationAxis = (n * acc).normalized()
-            self._angularSpeed = acc
+
+            # create the rotation axis
+            self._rotationAxis = m.Vector(y, x, 0.0)
+
+            # make the angular speed to its norm
+            self._angularSpeed = self._rotationAxis.norm()
+
+            # normalize axis for quaternion
+            self._rotationAxis = self._rotationAxis.normalized()
+
+            # create the quaternion matrix and apply it to the last state
             self._rotate = m.Quaternion(
                 self._angularSpeed,
                 self._rotationAxis
             ) * self._rotate
+
+            # handle event
             event.accept()
             self.update()
 
