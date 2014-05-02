@@ -1,8 +1,8 @@
 # -*- coding:Utf8 -*-
 
-#from PyQt5.Qt import *
-#from PyQt5.QtGui import *
-#from PyQt5.QtCore import *
+# from PyQt5.Qt import *
+# from PyQt5.QtGui import *
+# from PyQt5.QtCore import *
 from PyQt4.Qt import *
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
@@ -58,7 +58,7 @@ class OGLWidget(QGraphicsScene):
         h = 1 if h == 0 else h
 
         self._projection.setToIdentity()
-        self._projection.perspective(60.0, w / h, 0.001, 1000.0)
+        self._projection.perspective(60.0, w / h, 0.000001, 10000000.0)
 
         self._screensize = m.Vector(w, h)
 
@@ -122,10 +122,6 @@ class OGLWidget(QGraphicsScene):
                 self._angularSpeed,
                 self._rotationAxis
             ) * self._rotate
-            # self._rotate = QQuaternion.fromAxisAndAngle(
-                # self._rotationAxis,
-                # self._angularSpeed,
-            # ) * self._rotate
             event.accept()
             self.update()
 
