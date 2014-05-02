@@ -130,4 +130,5 @@ class ShaderProgram(object):
         return self
 
     def __del__(self):
-        GL.glDeleteProgram(self.id)
+        if bool(GL.glDeleteProgram):
+            GL.glDeleteProgram(self.id)
