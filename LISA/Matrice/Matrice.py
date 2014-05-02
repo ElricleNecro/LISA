@@ -7,6 +7,9 @@ import numpy as np
 from .Vector import Vector
 
 
+D2R = np.pi / 180.
+
+
 class Matrix(np.ndarray):
 
     """An upper class over numpy.ndarray to deal with our module matrices."""
@@ -135,6 +138,7 @@ def Quaternion(angle, axe: Vector, dtype=None):
     mat = Matrix((4, 4), dtype, order='C')
 
     axe /= axe.norm()
+    angle *= D2R
 
     mat[0, 0] = axe[0] * axe[0] * (1 - m.cos(angle)) + m.cos(angle)
     mat[0, 1] = axe[0] * axe[1] * (1 - m.cos(angle)) - axe[2] * m.sin(angle)
