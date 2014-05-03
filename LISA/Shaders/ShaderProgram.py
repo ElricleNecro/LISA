@@ -21,6 +21,7 @@ class ShadersNotLinked(Exception):
 
 
 class ShaderProgram(object):
+
     def __init__(self):
         self._id = GL.glCreateProgram()
         self._shaders = list()
@@ -34,7 +35,6 @@ class ShaderProgram(object):
     def setUniformValue(self, name, data):
         var_id = GL.glGetUniformLocation(self.id, name.encode())
         data._setUniformValue(var_id, _GL_ns)
-        # _GL_ns[data._dim_str](var_id, 1, GL.GL_TRUE, data.flatten())
 
     def enableAttributeArray(self, name):
         if name not in self._enableAttrib:
@@ -45,31 +45,43 @@ class ShaderProgram(object):
         GL.glEnableVertexAttribArray(
             self._enableAttrib[name]
         )
-        # GL.glEnableVertexAttribArray(self._last_id)
 
-    def setAttributeArray(self, name, data):
+    def setAttributeArray(
+        self,
+        name,
+        data,
+        tuplesize=3,
+        normalized=GL.GL_TRUE,
+        offset=0,
+    ):
         GL.glVertexAttribPointer(
             self._enableAttrib[name],
-            3,
+            tuplesize,
             _TypeNP_OGL[data.dtype.name],
-            GL.GL_TRUE,
-            0,
+            normalized,
+            offset,
             data
         )
 
-    def setAttributeBuffer(self, name, data):
+    def setAttributeBuffer(
+        self,
+        name,
+        data,
+        tuplesize=3,
+        normalized=GL.GL_TRUE,
+        offset=0,
+    ):
         GL.glVertexAttribPointer(
             self._enableAttrib[name],
-            3,
+            tuplesize,
             _TypeNP_OGL[data.dtype.name],
-            GL.GL_TRUE,
-            0,
+            normalized,
+            offset,
             None,
         )
 
     def disableAttributeArray(self, name):
         GL.glDisableVertexAttribArray(self._enableAttrib[name])
-        # del self._enableAttrib[name]
 
     def addShader(self, val):
         self._shaders.append(val)
@@ -87,15 +99,6 @@ class ShaderProgram(object):
 
     def link(self):
         GL.glLinkProgram(self.id)
-
-        # log = GL.gGetProgramiv(
-            # self.id,
-            # GL.GL_LINK_STATUS
-        # )
-        # if not log:
-        # log = GL.glGetShaderInfoLog(self.id)
-        # if log:
-            # raise ShadersNotLinked(log)
 
     def bind(self):
         GL.glUseProgram(self.id)
@@ -127,4 +130,5 @@ class ShaderProgram(object):
         return self
 
     def __del__(self):
-        GL.glDeleteProgram(self.id)
+        if bool(GL.glDeleteProgram):
+            GL.glDeleteProgram(self.id)

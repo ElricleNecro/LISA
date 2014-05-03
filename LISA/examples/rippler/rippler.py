@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import numpy as np
-import sip
-import sys
 import datetime
 
-#from PyQt5.QtGui import *
-from PyQt4.QtOpenGL import QGLShaderProgram as QOpenGLShaderProgram
-from PyQt4.QtOpenGL import QGLBuffer as QOpenGLBuffer
-from PyQt4.QtOpenGL import QGLShader as QOpenGLShader
+# from PyQt5.QtGui import *
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
 import LISA.common as c
+
+from LISA.Buffers import Buffer, INDEX_BUFFER, VERTEX_BUFFER
+from LISA import Shaders as s
+from LISA.Matrice import Vector
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
@@ -35,9 +34,9 @@ class Rippler(object):
         self.npoints = 30
         X = np.linspace(-1, 1, self.npoints)
         Y = np.linspace(-1, 1, self.npoints)
-        Z = np.zeros(self.npoints, dtype=np.float64)
+        Z = np.zeros(self.npoints, dtype=np.float32)
         x, y, z = np.meshgrid(X, Y, Z)
-        self._mesh = np.array([x, y, z], dtype=np.float64).T.flatten()
+        self._mesh = np.array([x, y, z], dtype=np.float32).T.flatten()
 
         # create the indices for triangles
         self._indices = np.empty(
@@ -58,18 +57,12 @@ class Rippler(object):
 
     def createShaders(self, parent):
 
-        self._shaders = QOpenGLShaderProgram(parent)
-
-        self._shaders.removeAllShaders()
-        self._shaders.addShaderFromSourceFile(
-            QOpenGLShader.Vertex,
+        self._shaders = s.CreateShaderFromFile(
             c.os.path.join(
                 c.SHADERS_DIR,
                 "rippler/rippler.vsh"
             )
-        )
-        self._shaders.addShaderFromSourceFile(
-            QOpenGLShader.Fragment,
+        ) + s.CreateShaderFromFile(
             c.os.path.join(
                 c.SHADERS_DIR,
                 "rippler/rippler.fsh"
@@ -78,29 +71,24 @@ class Rippler(object):
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
 
-        if not self._shaders.link():
-            raise ShadersNotLinked(
-                "Linking shaders in OGLWidget.initialiseGL has failed! " +
-                self._shaders.log()
-            )
-            sys.exit(1)
+        self._shaders.link()
 
         # create buffers
-        self._vertices = QOpenGLBuffer(QOpenGLBuffer.VertexBuffer)
-        self._index = QOpenGLBuffer(QOpenGLBuffer.IndexBuffer)
+        self._vertices = Buffer(VERTEX_BUFFER)
+        self._index = Buffer(INDEX_BUFFER)
         self._vertices.create()
         self._index.create()
 
         # allocate buffers
         self._vertices.bind()
         self._vertices.allocate(
-            sip.voidptr(self._mesh.ctypes.data),
-            len(self._mesh) * 8
+            self._mesh,
+            len(self._mesh) * 4
         )
         self._vertices.release()
         self._index.bind()
         self._index.allocate(
-            sip.voidptr(self._indices.ctypes.data),
+            self._indices,
             len(self._indices) * 4
         )
         self._index.release()
@@ -108,23 +96,19 @@ class Rippler(object):
     def show(self, parent):
         self._shaders.bind()
 
-        #GL.glBindTexture(GL.GL_TEXTURE_2D, self._texture)
-
         self._shaders.setUniformValue(
             "modelview",
             parent._projection * parent._view * parent._model
         )
         dt = datetime.datetime.now() - self._time
         second = float((dt.seconds * 1000000 + dt.microseconds) * 0.000006)
-        self._shaders.setUniformValue("time", second)
+        self._shaders.setUniformValue("time", Vector(second, dtype=np.float32))
 
         self._vertices.bind()
         self._shaders.enableAttributeArray("in_Vertex")
         self._shaders.setAttributeBuffer(
             "in_Vertex",
-            GL.GL_DOUBLE,
-            0,
-            3
+            self._mesh,
         )
         self._vertices.release()
 
