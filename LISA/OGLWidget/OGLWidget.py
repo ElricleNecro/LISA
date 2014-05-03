@@ -5,6 +5,8 @@ from OpenGL.arrays import numpymodule
 
 from LISA import Matrice as m
 
+import math as mm
+
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 
@@ -17,7 +19,7 @@ class OGLWidget(QGraphicsScene):
         self._data = []
 
         # Different matrix use for the on screen printing:
-        self.projection = m.Identity()
+        self.projection = Perspective(shape=(4, 4), dtype="float32")
         self.model = m.Identity()
         self.view = m.Identity()
         self.camera = m.Identity()
@@ -99,14 +101,6 @@ class OGLWidget(QGraphicsScene):
         self._rotate = rotate
 
     @property
-    def rotationAxis(self):
-        return self._rotationAxis
-
-    @rotationAxis.setter
-    def rotationAxis(self, rotationAxis):
-        self._rotationAxis = rotationAxis
-
-    @property
     def lines(self):
         return self._data
 
@@ -121,10 +115,7 @@ class OGLWidget(QGraphicsScene):
 
     def resizeGL(self, w, h):
         h = 1 if h == 0 else h
-
-        self._projection.setToIdentity()
-        self._projection.perspective(60.0, w / h, 0.000001, 10000000.0)
-
+        self.projection.ratio = w / h
         self._screensize = m.Vector(w, h)
 
     def drawBackground(self, *args):
@@ -207,3 +198,72 @@ class OGLWidget(QGraphicsScene):
         self._mousePress = False
         event.accept()
         self.update()
+
+
+class Perspective(m.Matrix):
+
+    def __init__(self, *args, **kwargs):
+        super(Perspective, self).__init__(*args, **kwargs)
+
+        self._angle = 60.0
+        self._ratio = 16 / 9
+        self._minimal = 0.000001
+        self._maximal = 10000000.0
+        self._setf()
+        self[:] = m.Perspective(
+            self._angle,
+            self._ratio,
+            self._minimal,
+            self._maximal,
+        )[:]
+
+    def _setf(self):
+        self._f = 1. / mm.tan(self._angle / 2.0 * mm.pi / 180.)
+
+    @property
+    def angle(self):
+        return self._angle
+
+    @angle.setter
+    def angle(self, angle):
+        self._angle = angle
+        self._setf()
+        self[0, 0] = self._f / self._ratio
+        self[1, 1] = self._f
+
+    @property
+    def ratio(self):
+        return self._ratio
+
+    @ratio.setter
+    def ratio(self, ratio):
+        self._ratio = ratio
+        self[0, 0] = self._f / self._ratio
+
+    @property
+    def minimal(self):
+        return self._minimal
+
+    @minimal.setter
+    def minimal(self, minimal):
+        self._minimal = minimal
+        self[2, 2] = (
+            self._minimal + self._maximal
+        ) / (self._minimal - self._maximal)
+        self[2, 3] = 2. * self._minimal * self._maximal / (
+            self._minimal - self._maximal
+        )
+
+    @property
+    def maximal(self):
+        return self._maximal
+
+    @maximal.setter
+    def maximal(self, maximal):
+        self._maximal = maximal
+        self[2, 2] = (
+            self._minimal + self._maximal
+        ) / (self._minimal - self._maximal)
+        self[2, 3] = 2. * self._minimal * self._maximal / (
+            self._minimal - self._maximal
+        )
