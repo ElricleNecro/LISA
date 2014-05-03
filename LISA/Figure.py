@@ -1,13 +1,8 @@
 # -*- coding:Utf8 -*-
 
-#from PyQt5.Qt import *
-#from PyQt5.QtOpenGL import *
-#from PyQt5.QtGui import *
-#from PyQt5.QtCore import *
-from PyQt4.Qt import *
-from PyQt4.QtOpenGL import *
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from PyQt4.Qt import QGraphicsView, QColor, Qt, QPalette
+from PyQt4.QtOpenGL import QGLWidget, QGLFormat, QGL
+from PyQt4.QtGui import QGraphicsItem
 from OpenGL.arrays import numpymodule
 from LISA.OGLWidget import OGLWidget
 from IPython.lib import guisupport as gui
@@ -18,7 +13,7 @@ numpymodule.NumpyHandler.ERROR_ON_COPY = True
 # create class managing hook for event loop in ipython
 hook = InputHookManager()
 
-# get the QApplication, creating one if not existing
+# get the QApplication, creating one if not existing
 app = gui.get_app_qt4()
 
 # add the application to the hook
@@ -35,10 +30,6 @@ class Figure(QGraphicsView):
 
         super(Figure, self).__init__(*args, **kwargs)
 
-        # A color we need a lot of times:
-        self._color = QColor()
-        self._color.black()
-
         # Creation of the Plotting class:
         # Then we add it as background of the View:
         self._context = QGLWidget(QGLFormat(QGL.NoAccumBuffer))
@@ -48,23 +39,34 @@ class Figure(QGraphicsView):
         self._context.makeCurrent()
 
         # And we set it as scene for the View:
-        self._axes = OGLWidget()
-        self.setScene(self._axes)
-        self._axes.initializeGL()
+        self.scene = OGLWidget()
+        self.setScene(self.scene)
+        self.scene.initializeGL()
 
         # Set some properties and palette to have a black background:
-        self.setAutoFillBackground(True)
-        self.setPalette(
-            QPalette(
-                self._color
-            )
-        )
+        color = QColor()
+        color.black()
+        self.background_color = color
 
         # unset the context ???
         self._context.doneCurrent()
 
+    @property
+    def background_color(self):
+        return self._background_color
+
+    @background_color.setter
+    def background_color(self, background_color):
+        self._background_color = background_color
+        self.setAutoFillBackground(True)
+        self.setPalette(
+            QPalette(
+                self._background_color
+            )
+        )
+
     def addWidget(self, wid):
-        tmp = self.scene().addWidget(wid, Qt.Window)
+        tmp = self.scene.addWidget(wid, Qt.Window)
         tmp.setFlag(
             QGraphicsItem.ItemIsMovable
         )
@@ -76,8 +78,8 @@ class Figure(QGraphicsView):
         )
 
     def resizeEvent(self, event):
-        if self._axes:
-            self._axes.resizeGL(event.size().width(), event.size().height())
+        if self.scene:
+            self.scene.resizeGL(event.size().width(), event.size().height())
             super(Figure, self).resizeEvent(event)
 
     def keyPressEvent(self, event):
@@ -92,20 +94,20 @@ class Figure(QGraphicsView):
             event.ignore()
 
     def __getitem__(self, ind):
-        return self._axes.lines[ind]
+        return self.scene.lines[ind]
 
     def __delitem__(self, ind):
         pass
 
     @property
     def axes(self):
-        return self._axes.lines
+        return self.scene.lines
 
     @axes.setter
     def axes(self, value):
 
         # store the instance for plots
-        self._axes.lines = value
+        self.scene.lines = value
 
         # create shaders if there is one
         self._context.makeCurrent()
