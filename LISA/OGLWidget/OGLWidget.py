@@ -40,7 +40,7 @@ class OGLWidget(QGraphicsScene):
     @zoom.setter
     def zoom(self, zoom):
         self._zoom = zoom
-        self.camera = 2 * (
+        self.camera = (
             1 - self._zoom
         ) * self.camera_target + self._zoom * self.camera
 
@@ -182,10 +182,10 @@ class OGLWidget(QGraphicsScene):
             angularSpeed = rotationAxis.norm()
 
             # create the quaternion matrix and apply it to the last state
-            self.rotate = m.Quaternion(
+            self.rotate = m.Translation(self.camera_target) * m.Quaternion(
                 angularSpeed,
                 rotationAxis
-            ) * self.rotate
+            ) * m.Translation(-self.camera_target) * self.rotate
 
             # handle event
             event.accept()
