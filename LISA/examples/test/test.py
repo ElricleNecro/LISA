@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import numpy as np
 import LISA.common as c
 
-#from PyQt5.QtGui import *
-from PyQt4.QtOpenGL import QGLShaderProgram as QOpenGLShaderProgram
-#from PyQt4.QtOpenGL import QGLBuffer as QOpenGLBuffer
-from PyQt4.QtOpenGL import QGLShader as QOpenGLShader
 from PyQt4 import QtGui as Qt
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
+
+import LISA.Shaders as s
+from LISA.Matrice import Vector
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
@@ -40,38 +39,31 @@ class Sprites(object):
                 r * np.cos(phi) * np.sin(thet),
                 r * np.sin(phi) * np.sin(thet),
                 r * np.cos(thet)
-            ]
+            ],
+            dtype=np.float32,
         ).T.flatten()
 
     def createShaders(self, parent):
 
-        self._shaders = QOpenGLShaderProgram(parent)
-
-        self._shaders.removeAllShaders()
-        self._shaders.addShaderFromSourceFile(
-            QOpenGLShader.Vertex,
+        self._shaders = s.CreateShaderFromFile(
             c.os.path.join(
                 c.SHADERS_DIR,
                 "couleurs.vsh"
             )
-        )
-        self._shaders.addShaderFromSourceFile(
-            QOpenGLShader.Fragment,
+        ) + s.CreateShaderFromFile(
             c.os.path.join(
                 c.SHADERS_DIR,
                 "couleurs.fsh"
             )
         )
 
-        if not self._shaders.link():
-            raise ShadersNotLinked(
-                "Linking shaders in OGLWidget.initialiseGL has failed! " +
-                self._shaders.log()
-            )
+        self._shaders.link()
 
         GL.glEnable(GL.GL_PROGRAM_POINT_SIZE)
         GL.glEnable(GL.GL_POINT_SPRITE)
-        GL.glEnable(GL.DEPTH_TEST)
+        GL.glEnable(GL.GL_DEPTH_TEST)
+        GL.glEnable(GL.GL_BLEND)
+        GL.glDepthMask(GL.GL_FALSE)
 
     def show(self, parent):
 
@@ -83,35 +75,17 @@ class Sprites(object):
         self._shaders.setUniformValue("modelview", matrice)
         self._shaders.setUniformValue("projection", parent._projection)
         self._shaders.setUniformValue("screenSize", parent._screensize)
-        self._shaders.setUniformValue("voxelSize", 0.01)
-
-        vertex_id = self._shaders.attributeLocation("position")
-        #color_id = self._shaders.attributeLocation("in_Color")
+        self._shaders.setUniformValue("voxelSize", Vector(0.01))
 
         self._shaders.enableAttributeArray("position")
-        #self._shaders.enableAttributeArray("in_Color")
-
-        GL.glVertexAttribPointer(
-            vertex_id,
-            3,
-            GL.GL_DOUBLE,
-            GL.GL_FALSE,
-            0,
-            self._pos
+        self._shaders.setAttributeArray(
+            "position",
+            self._pos,
         )
-        #GL.glVertexAttribPointer(
-            #color_id,
-            #3,
-            #GL.GL_DOUBLE,
-            #GL.GL_FALSE,
-            #0,
-            #self._color
-        #)
 
         GL.glDrawArrays(GL.GL_POINTS, 0, self._pos.shape[0] // 3)
 
         self._shaders.disableAttributeArray("position")
-        #self._shaders.disableAttributeArray("in_Color")
 
         self._shaders.release()
 

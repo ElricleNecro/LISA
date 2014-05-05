@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import sip
 from OpenGL import GL
 
 # type of the buffer
@@ -52,7 +51,6 @@ class Buffer(object):
         """
 
         self._id = GL.glGenBuffers(1)
-        print(self._id)
 
         if self._id == 0:
             raise ValueError("The buffer object can't be created!")
