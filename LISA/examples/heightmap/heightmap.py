@@ -16,6 +16,7 @@ from scipy.misc import imread
 from LISA import Shaders as s
 from LISA import common as c
 from LISA import Buffers as buf
+from LISA import Textures as t
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
@@ -72,7 +73,6 @@ class HeightMap(object):
             )
         )
 
-        self._texture = GL.glGenTextures(1)
         im = imread(
             c.os.path.join(
                 c.TEXTURE_DIR,
@@ -82,37 +82,26 @@ class HeightMap(object):
         im.astype(np.int8)
         GL.glEnable(GL.GL_TEXTURE_2D)
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
-        GL.glTexParameteri(
-            GL.GL_TEXTURE_2D,
-            GL.GL_TEXTURE_MIN_FILTER,
-            GL.GL_LINEAR,
+
+        self._texture = t.Texture()
+        self._texture.bind()
+        self._texture.setParameter(
+            "TEXTURE_MIN_FILTER",
+            "LINEAR",
         )
-        GL.glTexParameteri(
-            GL.GL_TEXTURE_2D,
-            GL.GL_TEXTURE_MAG_FILTER,
-            GL.GL_LINEAR,
+        self._texture.setParameter(
+            "TEXTURE_MAG_FILTER",
+            "LINEAR",
         )
-        GL.glTexParameteri(
-            GL.GL_TEXTURE_2D,
-            GL.GL_TEXTURE_WRAP_S,
-            GL.GL_CLAMP,
+        self._texture.setParameter(
+            "TEXTURE_WRAP_S",
+            "CLAMP",
         )
-        GL.glTexParameteri(
-            GL.GL_TEXTURE_2D,
-            GL.GL_TEXTURE_WRAP_T,
-            GL.GL_CLAMP,
+        self._texture.setParameter(
+            "TEXTURE_WRAP_T",
+            "CLAMP",
         )
-        GL.glTexImage2D(
-            GL.GL_TEXTURE_2D,
-            0,
-            3,
-            im.shape[0],
-            im.shape[1],
-            0,
-            GL.GL_RGBA,
-            GL.GL_UNSIGNED_BYTE,
-            im,
-        )
+        self._texture.loadImage(im)
 
         self._shaders.link()
 
