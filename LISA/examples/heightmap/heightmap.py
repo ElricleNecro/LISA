@@ -2,21 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-# import sip
 import datetime
 
-# from PyQt5.QtGui import *
-# from PyQt4.QtOpenGL import QGLShaderProgram as QOpenGLShaderProgram
-# from PyQt4.QtOpenGL import QGLBuffer as QOpenGLBuffer
-# from PyQt4.QtOpenGL import QGLShader as QOpenGLShader
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
-from scipy.misc import imread
 
 from LISA import Shaders as s
-from LISA import common as c
 from LISA import Buffers as buf
 from LISA import Textures as t
+from LISA.tools import shader_path
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
@@ -62,24 +56,15 @@ class HeightMap(object):
     def createShaders(self, parent):
 
         self._shaders = s.CreateShaderFromFile(
-            c.os.path.join(
-                c.SHADERS_DIR,
+            shader_path(
                 "heightmap/heightmap.vsh"
             )
         ) + s.CreateShaderFromFile(
-            c.os.path.join(
-                c.SHADERS_DIR,
+            shader_path(
                 "heightmap/heightmap.fsh"
             )
         )
 
-        im = imread(
-            c.os.path.join(
-                c.TEXTURE_DIR,
-                "heightmap/two.png"
-            )
-        )
-        im.astype(np.int8)
         GL.glEnable(GL.GL_TEXTURE_2D)
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
 
@@ -101,7 +86,7 @@ class HeightMap(object):
             "TEXTURE_WRAP_T",
             "CLAMP",
         )
-        self._texture.loadImage(im)
+        self._texture.loadImageFromFile("heightmap/two.png")
 
         self._shaders.link()
 
