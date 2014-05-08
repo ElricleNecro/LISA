@@ -2,8 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from OpenGL import GL
+from scipy.misc import imread
+
 from LISA.Matrice import Vector
-from LISA.tools import DTYPE_TO_GL
+from LISA.tools import DTYPE_TO_GL, texture_path
 
 
 class Texture(object):
@@ -100,5 +102,12 @@ class Texture(object):
             return GL.GL_RED
         else:
             return getattr(GL, "GL_" + "RGBA"[:number])
+
+    def loadImageFromFile(self, filename, dtype="int8"):
+        image = imread(
+            texture_path(filename)
+        )
+        image.astype(dtype)
+        self.loadImage(image)
 
 # vim: set tw=79 :
