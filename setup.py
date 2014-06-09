@@ -6,6 +6,7 @@
 # --------------------------------------------------------------------------------------------------------------
 import os
 import sys
+import glob
 
 try:
     import numpy
@@ -38,12 +39,46 @@ def scandir(dir, files=[]):
     return files
 
 
-def makeExtension(extName, **kwargs):
-    extPath = [extName.replace(".", os.path.sep)+".pyx"]
-    return Extension(
-        extName,
-        extPath
+def makeExtension(extName, test=False, **kwargs):
+    """
+    Create an extension for Cython with the path for the
+    directory in which .pyx files are presents.
+    """
+    extPath = [extName.replace(".", os.path.sep) + ".pyx"]
+    cfile = extName.split(".")
+    dir = os.path.join(*cfile[:-1])
+    cfile = glob.glob(os.path.join(dir, "c*.c"))
+    extPath += cfile
+
+    opt_dict = dict(
+        include_dirs=["."],   # adding the '.' to include_dirs is CRUCIAL!!
+        extra_compile_args=["-std=c99"],
+        extra_link_args=['-g'],
+        libraries=[],
+        cython_include_dirs=[
+            os.path.join(
+                os.getenv("HOME"),
+                '.local/lib/python' + ".".join(
+                    [str(a) for a in sys.version_info[:2]]
+                ) + '/site-packages/Cython/Includes'
+            )
+        ]
     )
+
+    for key in kwargs.keys():
+        if key in opt_dict:
+            opt_dict[key] += kwargs[key]
+        else:
+            opt_dict[key] = kwargs[key]
+
+    if test:
+        return extPath, opt_dict
+    else:
+        return Extension(
+            extName,
+            extPath,
+            **opt_dict
+        )
 
 # Setup:
 extNames = scandir("LISA")
