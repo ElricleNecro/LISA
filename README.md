@@ -3,9 +3,9 @@ LISA
 
 LISA Is a Simulation Analyzer written in Python.
 
-Dependences:
+Dependencies:
 ============
 - python-opengl
-- PyQt5
+- PyQt4
 
 <!-- vim: spelllang=en -->
