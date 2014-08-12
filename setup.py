@@ -112,6 +112,7 @@ setup(
         'LISA': [
             "Data/Shaders/heightmap/*.*sh",
             "Data/Shaders/rippler/*.*sh",
+            "Data/Shaders/reader/mock/*.*sh",
             'Data/Shaders/*.*sh',
             'Data/Textures/heightmap/*.png',
         ]
