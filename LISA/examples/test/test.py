@@ -2,25 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import LISA.common as c
 
 from PyQt4 import QtGui as Qt
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
-import LISA.Shaders as s
+import LISA.OpenGL.Shaders as s
+import LISA.tools as t
 from LISA.Matrice import Vector
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
-
-
-class ShadersNotLinked(Exception):
-
-    def __init__(self, msg):
-        self._msg = msg
-
-    def __str__(self):
-        return self._msg
 
 
 class Sprites(object):
@@ -46,15 +37,9 @@ class Sprites(object):
     def createShaders(self, parent):
 
         self._shaders = s.CreateShaderFromFile(
-            c.os.path.join(
-                c.SHADERS_DIR,
-                "couleurs.vsh"
-            )
+            t.shader_path("couleurs.vsh")
         ) + s.CreateShaderFromFile(
-            c.os.path.join(
-                c.SHADERS_DIR,
-                "couleurs.fsh"
-            )
+            t.shader_path("couleurs.fsh")
         )
 
         self._shaders.link()

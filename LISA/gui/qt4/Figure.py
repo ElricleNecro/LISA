@@ -4,7 +4,7 @@ from PyQt4.Qt import QGraphicsView, QColor, Qt, QPalette
 from PyQt4.QtOpenGL import QGLWidget, QGLFormat, QGL
 from PyQt4.QtGui import QGraphicsItem
 from OpenGL.arrays import numpymodule
-from LISA.OGLWidget import OGLWidget
+from .OGLWidget import OGLWidget
 
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True

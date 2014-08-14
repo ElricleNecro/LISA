@@ -4,9 +4,8 @@
 import numpy as np
 
 from PyQt4 import QtGui as Qt
-from LISA.utils.signals import Signal
+from LISA.gui.utils.signals import Signal
 from scipy.interpolate import InterpolatedUnivariateSpline
-# from PyQt4 import QtCore
 
 
 class ColorMap(object):

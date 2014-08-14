@@ -4,7 +4,7 @@
 import os
 
 # Directory in which all data are in:
-PREFIX = os.path.join(os.path.dirname(__file__), "Data")
+PREFIX = os.path.join(os.path.dirname(__file__), "../Data")
 
 # Directory to place textures in:
 TEXTURE_DIR = os.path.abspath(
