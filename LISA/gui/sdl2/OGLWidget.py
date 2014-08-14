@@ -1,6 +1,7 @@
 # -*- coding:Utf8 -*-
 
 from OpenGL.arrays import numpymodule
+from OpenGL import GL
 
 from LISA import Matrice as m
 from .window import SDLWindow
@@ -126,6 +127,8 @@ class OGLWidget(SDLWindow):
         self.view *= self.rotate
 
         self.makeCurrent()
+
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
         for data in self._data:
             data.show(self)
