@@ -2,3 +2,4 @@
 # encoding: utf-8
 
 from .Matrice import *
+from .Vector import *

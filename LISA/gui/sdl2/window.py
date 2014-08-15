@@ -15,9 +15,9 @@ class SDLWindow(object):
     def __init__(
         self,
         title,
-        w_pos=(s.SDL_WINDOWPOS_CENTERED, s.SDL_WINDOWPOS_CENTERED),
+        w_pos=(s.SDL_WINDOWPOS_UNDEFINED, s.SDL_WINDOWPOS_UNDEFINED),
         size=(800, 480),
-        flags=s.SDL_WINDOW_SHOWN | s.SDL_WINDOW_OPENGL
+        flags=s.SDL_WINDOW_SHOWN | s.SDL_WINDOW_OPENGL | s.SDL_WINDOW_RESIZABLE
     ):
         self._win = s.SDL_CreateWindow(
             title.encode(),
@@ -40,6 +40,16 @@ class SDLWindow(object):
             _SDLInput_logger.debug(
                 "Inside window %d for event.", id(self._win)
             )
+
+            # the window resized
+            if ev._resized and hasattr(self, "resizeGL"):
+                s.SDL_SetWindowSize(self._win, *ev._window_size)
+                self.resizeGL(*ev._window_size)
+
+            # loop over methods and call them if the associated event occurred
+            for key in ev._methods.keys():
+                if ev._methods[key] and hasattr(self, key):
+                    getattr(self, key)(ev)
 
     def makeCurrent(self):
         s.SDL_GL_MakeCurrent(self._win, self._context)
@@ -98,5 +108,25 @@ class SDLWindow(object):
             self._win
         )
 
+    def mouseMoveEvent(self, event):
+        pass
+
+    def mousePressEvent(self, event):
+        pass
+
+    def mouseReleaseEvent(self, event):
+        pass
+
+    def keyPressEvent(self, event):
+        pass
+
+    def keyReleaseEvent(self, event):
+        pass
+
+    def wheelEvent(self, event):
+        pass
+
+    def resizeGL(self, w, h):
+        pass
 
 # vim: set tw=79 :

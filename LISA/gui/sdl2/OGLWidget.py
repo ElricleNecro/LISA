@@ -4,8 +4,9 @@ from OpenGL.arrays import numpymodule
 from OpenGL import GL
 
 from LISA.gui.utils.matrices import Perspective
-from LISA import Matrice as m
 from .window import SDLWindow
+
+import LISA.Matrice as m
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
@@ -16,7 +17,6 @@ __all__ = ["OGLWidget"]
 class OGLWidget(SDLWindow):
 
     def __init__(self, *args, **kwargs):
-        super(OGLWidget, self).__init__(*args, **kwargs)
 
         # Data class to plot:
         self._data = []
@@ -35,6 +35,8 @@ class OGLWidget(SDLWindow):
         self.rotate = m.Identity()
 
         self._mousePress = False
+
+        super(OGLWidget, self).__init__(*args, **kwargs)
 
     @property
     def zoom(self):
@@ -145,39 +147,29 @@ class OGLWidget(SDLWindow):
         super(OGLWidget, self).wheelEvent(event)
         # if event.isAccepted():
         # return
-        # delta = event.delta()
+        delta = event._y_wheel
 
         # if event.orientation() == Qt.Vertical:
-        # if delta < 0:
-        # self.zoom = 1.15
-        # elif delta > 0:
-        # self.zoom = 0.87
+        if delta < 0:
+            self.zoom = 1.15
+        elif delta > 0:
+            self.zoom = 0.87
         # event.accept()
         # self.update()
 
     def mousePressEvent(self, event):
         super(OGLWidget, self).mousePressEvent(event)
-        if event.isAccepted():
-            return
         self._mousePress = True
-        event.accept()
-        self.update()
 
     def mouseMoveEvent(self, event):
         super(OGLWidget, self).mouseMoveEvent(event)
-        if event.isAccepted():
-            return
         if self._mousePress:
 
-            # get event for the current position and last one
-            new, last = event.scenePos(), event.lastScenePos()
-
             # compute the movement of the mouse
-            x, y = new.x() - last.x(), new.y() - last.y()
+            x, y = event._xRel, event._yRel
 
             # if no movement, do nothing
             if x == 0 and y == 0:
-                event.accept()
                 return
 
             # create the rotation axis
@@ -192,16 +184,8 @@ class OGLWidget(SDLWindow):
                 rotationAxis
             ) * m.Translation(-self.camera_target) * self.rotate
 
-            # handle event
-            event.accept()
-            self.update()
-
     def mouseReleaseEvent(self, event):
         super(OGLWidget, self).mouseReleaseEvent(event)
-        if event.isAccepted():
-            return
         self._mousePress = False
-        event.accept()
-        self.update()
 
 # vim: set tw=79 :
