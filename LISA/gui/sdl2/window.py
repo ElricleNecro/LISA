@@ -4,8 +4,11 @@
 import sdl2 as s
 
 from OpenGL import GL
-from .Figure import _ipython_way_sdl2
+from .hook import _ipython_way_sdl2
 from .events import _SDLInput_logger
+
+
+__all__ = ["SDLWindow"]
 
 
 class SDLWindow(object):

@@ -5,6 +5,9 @@ import LISA.Matrice as m
 import math as mm
 
 
+__all__ = ["Perspective"]
+
+
 class Perspective(m.Matrix):
 
     def __init__(self, *args, **kwargs):

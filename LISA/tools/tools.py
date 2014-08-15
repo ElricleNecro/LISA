@@ -7,6 +7,13 @@ from .common import TEXTURE_DIR, SHADERS_DIR
 import os
 
 
+__all__ = [
+    "DTYPE_TO_GL",
+    "texture_path",
+    "shader_path",
+]
+
+
 # dictionary for correspondence between numpy dtypes and OpenGL types
 DTYPE_TO_GL = dict(
 )

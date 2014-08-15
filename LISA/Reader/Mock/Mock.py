@@ -2,29 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import LISA.common as c
+import LISA.tools.common as c
 import LISA.utils.colormaps as CM
 
-from PyQt4 import QtGui as Qt
-from PyQt4 import QtCore
+# from PyQt4 import QtGui as Qt
+# from PyQt4 import QtCore
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
-import LISA.Shaders as s
+import LISA.OpenGL.Shaders as s
 from LISA.Matrice import Vector
-from LISA.utils.signals import Signal
+from LISA.gui.utils.signals import Signal
 from .read_mock import ReadMock
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
-
-
-class ShadersNotLinked(Exception):
-
-    def __init__(self, msg):
-        self._msg = msg
-
-    def __str__(self):
-        return self._msg
 
 
 class Mock(ReadMock):
@@ -133,14 +124,14 @@ class Mock(ReadMock):
     def createWidget(self, title="Mock catalogue controls", parent=None):
 
         # create a dialig window
-        self._dialog = Qt.QDialog(parent=parent)
-        self._dialog.setWindowOpacity(0.4)
-        self._dialog.setWindowTitle(title)
+        # self._dialog = Qt.QDialog(parent=parent)
+        # self._dialog.setWindowOpacity(0.4)
+        # self._dialog.setWindowTitle(title)
 
         # set a layout
-        self._dialog.setLayout(Qt.QVBoxLayout())
+        # self._dialog.setLayout(Qt.QVBoxLayout())
 
-        self.updateWidget()
+        # self.updateWidget()
 
         return self._dialog
 

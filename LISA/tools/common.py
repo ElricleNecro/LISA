@@ -3,6 +3,8 @@
 
 import os
 
+__all__ = ["TEXTURE_DIR", "SHADERS_DIR"]
+
 # Directory in which all data are in:
 PREFIX = os.path.join(os.path.dirname(__file__), "../Data")
 

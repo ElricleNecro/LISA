@@ -3,7 +3,6 @@
 
 import numpy as np
 
-from PyQt4 import QtGui as Qt
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
@@ -73,24 +72,6 @@ class Sprites(object):
         self._shaders.disableAttributeArray("position")
 
         self._shaders.release()
-
-    def createWidget(self, title="Dialogue de test.", parent=None):
-        dialog = Qt.QDialog(parent=parent)
-        dialog.setWindowOpacity(0.4)
-        dialog.setWindowTitle(title)
-        dialog.setLayout(Qt.QVBoxLayout())
-        dialog.layout().addWidget(
-            Qt.QLabel("Ceci est un test d'affichage des widgets.")
-        )
-        dialog.layout().addWidget(
-            Qt.QLabel("Ceci est un test d'affichage des widgets.")
-        )
-        but = Qt.QPushButton()
-        but.setText("Un bouton !")
-        but.clicked.connect(self._push_button)
-        dialog.layout().addWidget(but)
-
-        return dialog
 
     def _push_button(self):
         pass

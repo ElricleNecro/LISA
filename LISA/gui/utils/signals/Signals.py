@@ -17,6 +17,9 @@ import inspect
 from weakref import WeakSet, WeakKeyDictionary
 
 
+__all__ = ["Signal"]
+
+
 class Signal(object):
     def __init__(self):
         self._functions = WeakSet()

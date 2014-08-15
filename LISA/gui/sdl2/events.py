@@ -5,6 +5,8 @@ import sdl2 as s
 import ctypes
 import logging
 
+__all__ = ["_SDLInput_logger", "SDLInput"]
+
 _SDLInput_logger = logging.getLogger('SDLInput')
 
 ch = logging.StreamHandler()

@@ -3,9 +3,15 @@
 
 import numpy as np
 
-from PyQt4 import QtGui as Qt
+# from PyQt4 import QtGui as Qt
 from LISA.gui.utils.signals import Signal
 from scipy.interpolate import InterpolatedUnivariateSpline
+
+__all__ = [
+    "ColorMap",
+    "CubeHelix",
+    "LinearInterpolation",
+]
 
 
 class ColorMap(object):
@@ -97,27 +103,28 @@ class CubeHelix(ColorMap):
     def createWidget(self, parent):
 
         # layout
-        layout = parent
+        # layout = parent
 
-        # double spin boxes
-        layout.addWidget(Qt.QLabel("Hue"))
-        hue = Qt.QDoubleSpinBox()
-        hue.valueChanged[float].connect(self.set_hue)
-        layout.addWidget(hue)
-        layout.addWidget(Qt.QLabel("Gamma"))
-        gamma = Qt.QDoubleSpinBox()
-        gamma.valueChanged[float].connect(self.set_gamma)
-        layout.addWidget(gamma)
-        layout.addWidget(Qt.QLabel("Cycles"))
-        cycles = Qt.QDoubleSpinBox()
-        cycles.valueChanged[float].connect(self.set_cycles)
-        layout.addWidget(cycles)
-        layout.addWidget(Qt.QLabel("Color"))
-        color = Qt.QDoubleSpinBox()
-        color.valueChanged[float].connect(self.set_color)
-        layout.addWidget(color)
+        # # double spin boxes
+        # layout.addWidget(Qt.QLabel("Hue"))
+        # hue = Qt.QDoubleSpinBox()
+        # hue.valueChanged[float].connect(self.set_hue)
+        # layout.addWidget(hue)
+        # layout.addWidget(Qt.QLabel("Gamma"))
+        # gamma = Qt.QDoubleSpinBox()
+        # gamma.valueChanged[float].connect(self.set_gamma)
+        # layout.addWidget(gamma)
+        # layout.addWidget(Qt.QLabel("Cycles"))
+        # cycles = Qt.QDoubleSpinBox()
+        # cycles.valueChanged[float].connect(self.set_cycles)
+        # layout.addWidget(cycles)
+        # layout.addWidget(Qt.QLabel("Color"))
+        # color = Qt.QDoubleSpinBox()
+        # color.valueChanged[float].connect(self.set_color)
+        # layout.addWidget(color)
 
         # parent.addWidget(layout)
+        pass
 
     def set_hue(self, value):
         self.hue = value
@@ -199,13 +206,14 @@ class LinearInterpolation(ColorMap):
 
     def createWidget(self, parent):
 
-        button_start = Qt.QPushButton("Start color")
-        button_start.clicked.connect(self._set_start_color)
-        parent.addWidget(button_start)
+        pass
+        # button_start = Qt.QPushButton("Start color")
+        # button_start.clicked.connect(self._set_start_color)
+        # parent.addWidget(button_start)
 
-        button_end = Qt.QPushButton("End color")
-        button_end.clicked.connect(self._set_end_color)
-        parent.addWidget(button_end)
+        # button_end = Qt.QPushButton("End color")
+        # button_end.clicked.connect(self._set_end_color)
+        # parent.addWidget(button_end)
 
     def _set_end_color(self):
         color = Qt.QColorDialog.getColor()

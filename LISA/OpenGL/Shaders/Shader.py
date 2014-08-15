@@ -7,6 +7,14 @@ from . import ShaderProgram as s
 from .exceptions import ShaderCompileError
 
 
+__all__ = [
+    "VERTEX_SHADER",
+    "FRAGMENT_SHADER",
+    "Shader",
+    "CreateShaderFromFile",
+]
+
+
 VERTEX_SHADER = GL.GL_VERTEX_SHADER
 FRAGMENT_SHADER = GL.GL_FRAGMENT_SHADER
 

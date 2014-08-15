@@ -3,6 +3,7 @@
 
 from OpenGL import GL
 
+__all__ = ["ShaderProgram"]
 
 _GL_ns = vars(GL)
 _TypeNP_OGL = dict(
