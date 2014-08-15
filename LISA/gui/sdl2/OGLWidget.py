@@ -114,6 +114,7 @@ class OGLWidget(SDLWindow):
         self._data.append(value)
 
     def resizeGL(self, w, h):
+        GL.glViewport(0, 0, w, h)
         h = 1 if h == 0 else h
         self.projection.ratio = w / h
         self._screensize = m.Vector(w, h)
