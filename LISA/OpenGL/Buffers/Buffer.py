@@ -3,6 +3,21 @@
 
 from OpenGL import GL
 
+__all__ = [
+    "VERTEX_BUFFER",
+    "INDEX_BUFFER",
+    "STATIC_COPY",
+    "STATIC_DRAW",
+    "STATIC_COPY",
+    "DYNAMIC_COPY",
+    "DYNAMIC_DRAW",
+    "DYNAMIC_READ",
+    "STREAM_COPY",
+    "STREAM_DRAW",
+    "STREAM_READ",
+    "Buffer",
+]
+
 # type of the buffer
 VERTEX_BUFFER = GL.GL_ARRAY_BUFFER
 INDEX_BUFFER = GL.GL_ELEMENT_ARRAY_BUFFER

@@ -4,6 +4,15 @@
 import os
 from OpenGL import GL
 from . import ShaderProgram as s
+from .exceptions import ShaderCompileError
+
+
+__all__ = [
+    "VERTEX_SHADER",
+    "FRAGMENT_SHADER",
+    "Shader",
+    "CreateShaderFromFile",
+]
 
 
 VERTEX_SHADER = GL.GL_VERTEX_SHADER
@@ -14,15 +23,6 @@ Extension = dict(
     fsh=FRAGMENT_SHADER,
     vsh=VERTEX_SHADER,
 )
-
-
-class ShaderCompileError(Exception):
-
-    def __init__(self, msg):
-        self._msg = msg
-
-    def __str__(self):
-        return self._msg
 
 
 class Shader(object):

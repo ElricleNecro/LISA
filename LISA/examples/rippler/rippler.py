@@ -4,26 +4,16 @@
 import numpy as np
 import datetime
 
-# from PyQt5.QtGui import *
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
-import LISA.common as c
+import LISA.tools as t
 
-from LISA.Buffers import Buffer, INDEX_BUFFER, VERTEX_BUFFER
-from LISA import Shaders as s
+from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
+from LISA.OpenGL import Shaders as s
 from LISA.Matrice import Vector
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
-
-
-class ShadersNotLinked(Exception):
-
-    def __init__(self, msg):
-        self._msg = msg
-
-    def __str__(self):
-        return self._msg
 
 
 class Rippler(object):
@@ -58,15 +48,9 @@ class Rippler(object):
     def createShaders(self, parent):
 
         self._shaders = s.CreateShaderFromFile(
-            c.os.path.join(
-                c.SHADERS_DIR,
-                "rippler/rippler.vsh"
-            )
+            t.shader_path("rippler/rippler.vsh")
         ) + s.CreateShaderFromFile(
-            c.os.path.join(
-                c.SHADERS_DIR,
-                "rippler/rippler.fsh"
-            )
+            t.shader_path("rippler/rippler.fsh")
         )
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)

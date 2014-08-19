@@ -4,7 +4,14 @@
 import math as m
 import numpy as np
 
-from .Vector import Vector
+__all__ = [
+    "Matrix",
+    "Identity",
+    "Perspective",
+    "LookAt",
+    "Translation",
+    "Quaternion",
+]
 
 
 D2R = np.pi / 180.
@@ -104,7 +111,7 @@ def Perspective(FoV, ratio, near, far, dtype=np.float32):
     return mat
 
 
-def LookAt(pos: Vector, center: Vector, up: Vector, dtype=np.float32):
+def LookAt(pos, center, up, dtype=np.float32):
     mat = Matrix((4, 4), dtype, order='C')
 
     regard = center - pos
@@ -123,7 +130,7 @@ def LookAt(pos: Vector, center: Vector, up: Vector, dtype=np.float32):
     return mat
 
 
-def Translation(pos: Vector, dtype=None):
+def Translation(pos, dtype=None):
     if not dtype:
         dtype = pos.dtype
     mat = Identity(dtype=dtype)
@@ -132,7 +139,7 @@ def Translation(pos: Vector, dtype=None):
     return mat
 
 
-def Quaternion(angle, axe: Vector, dtype=None):
+def Quaternion(angle, axe, dtype=None):
     if not dtype:
         dtype = axe.dtype
     mat = Matrix((4, 4), dtype, order='C')
