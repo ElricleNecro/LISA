@@ -107,22 +107,10 @@ class SDLWindow(object):
             self._win
         )
 
-    def mouseMoveEvent(self, event):
+    def mouseEvent(self, event):
         pass
 
-    def mousePressEvent(self, event):
-        pass
-
-    def mouseReleaseEvent(self, event):
-        pass
-
-    def keyPressEvent(self, event):
-        pass
-
-    def keyReleaseEvent(self, event):
-        pass
-
-    def wheelEvent(self, event):
+    def keyEvent(self, event):
         pass
 
     def resizeGL(self, w, h):

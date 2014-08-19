@@ -140,34 +140,16 @@ class OGLWidget(SDLWindow):
 
         self.update()
 
-    def keyPressEvent(self, event):
+    def keyPress(self, event):
         # super(OGLWidget, self).keyPressEvent(event)
         pass
 
-    def wheelEvent(self, event):
-        super(OGLWidget, self).wheelEvent(event)
-        # if event.isAccepted():
-        # return
-        delta = event._y_wheel
-
-        # if event.orientation() == Qt.Vertical:
-        if delta < 0:
-            self.zoom = 1.15
-        elif delta > 0:
-            self.zoom = 0.87
-        # event.accept()
-        # self.update()
-
-    def mousePressEvent(self, event):
-        super(OGLWidget, self).mousePressEvent(event)
-        self._mousePress = True
-
-    def mouseMoveEvent(self, event):
-        super(OGLWidget, self).mouseMoveEvent(event)
-        if self._mousePress:
+    def mouseEvent(self, event):
+        super(OGLWidget, self).mouseEvent(event)
+        if event.mouse[1]:
 
             # compute the movement of the mouse
-            x, y = event._xRel, event._yRel
+            x, y = event.mouse.dx, event.mouse.dy
 
             # if no movement, do nothing
             if x == 0 and y == 0:
@@ -185,8 +167,11 @@ class OGLWidget(SDLWindow):
                 rotationAxis
             ) * m.Translation(-self.camera_target) * self.rotate
 
-    def mouseReleaseEvent(self, event):
-        super(OGLWidget, self).mouseReleaseEvent(event)
-        self._mousePress = False
+        delta = event.mouse.wheel.dy
+
+        if delta < 0:
+            self.zoom = 1.15
+        elif delta > 0:
+            self.zoom = 0.87
 
 # vim: set tw=79 :
