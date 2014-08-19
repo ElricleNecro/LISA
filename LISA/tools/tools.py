@@ -2,7 +2,16 @@
 # -*- coding: utf-8 -*-
 
 from OpenGL import GL
-from LISA import common as c
+from .common import TEXTURE_DIR, SHADERS_DIR
+
+import os
+
+
+__all__ = [
+    "DTYPE_TO_GL",
+    "texture_path",
+    "shader_path",
+]
 
 
 # dictionary for correspondence between numpy dtypes and OpenGL types
@@ -21,16 +30,16 @@ DTYPE_TO_GL["int32"] = GL.GL_INT
 
 # path for texture
 def texture_path(texture):
-    return c.os.path.join(
-        c.TEXTURE_DIR,
+    return os.path.join(
+        TEXTURE_DIR,
         texture,
     )
 
 
 # path for shaders
 def shader_path(shader):
-    return c.os.path.join(
-        c.SHADERS_DIR,
+    return os.path.join(
+        SHADERS_DIR,
         shader,
     )
 

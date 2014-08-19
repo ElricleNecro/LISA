@@ -4,6 +4,9 @@
 import numpy as np
 
 
+__all__ = ["Vector"]
+
+
 class Vector(np.ndarray):
 
     """Vector dealing class"""

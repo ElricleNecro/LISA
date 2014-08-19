@@ -3,3 +3,4 @@
 
 from .Shader import *
 from .ShaderProgram import *
+from .exceptions import *

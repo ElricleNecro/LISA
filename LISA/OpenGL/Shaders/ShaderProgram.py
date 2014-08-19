@@ -3,21 +3,13 @@
 
 from OpenGL import GL
 
+__all__ = ["ShaderProgram"]
 
 _GL_ns = vars(GL)
 _TypeNP_OGL = dict(
 )
 _TypeNP_OGL["float64"] = GL.GL_DOUBLE
 _TypeNP_OGL["float32"] = GL.GL_FLOAT
-
-
-class ShadersNotLinked(Exception):
-
-    def __init__(self, msg):
-        self._msg = msg
-
-    def __str__(self):
-        return self._msg
 
 
 class ShaderProgram(object):

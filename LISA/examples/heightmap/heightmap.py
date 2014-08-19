@@ -7,21 +7,12 @@ import datetime
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
-from LISA import Shaders as s
-from LISA import Buffers as buf
-from LISA import Textures as t
+from LISA.OpenGL import Shaders as s
+from LISA.OpenGL import Buffers as buf
+from LISA.OpenGL import Textures as t
 from LISA.tools import shader_path
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
-
-
-class ShadersNotLinked(Exception):
-
-    def __init__(self, msg):
-        self._msg = msg
-
-    def __str__(self):
-        return self._msg
 
 
 class HeightMap(object):

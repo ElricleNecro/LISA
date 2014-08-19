@@ -8,6 +8,9 @@ from LISA.Matrice import Vector
 from LISA.tools import DTYPE_TO_GL, texture_path
 
 
+__all__ = ["Texture"]
+
+
 class Texture(object):
 
     def __init__(self, kind="2D"):

@@ -2,25 +2,15 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import LISA.common as c
 
-from PyQt4 import QtGui as Qt
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
-import LISA.Shaders as s
+import LISA.OpenGL.Shaders as s
+import LISA.tools as t
 from LISA.Matrice import Vector
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
-
-
-class ShadersNotLinked(Exception):
-
-    def __init__(self, msg):
-        self._msg = msg
-
-    def __str__(self):
-        return self._msg
 
 
 class Sprites(object):
@@ -46,15 +36,9 @@ class Sprites(object):
     def createShaders(self, parent):
 
         self._shaders = s.CreateShaderFromFile(
-            c.os.path.join(
-                c.SHADERS_DIR,
-                "couleurs.vsh"
-            )
+            t.shader_path("couleurs.vsh")
         ) + s.CreateShaderFromFile(
-            c.os.path.join(
-                c.SHADERS_DIR,
-                "couleurs.fsh"
-            )
+            t.shader_path("couleurs.fsh")
         )
 
         self._shaders.link()
@@ -88,24 +72,6 @@ class Sprites(object):
         self._shaders.disableAttributeArray("position")
 
         self._shaders.release()
-
-    def createWidget(self, title="Dialogue de test.", parent=None):
-        dialog = Qt.QDialog(parent=parent)
-        dialog.setWindowOpacity(0.4)
-        dialog.setWindowTitle(title)
-        dialog.setLayout(Qt.QVBoxLayout())
-        dialog.layout().addWidget(
-            Qt.QLabel("Ceci est un test d'affichage des widgets.")
-        )
-        dialog.layout().addWidget(
-            Qt.QLabel("Ceci est un test d'affichage des widgets.")
-        )
-        but = Qt.QPushButton()
-        but.setText("Un bouton !")
-        but.clicked.connect(self._push_button)
-        dialog.layout().addWidget(but)
-
-        return dialog
 
     def _push_button(self):
         pass
