@@ -32,6 +32,10 @@ class SDLWindow(object):
         self._x = 0.
         self._y = 30.0
 
+        self._widget = []
+
+        self._screensize = size
+
         _ipython_way_sdl2.add(self)
 
     def events(self, ev):
@@ -45,6 +49,11 @@ class SDLWindow(object):
             if ev._resized and hasattr(self, "resizeGL"):
                 s.SDL_SetWindowSize(self._win, *ev._window_size)
                 self.resizeGL(*ev._window_size)
+
+            # loop over widget and if a widget accepts the event, do nothing
+            # else
+            for widget in self._widget:
+                pass
 
             # loop over methods and call them if the associated event occurred
             for key in ev._methods.keys():
@@ -109,13 +118,19 @@ class SDLWindow(object):
         )
 
     def mouseMoveEvent(self, event):
-        pass
+        for widget in self._widget:
+            if hasattr(widget, "mouseMoveEvent"):
+                widget.mouseMoveEvent(event)
 
     def mousePressEvent(self, event):
-        pass
+        for widget in self._widget:
+            if hasattr(widget, "mousePressEvent"):
+                widget.mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
-        pass
+        for widget in self._widget:
+            if hasattr(widget, "mouseReleaseEvent"):
+                widget.mouseReleaseEvent(event)
 
     def keyPressEvent(self, event):
         pass

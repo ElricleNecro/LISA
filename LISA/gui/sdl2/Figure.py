@@ -25,7 +25,7 @@ class Figure(object):
         self._background_color = background_color
 
     def addWidget(self, wid):
-        pass
+        self.scene.addWidget(wid)
 
     def resizeEvent(self, event):
         if self.scene:

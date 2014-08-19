@@ -12,6 +12,7 @@ import LISA.tools as t
 from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
 from LISA.OpenGL import Shaders as s
 from LISA.Matrice import Vector
+from LISA.gui.widget import Widget
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
@@ -45,6 +46,8 @@ class Rippler(object):
 
         self._time = datetime.datetime.now()
 
+        self._widget = Widget()
+
     def createShaders(self, parent):
 
         self._shaders = s.CreateShaderFromFile(
@@ -52,8 +55,6 @@ class Rippler(object):
         ) + s.CreateShaderFromFile(
             t.shader_path("rippler/rippler.fsh")
         )
-
-        GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
 
         self._shaders.link()
 
@@ -77,7 +78,16 @@ class Rippler(object):
         )
         self._index.release()
 
+        # create shaders for widget
+        self._widget.createShaders()
+
+    def createWidget(self):
+        return self._widget
+
     def show(self, parent):
+
+        GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
+
         self._shaders.bind()
 
         self._shaders.setUniformValue(

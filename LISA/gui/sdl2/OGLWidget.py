@@ -3,7 +3,7 @@
 from OpenGL.arrays import numpymodule
 from OpenGL import GL
 
-from LISA.gui.utils.matrices import Perspective
+from LISA.gui.utils.matrices import Perspective, Orthographic
 from .window import SDLWindow
 
 import LISA.Matrice as m
@@ -38,6 +38,13 @@ class OGLWidget(SDLWindow):
 
         super(OGLWidget, self).__init__(*args, **kwargs)
 
+        # projection matrix used for widget
+        self.widget_projection = Orthographic(shape=(4, 4), dtype="float32")
+        self.widget_projection.top = 0.
+        self.widget_projection.bottom = self._screensize[1]
+        self.widget_projection.left = 0.
+        self.widget_projection.right = self._screensize[0]
+
     @property
     def zoom(self):
         return self._zoom
@@ -56,6 +63,14 @@ class OGLWidget(SDLWindow):
     @projection.setter
     def projection(self, projection):
         self._projection = projection
+
+    @property
+    def widget_projection(self):
+        return self._widget_projection
+
+    @widget_projection.setter
+    def widget_projection(self, widget_projection):
+        self._widget_projection = widget_projection
 
     @property
     def model(self):
@@ -113,10 +128,21 @@ class OGLWidget(SDLWindow):
     def lines(self, value):
         self._data.append(value)
 
+    def addWidget(self, widget):
+        if hasattr(widget, "draw"):
+            self._widget.append(widget)
+        else:
+            print(
+                "A widget must have a draw method to be "
+                "displayed on the window!"
+            )
+
     def resizeGL(self, w, h):
-        GL.glViewport(0, 0, w, h)
         h = 1 if h == 0 else h
+        GL.glViewport(0, 0, w, h)
         self.projection.ratio = w / h
+        self.widget_projection.right = w
+        self.widget_projection.bottom = h
         self._screensize = m.Vector(w, h)
 
     def draw(self, *args):
@@ -138,6 +164,13 @@ class OGLWidget(SDLWindow):
         for data in self._data:
             data.show(self)
 
+        GL.glDisable(GL.GL_DEPTH_TEST)
+        GL.glDisable(GL.GL_CULL_FACE)
+
+        # now loop over widgets
+        for widget in self._widget:
+            widget.draw(self)
+
         self.update()
 
     def keyPressEvent(self, event):
@@ -146,17 +179,12 @@ class OGLWidget(SDLWindow):
 
     def wheelEvent(self, event):
         super(OGLWidget, self).wheelEvent(event)
-        # if event.isAccepted():
-        # return
         delta = event._y_wheel
 
-        # if event.orientation() == Qt.Vertical:
         if delta < 0:
             self.zoom = 1.15
         elif delta > 0:
             self.zoom = 0.87
-        # event.accept()
-        # self.update()
 
     def mousePressEvent(self, event):
         super(OGLWidget, self).mousePressEvent(event)
