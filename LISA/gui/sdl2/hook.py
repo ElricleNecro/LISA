@@ -53,9 +53,9 @@ try:
                 start = s.SDL_GetTicks()
 
                 self._ev.update()
+                self._windowList[self._ev.id].events(self._ev)
 
                 for win in self._windowList.values():
-                    win.events(self._ev)
                     win.draw()
 
                 stop = s.SDL_GetTicks()

@@ -36,20 +36,19 @@ class SDLWindow(object):
 
     def events(self, ev):
         # Deal with events linked to the window:
-        if ev.id == self.id:
-            _SDLInput_logger.debug(
-                "Inside window %d for event.", id(self._win)
-            )
+        _SDLInput_logger.debug(
+            "Inside window %d for event.", id(self._win)
+        )
 
-            # the window resized
-            if ev._resized and hasattr(self, "resizeGL"):
-                s.SDL_SetWindowSize(self._win, *ev._window_size)
-                self.resizeGL(*ev._window_size)
+        # the window resized
+        if ev._resized and hasattr(self, "resizeGL"):
+            s.SDL_SetWindowSize(self._win, *ev._window_size)
+            self.resizeGL(*ev._window_size)
 
-            # loop over methods and call them if the associated event occurred
-            for key in ev._methods.keys():
-                if ev._methods[key] and hasattr(self, key):
-                    getattr(self, key)(ev)
+        # loop over methods and call them if the associated event occurred
+        for key in ev._methods.keys():
+            if ev._methods[key] and hasattr(self, key):
+                getattr(self, key)(ev)
 
     def makeCurrent(self):
         s.SDL_GL_MakeCurrent(self._win, self._context)
