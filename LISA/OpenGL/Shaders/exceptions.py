@@ -19,7 +19,7 @@ class ShaderCompileError(Exception):
         self._msg = msg
 
     def __str__(self):
-        return self._msg
+        return "{0}".format(self._msg)
 
 
 # vim: set tw=79 :
