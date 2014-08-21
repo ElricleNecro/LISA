@@ -3,6 +3,7 @@
 
 import numpy as np
 import datetime
+import LISA.Matrice as m
 
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
@@ -41,6 +42,8 @@ class HeightMap(object):
             self._indices[i, :, 4] = indices[:] + 1 + (i + 1) * self.npoints
             self._indices[i, :, 5] = indices[:] + 1 + i * self.npoints
         self._indices = self._indices.flatten()
+
+        self._model = m.Identity()
 
         self._time = datetime.datetime.now()
 
@@ -103,7 +106,7 @@ class HeightMap(object):
 
     def show(self, parent):
         self._shaders.bind()
-        mat = parent._projection * parent._view * parent._model
+        mat = parent._projection * parent._view * self._model
         self._shaders.setUniformValue(
             "modelview",
             mat,

@@ -8,6 +8,7 @@ from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
 import LISA.tools as t
+import LISA.Matrice as m
 
 from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
 from LISA.OpenGL import Shaders as s
@@ -27,6 +28,7 @@ class Rippler(object):
         Z = np.zeros(self.npoints, dtype=np.float32)
         x, y, z = np.meshgrid(X, Y, Z)
         self._mesh = np.array([x, y, z], dtype=np.float32).T.flatten()
+        print(self._mesh.shape)
 
         # create the indices for triangles
         self._indices = np.empty(
@@ -42,6 +44,8 @@ class Rippler(object):
             self._indices[i, :, 4] = indices[:] + 1 + (i + 1) * self.npoints
             self._indices[i, :, 5] = indices[:] + 1 + i * self.npoints
         self._indices = self._indices.flatten()
+
+        self._model = m.Identity()
 
         self._time = datetime.datetime.now()
 
@@ -82,7 +86,7 @@ class Rippler(object):
 
         self._shaders.setUniformValue(
             "modelview",
-            parent._projection * parent._view * parent._model
+            parent._projection * parent._view * self._model
         )
         dt = datetime.datetime.now() - self._time
         second = float((dt.seconds * 1000000 + dt.microseconds) * 0.000006)
