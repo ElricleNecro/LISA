@@ -23,7 +23,6 @@ class OGLWidget(SDLWindow):
 
         # Different matrix use for the on screen printing:
         self.projection = Perspective(shape=(4, 4), dtype="float32")
-        self.model = m.Identity()
         self.view = m.Identity()
         self.camera = m.Identity()
         self.camera_up = m.Vector(0., 1., 0.)
@@ -56,14 +55,6 @@ class OGLWidget(SDLWindow):
     @projection.setter
     def projection(self, projection):
         self._projection = projection
-
-    @property
-    def model(self):
-        return self._model
-
-    @model.setter
-    def model(self, model):
-        self._model = model
 
     @property
     def view(self):
