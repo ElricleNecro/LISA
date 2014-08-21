@@ -111,6 +111,8 @@ setup(
     package_data={
         'LISA': [
             "Data/Shaders/heightmap/*.*sh",
+            "Data/Shaders/sprite/*.*sh",
+            "Data/Shaders/halo/*.*sh",
             "Data/Shaders/rippler/*.*sh",
             "Data/Shaders/reader/mock/*.*sh",
             'Data/Shaders/*.*sh',
