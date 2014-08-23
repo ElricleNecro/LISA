@@ -40,25 +40,19 @@ class SDLWindow(object):
 
     def events(self, ev):
         # Deal with events linked to the window:
-        if ev.id == self.id:
-            _SDLInput_logger.debug(
-                "Inside window %d for event.", id(self._win)
-            )
+        _SDLInput_logger.debug(
+            "Inside window %d for event.", id(self._win)
+        )
 
-            # the window resized
-            if ev._resized and hasattr(self, "resizeGL"):
-                s.SDL_SetWindowSize(self._win, *ev._window_size)
-                self.resizeGL(*ev._window_size)
+        # the window resized
+        if ev._resized and hasattr(self, "resizeGL"):
+            s.SDL_SetWindowSize(self._win, *ev._window_size)
+            self.resizeGL(*ev._window_size)
 
-            # loop over widget and if a widget accepts the event, do nothing
-            # else
-            for widget in self._widget:
-                pass
-
-            # loop over methods and call them if the associated event occurred
-            for key in ev._methods.keys():
-                if ev._methods[key] and hasattr(self, key):
-                    getattr(self, key)(ev)
+        # loop over methods and call them if the associated event occurred
+        for key in ev._methods.keys():
+            if ev._methods[key] and hasattr(self, key):
+                getattr(self, key)(ev)
 
     def makeCurrent(self):
         s.SDL_GL_MakeCurrent(self._win, self._context)
@@ -117,28 +111,10 @@ class SDLWindow(object):
             self._win
         )
 
-    def mouseMoveEvent(self, event):
-        for widget in self._widget:
-            if hasattr(widget, "mouseMoveEvent"):
-                widget.mouseMoveEvent(event)
-
-    def mousePressEvent(self, event):
-        for widget in self._widget:
-            if hasattr(widget, "mousePressEvent"):
-                widget.mousePressEvent(event)
-
-    def mouseReleaseEvent(self, event):
-        for widget in self._widget:
-            if hasattr(widget, "mouseReleaseEvent"):
-                widget.mouseReleaseEvent(event)
-
-    def keyPressEvent(self, event):
+    def mouseEvent(self, event):
         pass
 
-    def keyReleaseEvent(self, event):
-        pass
-
-    def wheelEvent(self, event):
+    def keyEvent(self, event):
         pass
 
     def resizeGL(self, w, h):

@@ -27,11 +27,6 @@ class Figure(object):
     def addWidget(self, wid):
         self.scene.addWidget(wid)
 
-    def resizeEvent(self, event):
-        if self.scene:
-            self.scene.resizeGL(event.size().width(), event.size().height())
-            super(Figure, self).resizeEvent(event)
-
     def __getitem__(self, ind):
         return self.scene.lines[ind]
 
