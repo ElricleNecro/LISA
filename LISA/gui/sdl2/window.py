@@ -51,8 +51,8 @@ class SDLWindow(object):
 
         # loop over methods and call them if the associated event occurred
         for key in ev._methods.keys():
-            if ev._methods[key] and hasattr(self, key):
-                getattr(self, key)(ev)
+            if ev._methods[key][0] and hasattr(self, key):
+                getattr(self, key)(ev._methods[key][1])
 
     def makeCurrent(self):
         s.SDL_GL_MakeCurrent(self._win, self._context)
@@ -106,16 +106,60 @@ class SDLWindow(object):
         return self._win
 
     def close(self):
+
+        # remove the window in the register of window to display in the
+        # event loop
         _ipython_way_sdl2.erase(self)
+
+        # destroy the window with SDL
         s.SDL_DestroyWindow(
             self._win
         )
 
     def mouseEvent(self, event):
-        pass
+
+        # loop over children widgets
+        for widget in self._widget:
+
+            # if the widget has the method call it
+            if hasattr(widget, "mouseEvent"):
+
+                # call the widget to see if he process the event
+                if widget.mouseEvent(event):
+
+                    # the widget accepts the event and we don't process it
+                    # anymore in tis iteration
+                    return True
 
     def keyEvent(self, event):
-        pass
+
+        # loop over children widgets
+        for widget in self._widget:
+
+            # if the widget has the method call it
+            if hasattr(widget, "keyEvent"):
+
+                # call the widget to see if he process the event
+                if widget.keyEvent(event):
+
+                    # the widget accepts the event and we don't process it
+                    # anymore in tis iteration
+                    return True
+
+    def wheelEvent(self, event):
+
+        # loop over children widgets
+        for widget in self._widget:
+
+            # if the widget has the method call it
+            if hasattr(widget, "wheelEvent"):
+
+                # call the widget to see if he process the event
+                if widget.wheelEvent(event):
+
+                    # the widget accepts the event and we don't process it
+                    # anymore in tis iteration
+                    return True
 
     def resizeGL(self, w, h):
         pass

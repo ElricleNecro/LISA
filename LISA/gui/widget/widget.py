@@ -40,6 +40,8 @@ class Widget(object):
         # for events
         self._mousePress = False
         self._mousePressBorders = False
+        self._mouse = Vector(0., 0., dtype=np.float32)
+        self._mouseOffset = Vector(0., 0., dtype=np.float32)
 
     @property
     def minWidth(self):
@@ -187,25 +189,42 @@ class Widget(object):
         self._shaders.disableAttributeArray("window")
         self._shaders.release()
 
-    def mousePressEvent(self, event):
-        if self._inside_border(event._x, event._y):
-            self._mousePressBorders = True
-        else:
-            self._mousePress = True
+    def mouseEvent(self, event):
 
-    def mouseMoveEvent(self, event):
-        if self._mousePress:
-            # compute the movement of the mouse
-            self.x += event._xRel
-            self.y += event._yRel
+        # left button of the mouse pressed
+        if event[1]:
+
+            # compute the offset of the mouse cursor relative to the corner
+            # of the widget, if not already pressed
+            if not self._mousePress:
+                self._mouse[0] = event.x
+                self._mouse[1] = event.y
+                self._mouseOffset = self._mouse - self._corner
+            if not self._mousePressBorders:
+                self._mouse[0] = event.x
+                self._mouse[1] = event.y
+                self._sizeOffset = self._size - self._mouse + self._corner
+
+            # check that we are inside or not the border used to resize the
+            # widget
+            if self._inside_border(event.x, event.y):
+                self._mousePressBorders = True
+            elif self.inside(event.x, event.y) and not self._mousePressBorders:
+                self._mousePress = True
+
+        # the left button is released
+        if not event[1]:
+            self._mousePress = False
+            self._mousePressBorders = False
 
         if self._mousePressBorders:
-            self.width += event._xRel
-            self.height += event._yRel
-
-    def mouseReleaseEvent(self, event):
-        self._mousePress = False
-        self._mousePressBorders = False
+            self.width = self._sizeOffset[0] + event.x - self._corner[0]
+            self.height = self._sizeOffset[1] + event.y - self._corner[1]
+            return True
+        if self._mousePress:
+            self.x = event.x - self._mouseOffset[0]
+            self.y = event.y - self._mouseOffset[1]
+            return True
 
     def inside(self, x, y):
         """

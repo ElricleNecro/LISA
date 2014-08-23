@@ -173,16 +173,26 @@ class OGLWidget(SDLWindow):
 
         self.update()
 
-    def keyPress(self, event):
-        # super(OGLWidget, self).keyPressEvent(event)
-        pass
+    def keyEvent(self, event):
+        if super(OGLWidget, self).keyEvent(event):
+            return
 
     def mouseEvent(self, event):
-        super(OGLWidget, self).mouseEvent(event)
-        if event.mouse[1]:
+        if not self._mousePress:
+            if super(OGLWidget, self).mouseEvent(event):
+                return
+        if event[1]:
+
+            # say the mouse is pressed
+            self._mousePress = True
+
+        if not event[1]:
+            self._mousePress = False
+
+        if self._mousePress:
 
             # compute the movement of the mouse
-            x, y = event.mouse.dx, event.mouse.dy
+            x, y = event.dx, event.dy
 
             # if no movement, do nothing
             if x == 0 and y == 0:
@@ -200,11 +210,17 @@ class OGLWidget(SDLWindow):
                 rotationAxis
             ) * m.Translation(-self.camera_target) * self.rotate
 
-        delta = event.mouse.wheel.dy
+    def wheelEvent(self, event):
+
+        if super(OGLWidget, self).wheelEvent(event):
+            return
+
+        delta = event.dy
 
         if delta < 0:
             self.zoom = 1.15
         elif delta > 0:
             self.zoom = 0.87
+
 
 # vim: set tw=79 :
