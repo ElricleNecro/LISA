@@ -11,10 +11,11 @@ __all__ = ["Figure"]
 
 class Figure(object):
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, name="Figure {id:d}"):
 
         # set the window which will be the scene
-        self.scene = OGLWidget("Hello world")
+        self.scene = OGLWidget("")
+        self.scene.name = name.format(id=self.scene.id)
 
     @property
     def background_color(self):

@@ -7,9 +7,9 @@ __all__ = ["ShaderProgram"]
 
 _GL_ns = vars(GL)
 _TypeNP_OGL = dict(
+        float64=GL.GL_DOUBLE,
+        float32=GL.GL_FLOAT,
 )
-_TypeNP_OGL["float64"] = GL.GL_DOUBLE
-_TypeNP_OGL["float32"] = GL.GL_FLOAT
 
 
 class ShaderProgram(object):

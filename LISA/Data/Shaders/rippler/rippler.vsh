@@ -1,7 +1,8 @@
 #version 130
 
-in vec3 in_Vertex;
+in vec3 position;
 
+uniform mat4 projection;
 uniform mat4 modelview;
 uniform float time;
 
@@ -11,7 +12,7 @@ const float PI = 3.14159;
 
 void main()
 {
-    float distance = length(in_Vertex);
+    float distance = length(position);
     float y = amplitude * sin(-PI * distance * frequency + time);
-    gl_Position = modelview * vec4(in_Vertex.x, in_Vertex.y, y, 1.0);
+    gl_Position = projection * modelview * vec4(position.x, position.y, y, 1.0);
 }

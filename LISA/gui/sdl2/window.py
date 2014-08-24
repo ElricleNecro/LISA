@@ -25,6 +25,7 @@ class SDLWindow(object):
             size[0], size[1],
             flags
         )
+        self._win_name = title
 
         self._id = s.SDL_GetWindowID(self._win)
         self._context = s.SDL_GL_CreateContext(self._win)
@@ -104,6 +105,14 @@ class SDLWindow(object):
     @property
     def window(self):
         return self._win
+
+    @property
+    def name(self):
+        return self._win_name
+    @name.setter
+    def name(self, val):
+        s.SDL_SetWindowTitle(self._win, val.encode())
+        self._win_name = val
 
     def close(self):
 

@@ -8,6 +8,8 @@ from OpenGL.arrays import numpymodule
 
 import LISA.OpenGL.Shaders as s
 import LISA.tools as t
+import LISA.Matrice as m
+
 from LISA.Matrice import Vector
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
@@ -33,12 +35,14 @@ class Sprites(object):
             dtype=np.float32,
         ).T.flatten()
 
+        self._model = m.Identity()
+
     def createShaders(self, parent):
 
         self._shaders = s.CreateShaderFromFile(
-            t.shader_path("couleurs.vsh")
+            t.shader_path("sprite/sprite.vsh")
         ) + s.CreateShaderFromFile(
-            t.shader_path("couleurs.fsh")
+            t.shader_path("sprite/sprite.fsh")
         )
 
         self._shaders.link()
@@ -53,7 +57,7 @@ class Sprites(object):
 
         GL.glClear(GL.GL_DEPTH_BUFFER_BIT | GL.GL_COLOR_BUFFER_BIT)
 
-        matrice = parent._view * parent._model
+        matrice = parent._view * self._model
 
         self._shaders.bind()
         self._shaders.setUniformValue("modelview", matrice)
