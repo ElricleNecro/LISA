@@ -2,3 +2,4 @@
 # encoding: utf-8
 
 from .Base import *
+from .Meshtype import *
