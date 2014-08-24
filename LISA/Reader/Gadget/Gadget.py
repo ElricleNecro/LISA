@@ -11,7 +11,6 @@ numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 from .Reader import GadgetReader
 from LISA import Object as o
-from LISA.OpenGL import Shaders as s
 from LISA import Matrice as m
 
 
@@ -32,14 +31,10 @@ class Simu(o.Base):
 
         super(Simu, self).__init__(fich.positions, **kwargs)
 
+        self._shaders += c.shader_path("halo/halo.vsh")
+        self._shaders += c.shader_path("halo/halo.fsh")
+
     def createShaders(self, parent):
-
-        self._shaders = s.CreateShaderFromFile(
-                c.shader_path("halo/halo.vsh")
-        ) + s.CreateShaderFromFile(
-                c.shader_path("halo/halo.fsh")
-        )
-
         self._shaders.link()
 
         GL.glEnable(GL.GL_PROGRAM_POINT_SIZE)
