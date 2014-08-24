@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-from os.path import isfile
+from os.path import isfile, splitext
 from .Shader import Shader, Extension
 from .ShaderProgram import ShaderProgram
 
+
+__all__ = [
+        "Shaders",
+]
 
 Type = dict(
     vertex = Extension["vsh"],
@@ -22,12 +26,13 @@ class Shaders(object):
         self._program = ShaderProgram()
         for a, t in self._list_shaders:
             self._program += Shader(a, t)
+        self._modified_shader = False
 
     @staticmethod
     def CreateShaderFromFile(filename, stype=None):
         # What is the type of the shader, if not given:
         if stype is None:
-            ext = os.path.splitext(filename)[1][1:].lower()
+            ext = splitext(filename)[1][1:].lower()
             stype = Extension[ext]
 
         # Read the file:
@@ -43,7 +48,7 @@ class Shaders(object):
         for l in src.split('\n'):
             if l == '':
                 continue
-            else
+            else:
                 return Type[l.replace('//', '').strip().split(' ')[0].lower()]
 
     ############
@@ -71,7 +76,7 @@ class Shaders(object):
     def bind(self):
         if self._modified_shader or self._program is None:
             del self._program
-            self._program.link()
+            self.link()
 
         self._program.bind()
 
@@ -86,7 +91,7 @@ class Shaders(object):
         self._modified_shader = True
         if isfile(val):
             #Read the shader from a file:
-            self._list_shader.append(
+            self._list_shaders.append(
                     self.CreateShaderFromFile(val)
             )
         else:
@@ -100,9 +105,18 @@ class Shaders(object):
 
     def removeShader(self, val):
         self._modified_shader = True
-        for i, (v, _) in enumerate(self._list_shaders):
-            if v == val:
+
+        if isfile(val):
+            val = self.CreateShaderFromFile(val)
+        else:
+            val = (val, self.getTypeFromSource(val))
+
+        for i, (v, t) in enumerate(self._list_shaders):
+            if v == val[0]:
                 del self._list_shaders[i]
+
+    def __len__(self):
+        return len(self._list_shaders)
 
     def __add__(self, val):
         self.addShader(val)
