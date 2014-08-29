@@ -8,14 +8,17 @@ from LISA.Matrice import Vector
 from LISA.tools import DTYPE_TO_GL, texture_path
 
 
-__all__ = ["Texture"]
+__all__ = ["Texture", "TextureLinear"]
 
 
 class Texture(object):
 
-    def __init__(self, kind="2D"):
+    def __init__(self, kind="2D", parameters={}):
         self.id = GL.glGenTextures(1)
         self.kind = kind
+        self._binded = False
+        self.parameters = parameters
+        self.unit = 0
 
     @property
     def id(self):
@@ -35,15 +38,42 @@ class Texture(object):
         self._kind = getattr(GL, "GL_TEXTURE_" + self._kind_name)
         self._teximage = getattr(GL, "glTexImage" + self._kind_name)
 
+    @property
+    def parameters(self):
+        return self._parameters
+
+    @parameters.setter
+    def parameters(self, parameters):
+        self._parameters = parameters
+        for key, value in self._parameters.items():
+            self.setParameter(key, value)
+
+    @property
+    def unit(self):
+        return self._unit
+
+    @unit.setter
+    def unit(self, unit):
+        self._unit = unit
+
     def bind(self):
-        GL.glBindTexture(
-            self._kind,
-            self.id,
-        )
+        if not self._binded:
+            GL.glBindTexture(
+                self._kind,
+                self.id,
+            )
+            self._binded = True
+
+    def release(self):
+        """
+        To indicate that the texture should not be used anymore.
+        """
+        self._binded = False
 
     def setParameter(self, param, value):
         GLvalue = self._getValue(value)
         func = self._getTexParameter(GLvalue)
+        self.bind()
         func(
             self._kind,
             self._getParameter(param),
@@ -93,6 +123,7 @@ class Texture(object):
         values.append(self._getFormat(image.shape[len(image.shape) - 1]))
         values.append(DTYPE_TO_GL[image.dtype.name])
         values.append(image)
+        self.bind()
         self._teximage(
             self._kind,
             level,
@@ -113,4 +144,29 @@ class Texture(object):
         image.astype(dtype)
         self.loadImage(image)
 
+    def activate(self):
+        GL.glActiveTexture(GL.GL_TEXTURE0 + self.unit)
+        self.bind()
+
+    def _setUniformValue(self, location, GL_ns):
+        GL_ns["glUniform1i"](location, self.unit)
+
+    def __del__(self):
+        GL.glDeleteTextures(1, self.id)
+
+
+class TextureLinear(Texture):
+    """
+    A simple texture class for image to apply on a surface.
+    """
+
+    def __init__(self):
+        super(TextureLinear, self).__init__(
+            parameters={
+                "TEXTURE_MIN_FILTER": "LINEAR",
+                "TEXTURE_MAG_FILTER": "LINEAR",
+                "TEXTURE_WRAP_S": "CLAMP",
+                "TEXTURE_WRAP_T": "CLAMP",
+            }
+        )
 # vim: set tw=79 :

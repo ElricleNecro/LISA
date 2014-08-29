@@ -5,7 +5,6 @@ import numpy as np
 import datetime
 
 from OpenGL import GL
-from OpenGL.arrays import numpymodule
 
 import LISA.tools as t
 import LISA.Object as o
@@ -13,8 +12,6 @@ import LISA.Object as o
 from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
 from LISA.Matrice import Vector
 from LISA.gui.widget import Widget
-
-numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 
 class Rippler(o.Base):
@@ -38,11 +35,6 @@ class Rippler(o.Base):
         self._time = datetime.datetime.now()
 
     def createShaders(self, parent):
-        try:
-            super(Rippler, self).createShaders(parent)
-        except Exception as e:
-            print("WTF!!!!!!!!!!!\t", e)
-            raise e
 
         # create buffers
         self._vertices = Buffer(VERTEX_BUFFER)
@@ -51,7 +43,6 @@ class Rippler(o.Base):
         self._index.create()
 
         # allocate buffers
-        print(self._data.shape)
         self._vertices.bind()
         self._vertices.allocate(
             self._data,

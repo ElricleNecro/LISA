@@ -3,10 +3,11 @@
 
 import numpy as np
 import LISA.tools as t
+import LISA.Matrice as m
 
 from OpenGL import GL
 from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
-from LISA.OpenGL import Shaders as s
+from LISA.OpenGL import Shaders
 from LISA.Matrice import Vector
 
 
@@ -42,6 +43,12 @@ class Widget(object):
         self._mousePressBorders = False
         self._mouse = Vector(0., 0., dtype=np.float32)
         self._mouseOffset = Vector(0., 0., dtype=np.float32)
+
+        # init shaders
+        self._shaders = Shaders()
+
+        # the matrix model
+        self._model = m.Identity()
 
     @property
     def minWidth(self):
@@ -119,13 +126,8 @@ class Widget(object):
 
     def createShaders(self):
 
-        self._shaders = s.CreateShaderFromFile(
-            t.shader_path("widget/widget.vsh")
-        ) + s.CreateShaderFromFile(
-            t.shader_path("widget/widget.fsh")
-        )
-
-        self._shaders.link()
+        self._shaders += t.shader_path("widget/widget.vsh")
+        self._shaders += t.shader_path("widget/widget.fsh")
 
         # create buffers
         self._vertices = Buffer(VERTEX_BUFFER)
@@ -157,7 +159,7 @@ class Widget(object):
 
         self._shaders.setUniformValue(
             "modelview",
-            parent._widget_projection * parent._model
+            parent._widget_projection * self._model
         )
 
         self._shaders.setUniformValue(

@@ -4,6 +4,7 @@ from OpenGL.arrays import numpymodule
 from OpenGL import GL
 
 from LISA.gui.utils.matrices import Perspective, Orthographic
+from LISA.OpenGL import TextureManager
 from .window import SDLWindow
 
 import LISA.Matrice as m
@@ -28,11 +29,10 @@ class OGLWidget(SDLWindow):
         self.camera_up = m.Vector(0., 1., 0.)
         self.camera_target = m.Vector(0., 0., 0.)
         self.camera = m.Vector(0, 0, 1.)
+        self.rotate = m.Identity()
         self.zoom = 1.0
 
         # Some variables use to keep track of what we are doing with events:
-        self.rotate = m.Identity()
-
         self._mousePress = False
 
         super(OGLWidget, self).__init__(*args, **kwargs)
@@ -43,6 +43,9 @@ class OGLWidget(SDLWindow):
         self.widget_projection.bottom = self._screensize[1]
         self.widget_projection.left = 0.
         self.widget_projection.right = self._screensize[0]
+
+        # set the manager of texture for this window
+        self.textures = TextureManager(self)
 
     @property
     def zoom(self):

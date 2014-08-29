@@ -7,7 +7,7 @@ from .ShaderProgram import ShaderProgram
 
 
 __all__ = [
-        "Shaders",
+    "Shaders",
 ]
 
 Type = dict(

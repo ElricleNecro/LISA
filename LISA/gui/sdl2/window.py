@@ -19,6 +19,8 @@ class SDLWindow(object):
         size=(800, 480),
         flags=s.SDL_WINDOW_SHOWN | s.SDL_WINDOW_OPENGL | s.SDL_WINDOW_RESIZABLE
     ):
+
+        # create the window with default size
         self._win = s.SDL_CreateWindow(
             title.encode(),
             w_pos[0], w_pos[1],
@@ -27,7 +29,10 @@ class SDLWindow(object):
         )
         self._win_name = title
 
+        # keep a trace of the identity of the window
         self._id = s.SDL_GetWindowID(self._win)
+
+        # set the opengl context of the window
         self._context = s.SDL_GL_CreateContext(self._win)
 
         self._x = 0.
