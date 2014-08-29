@@ -12,7 +12,7 @@ from OpenGL import GL
 
 
 __all__ = [
-        "Base",
+    "Base",
 ]
 
 

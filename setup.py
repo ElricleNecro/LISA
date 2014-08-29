@@ -114,6 +114,7 @@ setup(
             "Data/Shaders/sprite/*.*sh",
             "Data/Shaders/halo/*.*sh",
             "Data/Shaders/rippler/*.*sh",
+            "Data/Shaders/widget/*.*sh",
             "Data/Shaders/reader/mock/*.*sh",
             'Data/Shaders/*.*sh',
             'Data/Textures/heightmap/*.png',

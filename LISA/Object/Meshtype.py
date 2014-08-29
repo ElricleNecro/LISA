@@ -7,11 +7,11 @@ from OpenGL import GL
 
 
 __all__ = [
-        "Point",
-        "Lines",
-        "TriangleMesh",
-        "QuadMesh",
-        "PolygonMesh",
+    "Point",
+    "Lines",
+    "TriangleMesh",
+    "QuadMesh",
+    "PolygonMesh",
 ]
 
 
@@ -24,6 +24,7 @@ class MeshType(object):
 
     def __call__(self, data):
         GL.glDrawArrays(GL.GL_POINTS, 0, data.shape[0] // 3)
+
 
 class Point(MeshType):
     pass
@@ -52,6 +53,12 @@ class Lines(object):
 class TriangleMesh(object):
     def __init__(self, ids=None, data=None, side_x=30, side_y=30):
         if (ids is None) and (data is not None):
+            # check if the data corresponds to the passed shape
+            if data.shape[0] != side_x * side_y:
+                raise ValueError(
+                    "The shape of the triangle mesh data doesn't match sides!"
+                )
+
             # create the indices for triangles
             self._ids = np.empty(
                 (side_x - 1, side_y - 1, 6),
