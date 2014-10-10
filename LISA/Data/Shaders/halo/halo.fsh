@@ -1,24 +1,22 @@
-#version 130
+#version 330
 #pragma debug(on)
 
 uniform float sigma;
 uniform float cut_off;
+uniform float voxelSize;
+uniform vec3 in_color;
 out vec4 color;
+
+varying float v_pointsize;
 
 void main()
 {
+	float x = 2.0 * gl_PointCoord.x - 1.0;
+	float y = 2.0 * gl_PointCoord.y - 1.0;
+	float a = ( 0.9 - (x*x + y*y) ) * min(1.0, v_pointsize / 1.5);
 
-    const vec4 color1 = vec4(0.6, 0.0, 0.0, 1.0);
-    const vec4 color2 = vec4(0.9, 0.7, 1.0, 1.0);
-    color = color1;
-
-    vec2 temp = gl_PointCoord - vec2(0.5);
-
-    float f = dot(temp, temp);
-
-    if (f > cut_off) discard;
-    /* color = mix(color1, color2, smoothstep(0.1, 0.25, f)); */
-    color.a = exp(-f / (2*sigma)) / sqrt(2*3.14159 * sigma);
+	color = vec4(in_color, a);
+	/* gl_FragColor = color; */
 }
 
 /* vim: set ft=glsl */
