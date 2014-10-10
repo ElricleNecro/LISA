@@ -1,0 +1,6 @@
+- Deal with SIGTERM (15)
+- Create similar interface to VBO for VAO
+- Deal with font problems for widget
+- End the OGL 3.* adaptation
+- Add new widget for the Widget creation
+- Study the VisPy interface & co to merge our project with them if possible.
