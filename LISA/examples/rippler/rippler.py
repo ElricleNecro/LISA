@@ -5,17 +5,13 @@ import numpy as np
 import datetime
 
 from OpenGL import GL
-from OpenGL.arrays import numpymodule
 
 import LISA.tools as t
-import LISA.Matrice as m
 import LISA.Object as o
 
 from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
-from LISA.OpenGL import Shaders
 from LISA.Matrice import Vector
-
-numpymodule.NumpyHandler.ERROR_ON_COPY = True
+from LISA.gui.widget import Widget
 
 
 class Rippler(o.Base):
@@ -31,17 +27,14 @@ class Rippler(o.Base):
 
         super(Rippler, self).__init__(mesh, linetype=o.TriangleMesh(data=mesh))
 
+        self._widget = Widget()
+
         self._shaders += t.shader_path("rippler/rippler.vsh")
         self._shaders += t.shader_path("rippler/rippler.fsh")
 
         self._time = datetime.datetime.now()
 
     def createShaders(self, parent):
-        try:
-            super(Rippler, self).createShaders(parent)
-        except Exception as e:
-            print("WTF!!!!!!!!!!!\t", e)
-            raise e
 
         # create buffers
         self._vertices = Buffer(VERTEX_BUFFER)
@@ -50,7 +43,6 @@ class Rippler(o.Base):
         self._index.create()
 
         # allocate buffers
-        print(self._data.shape)
         self._vertices.bind()
         self._vertices.allocate(
             self._data,
@@ -64,8 +56,16 @@ class Rippler(o.Base):
         )
         self._index.release()
 
+        # create shaders for widget
+        self._widget.createShaders()
+
+    def createWidget(self):
+        return self._widget
+
     def show(self, parent):
+
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
+
         self._shaders.bind()
 
         self._shaders.setUniformValue(
