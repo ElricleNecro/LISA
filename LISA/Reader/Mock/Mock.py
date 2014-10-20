@@ -2,18 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-import LISA.tools.common as c
 import LISA.utils.colormaps as CM
+import LISA.tools as t
 
-# from PyQt4 import QtGui as Qt
-# from PyQt4 import QtCore
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
+# from PyQt4 import QtGui as Qt
+# from PyQt4 import QtCore
 
-import LISA.OpenGL.Shaders as s
 from LISA.Matrice import Vector
 from LISA.gui.utils.signals import Signal
 from .read_mock import ReadMock
+from LISA.OpenGL import Shaders
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
@@ -44,6 +44,10 @@ class Mock(ReadMock):
         self._voxelSize = 0.01
         self._voxelSize_max = 0.05
 
+        self._shaders = Shaders()
+        self._shaders += t.shader_path("reader/mock/couleurs.vsh")
+        self._shaders += t.shader_path("reader/mock/couleurs.fsh")
+
     def _callback_colormap(self):
         self._color = self._colormap(self._data[self._quantity].values)
 
@@ -69,20 +73,6 @@ class Mock(ReadMock):
         ) / (self._data[field].max() - self._data[field].min())
 
     def createShaders(self, parent):
-
-        self._shaders = s.CreateShaderFromFile(
-            c.os.path.join(
-                c.SHADERS_DIR,
-                "reader/mock/couleurs.vsh"
-            )
-        ) + s.CreateShaderFromFile(
-            c.os.path.join(
-                c.SHADERS_DIR,
-                "reader/mock/couleurs.fsh"
-            )
-        )
-
-        self._shaders.link()
 
         GL.glEnable(GL.GL_PROGRAM_POINT_SIZE)
         GL.glEnable(GL.GL_POINT_SPRITE)
@@ -122,75 +112,77 @@ class Mock(ReadMock):
         self._shaders.release()
 
     def createWidget(self, title="Mock catalogue controls", parent=None):
+        pass
 
         # create a dialig window
         # self._dialog = Qt.QDialog(parent=parent)
         # self._dialog.setWindowOpacity(0.4)
         # self._dialog.setWindowTitle(title)
 
-        # set a layout
+        # # set a layout
         # self._dialog.setLayout(Qt.QVBoxLayout())
 
         # self.updateWidget()
 
-        return self._dialog
+        # return self._dialog
 
     def updateWidget(self):
+        pass
 
         # get the layout and clear children
-        try:
-            layout = self._dialog.layout()
-            while layout.takeAt(0):
-                child = layout.takeAt(0)
-                del child
-        except:
-            pass
+        # try:
+            # layout = self._dialog.layout()
+            # while layout.takeAt(0):
+                # child = layout.takeAt(0)
+                # del child
+        # except:
+            # pass
 
-        # create a slider
-        slider = Qt.QSlider(QtCore.Qt.Horizontal)
-        slider.valueChanged[int].connect(self._set_voxelsize)
+        # # create a slider
+        # slider = Qt.QSlider(QtCore.Qt.Horizontal)
+        # slider.valueChanged[int].connect(self._set_voxelsize)
 
-        # add a label for slider and the slider
-        self._dialog.layout().addWidget(
-            Qt.QLabel("Point size")
-        )
-        self._dialog.layout().addWidget(slider)
+        # # add a label for slider and the slider
+        # self._dialog.layout().addWidget(
+            # Qt.QLabel("Point size")
+        # )
+        # self._dialog.layout().addWidget(slider)
 
-        # create a list of projections
-        combo = Qt.QComboBox()
-        for projection in self._projections:
-            combo.addItem(projection)
-        self._dialog.layout().addWidget(
-            Qt.QLabel("Kind of projections")
-        )
-        combo.activated[str].connect(self._projection_changed)
-        self._dialog.layout().addWidget(combo)
+        # # create a list of projections
+        # combo = Qt.QComboBox()
+        # for projection in self._projections:
+            # combo.addItem(projection)
+        # self._dialog.layout().addWidget(
+            # Qt.QLabel("Kind of projections")
+        # )
+        # combo.activated[str].connect(self._projection_changed)
+        # self._dialog.layout().addWidget(combo)
 
-        # get the quantity to color
-        self._dialog.layout().addWidget(Qt.QLabel("Colormap quantity"))
-        lineInput = Qt.QLineEdit()
+        # # get the quantity to color
+        # self._dialog.layout().addWidget(Qt.QLabel("Colormap quantity"))
+        # lineInput = Qt.QLineEdit()
 
-        def _getText():
-            text = lineInput.text()
-            self._load_quantity(text)
-        lineInput.returnPressed.connect(_getText)
-        self._dialog.layout().addWidget(lineInput)
+        # def _getText():
+            # text = lineInput.text()
+            # self._load_quantity(text)
+        # lineInput.returnPressed.connect(_getText)
+        # self._dialog.layout().addWidget(lineInput)
 
-        # create a list of colormaps
-        combomap = Qt.QComboBox()
-        for colormap in CM.ColorMap.__subclasses__():
-            combomap.addItem(colormap.__name__)
-        self._dialog.layout().addWidget(
-            Qt.QLabel("Kind of colormap")
-        )
-        combomap.activated[str].connect(self._colormap_changed)
-        self._dialog.layout().addWidget(combomap)
+        # # create a list of colormaps
+        # combomap = Qt.QComboBox()
+        # for colormap in CM.ColorMap.__subclasses__():
+            # combomap.addItem(colormap.__name__)
+        # self._dialog.layout().addWidget(
+            # Qt.QLabel("Kind of colormap")
+        # )
+        # combomap.activated[str].connect(self._colormap_changed)
+        # self._dialog.layout().addWidget(combomap)
 
-        # add the widget of the colormap
-        self._dialog.layout().addWidget(
-            Qt.QLabel("Colormap controls")
-        )
-        self._colormap.createWidget(self._dialog.layout())
+        # # add the widget of the colormap
+        # self._dialog.layout().addWidget(
+            # Qt.QLabel("Colormap controls")
+        # )
+        # self._colormap.createWidget(self._dialog.layout())
 
     def _load_quantity(self, quantity):
         if quantity not in self._data:
