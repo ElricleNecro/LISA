@@ -89,7 +89,7 @@ The only gadget file format supported is the gadget 1.
     cpdef int _write_format1(self):
         cdef int res
         cdef unsigned int i
-        cdef char *fname = <bytes>self.filename.encode()
+        cdef char *fname = self.filename
         #if self.part.ptr_data == NULL:
             #raise MemoryError("Particules array not allocate.")
         for i in range(6):
@@ -100,7 +100,7 @@ The only gadget file format supported is the gadget 1.
     cpdef int _write_format2(self):
         cdef int res
         cdef unsigned int i
-        cdef char *fname = <bytes>self.filename.encode()
+        cdef char *fname = self.filename
         #if self.part.ptr_data == NULL:
             #raise MemoryError("Particules array not allocate.")
         for i in range(6):
@@ -133,9 +133,9 @@ The only gadget file format supported is the gadget 1.
         for i in range(self._nb_files):
             if self.num_files != 1:
                 filename = self._filename + ".%d"%i
-                fname    = <bytes>filename.encode()
+                fname    = filename
             else:
-                fname    = <bytes>self._filename.encode()
+                fname    = self._filename
 
             fd = fopen(fname, "r")
             if fd is NULL:
