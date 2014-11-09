@@ -23,7 +23,7 @@ class Widget(object):
              1, 0, 0.0],
             dtype=np.float32,
         )
-        self._indices = np.array([0, 1, 2, 2, 3, 0], dtype=np.uint32)
+        self._indices = np.array([0, 1, 2, 3], dtype=np.uint32)
         self._npoints = len(self._indices)
 
         # the upper left corner of the widget
@@ -49,6 +49,17 @@ class Widget(object):
 
         # the matrix model
         self._model = m.Identity()
+
+        # a list of children object
+        self._children = []
+
+    def addWidget(self, widget):
+        """
+        Add a widget in the list of children and set correctly sizes
+        accordingly to the parent.
+        """
+
+        self._children.append(widget)
 
     @property
     def minWidth(self):
@@ -181,7 +192,7 @@ class Widget(object):
 
         self._index.bind()
         GL.glDrawElements(
-            GL.GL_TRIANGLES,
+            GL.GL_QUADS,
             self._npoints,
             GL.GL_UNSIGNED_INT,
             None
@@ -227,6 +238,12 @@ class Widget(object):
             self.x = event.x - self._mouseOffset[0]
             self.y = event.y - self._mouseOffset[1]
             return True
+
+    def keyEvent(self, event):
+        pass
+
+    def wheelEvent(self, event):
+        pass
 
     def inside(self, x, y):
         """
