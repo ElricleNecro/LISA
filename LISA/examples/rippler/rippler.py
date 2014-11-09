@@ -11,7 +11,7 @@ import LISA.Object as o
 
 from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
 from LISA.Matrice import Vector
-from LISA.gui.widget import Widget
+from LISA.gui.widget import Button
 
 
 class Rippler(o.Base):
@@ -21,13 +21,13 @@ class Rippler(o.Base):
         npoints = 30
         X = np.linspace(-1, 1, npoints).astype(np.float32)
         Y = np.linspace(-1, 1, npoints).astype(np.float32)
-        Z = np.zeros((npoints,npoints), dtype=np.float32)
+        Z = np.zeros((npoints, npoints), dtype=np.float32)
         x, y = np.meshgrid(X, Y)
         mesh = np.vstack((x, y, Z)).reshape(3, -1).T.astype(np.float32)
 
         super(Rippler, self).__init__(mesh, linetype=o.TriangleMesh(data=mesh))
 
-        self._widget = Widget()
+        self._widget = Button(font_size=20)
 
         self._shaders += t.shader_path("rippler/rippler.vsh")
         self._shaders += t.shader_path("rippler/rippler.fsh")
@@ -60,7 +60,15 @@ class Rippler(o.Base):
         self._widget.createShaders()
 
     def createWidget(self):
+        self._widget.text = "Hello world!"
+        self._widget.x = 300
+        self._widget.y = 300
+        self._widget.click.connect(self._echo)
+
         return self._widget
+
+    def _echo(self):
+        print("clicked")
 
     def show(self, parent):
 
