@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import ctypes
+
 from OpenGL import GL
 from scipy.misc import imread
 
@@ -118,12 +120,29 @@ class Texture(object):
         return value
 
     def loadImage(self, image, level=0):
+        # generate the width, height, deep for all cases of textures
         values = [image.shape[x] for x in range(len(image.shape) - 1)]
+
+        # the value that they said to put at zero
         values.append(0)
+
+        # format of the data
         values.append(self._getFormat(image.shape[len(image.shape) - 1]))
+
+        # convert image type to opengl type
         values.append(DTYPE_TO_GL[image.dtype.name])
+
+        # add the image
         values.append(image)
+
+        # swap values since the width is expected before the height and numpy
+        # array is in the reverse order
+        values[0], values[1] = values[1], values[0]
+
+        # bind the texture to the opengl context
         self.bind()
+
+        # say opengl where is the data for the texture
         self._teximage(
             self._kind,
             level,
@@ -137,11 +156,24 @@ class Texture(object):
         else:
             return getattr(GL, "GL_" + "RGBA"[:number])
 
-    def loadImageFromFile(self, filename, dtype="int8"):
+    def loadFromSDLSurface(self, surface):
+        GL.glTexImage2D(
+            GL.GL_TEXTURE_2D,
+            0,
+            GL.GL_RGBA,
+            surface.w,
+            surface.h,
+            0,
+            GL.GL_RGBA,
+            GL.GL_UNSIGNED_BYTE,
+            ctypes.c_void_p(surface.pixels),
+        )
+
+    def loadImageFromFile(self, filename, dtype="uint8"):
         image = imread(
             texture_path(filename)
         )
-        image.astype(dtype)
+        image = image.astype(dtype)
         self.loadImage(image)
 
     def activate(self):

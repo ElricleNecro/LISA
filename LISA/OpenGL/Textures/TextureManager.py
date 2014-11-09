@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
+import sdl2
 
 from .Texture import Texture
 
@@ -61,15 +62,18 @@ class TextureManager(object):
         load the texture in the GPU memory.
         """
 
+        if isinstance(filename, sdl2.SDL_Surface):
+            return self._loadSDLSurface(filename, *args, **kwargs)
+        else:
+            return self._loadFile(filename, *args, **kwargs)
+
+    def _loadFile(self, filename, *args, **kwargs):
         # check the texture filename already loaded
         if filename in self.database:
-
             # return the texture
             return self.database[filename]
-
         # the texture is not in the database, so we load it
         else:
-
             # make the context current
             self._makeCurrent()
 
@@ -80,6 +84,26 @@ class TextureManager(object):
 
             # store it in the database
             self.database[filename] = texture
+
+            # return it
+            return texture
+
+    def _loadSDLSurface(self, filename, *args, **kwargs):
+        if id(filename) in self.database:
+            # return the texture
+            return self.database[id(filename)]
+        # the texture is not in the database, so we load it
+        else:
+            # make the context current
+            self._makeCurrent()
+
+            # create the texture
+            texture = Texture(*args, **kwargs)
+            texture.loadFromSDLSurface(filename)
+            texture.release()
+
+            # store it in the database
+            self.database[id(filename)] = texture
 
             # return it
             return texture
