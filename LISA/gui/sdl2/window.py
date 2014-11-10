@@ -27,6 +27,9 @@ class SDLWindow(object):
         )
         self._win_name = title
 
+        s.SDL_GL_SetAttribute(s.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+        s.SDL_GL_SetAttribute(s.SDL_GL_CONTEXT_MINOR_VERSION, 1)
+
         self._id = s.SDL_GetWindowID(self._win)
         self._context = s.SDL_GL_CreateContext(self._win)
 
