@@ -30,10 +30,14 @@ class ShaderProgram(object):
 
     def enableAttributeArray(self, name):
         if name not in self._enableAttrib:
-            GL.glBindAttribLocation(self.id, self._last_id, name.encode())
-            self._enableAttrib[name] = self._last_id
-            self._last_id += 1
+            # self._vao_id = GL.glGenVertexArrays(1)
+            self._enableAttrib[name] = GL.glGenVertexArrays(1) # self._last_id
+            GL.glBindAttribLocation(self.id, self._enableAttrib[name], name.encode())
+            # self._last_id += 1
 
+        GL.glBindVertexArray(
+            self._enableAttrib[name]
+        )
         GL.glEnableVertexAttribArray(
             self._enableAttrib[name]
         )
@@ -73,6 +77,7 @@ class ShaderProgram(object):
         )
 
     def disableAttributeArray(self, name):
+        GL.glBindVertexArray(0)
         GL.glDisableVertexAttribArray(self._enableAttrib[name])
 
     def addShader(self, val):
