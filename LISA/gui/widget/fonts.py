@@ -78,7 +78,7 @@ class Text(Widget):
 
     @color.setter
     def color(self, color):
-        self._color = Color(color)
+        self._color = Color(*color)
         self.set_manager()
 
     @property
@@ -87,7 +87,7 @@ class Text(Widget):
 
     @bg_color.setter
     def bg_color(self, bg_color):
-        self._bg_color = Color(bg_color)
+        self._bg_color = Color(*bg_color)
         self.set_manager()
 
     @property
