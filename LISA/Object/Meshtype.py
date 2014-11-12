@@ -70,8 +70,8 @@ class TriangleMesh(object):
                 self._ids[:, i, 1] = indices[:] + 1 + i * side_y
                 self._ids[:, i, 2] = indices[:] + (i + 1) * side_y
                 self._ids[:, i, 3] = indices[:] + (i + 1) * side_y
-                self._ids[:, i, 4] = indices[:] + 1 + (i + 1) * side_y
-                self._ids[:, i, 5] = indices[:] + 1 + i * side_y
+                self._ids[:, i, 4] = indices[:] + 1 + i * side_y
+                self._ids[:, i, 5] = indices[:] + 1 + (i + 1) * side_y
             self._ids = self._ids.flatten()
         else:
             self._ids = ids.flatten()
