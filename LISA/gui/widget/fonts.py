@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import LISA.tools as t
-import numpy as np
+# import numpy as np
 
 from OpenGL import GL
 from .widget import Widget
@@ -34,17 +34,17 @@ class Text(Widget):
         self.set_manager()
 
         # textures coordinates
-        self._mesh_texture = np.array(
-            [
-                0, 0,
-                0, 1,
-                1, 1,
-                1, 0,
-            ],
-            dtype=np.float32,
-        )
-        self._indices_texture = np.array([0, 1, 2, 3], dtype=np.uint32)
-        self._npoints_texture = len(self._indices_texture)
+        # self._mesh_texture = np.array(
+            # [
+                # 0, 0,
+                # 0, 1,
+                # 1, 1,
+                # 1, 0,
+            # ],
+            # dtype=np.float32,
+        # )
+        # self._indices_texture = np.array([0, 1, 2, 3], dtype=np.uint32)
+        # self._npoints_texture = len(self._indices_texture)
 
     def set_manager(self):
         self._manager = FM(
@@ -109,13 +109,9 @@ class Text(Widget):
 
         # create buffers
         self._vertices = Buffer(VERTEX_BUFFER)
-        self._vertices_texture = Buffer(VERTEX_BUFFER)
         self._index = Buffer(INDEX_BUFFER)
-        self._index_texture = Buffer(INDEX_BUFFER)
         self._vertices.create()
-        self._vertices_texture.create()
         self._index.create()
-        self._index_texture.create()
 
         # allocate buffers
         self._vertices.bind()
@@ -124,7 +120,6 @@ class Text(Widget):
             len(self._mesh) * 4
         )
         self._vertices.release()
-        self._vertices_texture.bind()
 
         # window
         self._index.bind()
@@ -133,21 +128,6 @@ class Text(Widget):
             len(self._indices) * 4
         )
         self._index.release()
-
-        # texture coordinates
-        self._vertices_texture.allocate(
-            self._mesh_texture,
-            len(self._mesh_texture) * 4
-        )
-        self._vertices_texture.release()
-
-        # texture coordinates
-        self._index_texture.bind()
-        self._index_texture.allocate(
-            self._indices_texture,
-            len(self._indices_texture) * 4
-        )
-        self._index_texture.release()
 
     def draw(self, parent):
 
@@ -173,8 +153,6 @@ class Text(Widget):
 
         self._textures = parent.textures << [
             (
-                # "heightmap/one.png",
-                # "heightmap/coucou.png",
                 self._surface,
                 {
                     "parameters": {
@@ -209,25 +187,7 @@ class Text(Widget):
         )
         self._index.release()
 
-        self._vertices_texture.bind()
-        self._shaders.enableAttributeArray("texcoord")
-        self._shaders.setAttributeBuffer(
-            "texcoord",
-            self._mesh_texture,
-            tuplesize=2,
-        )
-        self._vertices_texture.release()
-        self._index_texture.bind()
-        GL.glDrawElements(
-            GL.GL_QUADS,
-            self._npoints_texture,
-            GL.GL_UNSIGNED_INT,
-            None
-        )
-        self._index_texture.release()
-
         self._shaders.disableAttributeArray("window")
-        self._shaders.disableAttributeArray("texcoord")
         self._shaders.release()
 
     def mouseEvent(self, event):
