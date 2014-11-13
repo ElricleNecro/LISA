@@ -166,9 +166,6 @@ class OGLWidget(SDLWindow):
         for data in self._data:
             data.show(self)
 
-        GL.glDisable(GL.GL_DEPTH_TEST)
-        GL.glDisable(GL.GL_CULL_FACE)
-
         # now loop over widgets
         for widget in self._widget:
             widget.draw(self)

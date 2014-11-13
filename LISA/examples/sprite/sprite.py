@@ -6,56 +6,72 @@ import numpy as np
 from OpenGL import GL
 from OpenGL.arrays import numpymodule
 
-import LISA.OpenGL.Shaders as s
 import LISA.tools as t
-import LISA.Matrice as m
+import LISA.Object as o
 
 from LISA.Matrice import Vector
+from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
 
-class Sprites(object):
+class Sprites(o.Base):
 
     def __init__(self, *args, **kwargs):
+
         npoints = 10000
         rand = np.random.rand(npoints, 3)
-        self._color = np.random.rand(npoints, 3).flatten()
 
         r = rand[:, 0] ** (1. / 3.)
         thet = np.arccos(2 * rand[:, 1] - 1)
         phi = 2. * np.pi * rand[:, 2]
 
-        self._pos = np.array(
+        pos = np.array(
             [
                 r * np.cos(phi) * np.sin(thet),
                 r * np.sin(phi) * np.sin(thet),
                 r * np.cos(thet)
             ],
             dtype=np.float32,
-        ).T.flatten()
+        ).T
 
-        self._model = m.Identity()
+        self._indices = np.array(range(npoints)).astype("uint32")
+
+        super(Sprites, self).__init__(pos)
+
+        self._shaders += t.shader_path("sprite/sprite.vsh")
+        self._shaders += t.shader_path("sprite/sprite.fsh")
 
     def createShaders(self, parent):
 
-        self._shaders = s.CreateShaderFromFile(
-            t.shader_path("sprite/sprite.vsh")
-        ) + s.CreateShaderFromFile(
-            t.shader_path("sprite/sprite.fsh")
-        )
+        # create buffers
+        self._vertices = Buffer(VERTEX_BUFFER)
+        self._index = Buffer(INDEX_BUFFER)
 
-        self._shaders.link()
+        self._vertices.create()
+        self._index.create()
+
+        # allocate buffers
+        self._vertices.bind()
+        self._vertices.allocate(
+            self._data,
+            len(self._data) * 4
+        )
+        self._vertices.release()
+        self._index.bind()
+        self._index.allocate(
+            self._indices,
+            len(self._indices) * 4
+        )
+        self._index.release()
+
+    def show(self, parent):
 
         GL.glEnable(GL.GL_PROGRAM_POINT_SIZE)
         GL.glEnable(GL.GL_POINT_SPRITE)
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glEnable(GL.GL_BLEND)
         GL.glDepthMask(GL.GL_FALSE)
-
-    def show(self, parent):
-
-        GL.glClear(GL.GL_DEPTH_BUFFER_BIT | GL.GL_COLOR_BUFFER_BIT)
 
         matrice = parent._view * self._model
 
@@ -65,19 +81,29 @@ class Sprites(object):
         self._shaders.setUniformValue("screenSize", parent._screensize)
         self._shaders.setUniformValue("voxelSize", Vector(0.01))
 
+        self._vertices.bind()
         self._shaders.enableAttributeArray("position")
-        self._shaders.setAttributeArray(
+        self._shaders.setAttributeBuffer(
             "position",
-            self._pos,
+            self._data,
         )
+        self._vertices.release()
 
-        GL.glDrawArrays(GL.GL_POINTS, 0, self._pos.shape[0] // 3)
+        self._index.bind()
+        GL.glDrawElements(
+            GL.GL_POINTS,
+            self._data.shape[0] // 3,
+            GL.GL_UNSIGNED_INT,
+            None,
+        )
+        self._index.release()
 
         self._shaders.disableAttributeArray("position")
-
         self._shaders.release()
 
-    def _push_button(self):
-        pass
+        GL.glDisable(GL.GL_PROGRAM_POINT_SIZE)
+        GL.glDisable(GL.GL_POINT_SPRITE)
+        GL.glDisable(GL.GL_DEPTH_TEST)
+        GL.glDisable(GL.GL_BLEND)
 
 # vim: set tw=79 :

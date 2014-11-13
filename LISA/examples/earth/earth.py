@@ -142,4 +142,8 @@ class Earth(o.Base):
         self._shaders.release()
         self._textures[0].release()
 
+        GL.glDisable(GL.GL_DEPTH_TEST)
+        GL.glDisable(GL.GL_CULL_FACE)
+        GL.glDisable(GL.GL_BLEND)
+
 # vim: set tw=79 :
