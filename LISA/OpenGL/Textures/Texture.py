@@ -70,7 +70,12 @@ class Texture(object):
         """
         To indicate that the texture should not be used anymore.
         """
-        self._binded = False
+        if self._binded:
+            GL.glBindTexture(
+                self._kind,
+                0,
+            )
+            self._binded = False
 
     def setParameter(self, param, value):
         GLvalue = self._getValue(value)

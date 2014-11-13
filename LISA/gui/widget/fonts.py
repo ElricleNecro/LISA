@@ -33,19 +33,6 @@ class Text(Widget):
         # init the fontmanager
         self.set_manager()
 
-        # textures coordinates
-        # self._mesh_texture = np.array(
-            # [
-                # 0, 0,
-                # 0, 1,
-                # 1, 1,
-                # 1, 0,
-            # ],
-            # dtype=np.float32,
-        # )
-        # self._indices_texture = np.array([0, 1, 2, 3], dtype=np.uint32)
-        # self._npoints_texture = len(self._indices_texture)
-
     def set_manager(self):
         self._manager = FM(
             font_path=self.font,
@@ -189,6 +176,7 @@ class Text(Widget):
 
         self._shaders.disableAttributeArray("window")
         self._shaders.release()
+        self._textures[0].release()
 
     def mouseEvent(self, event):
         pass

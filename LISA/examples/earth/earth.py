@@ -17,7 +17,11 @@ class Earth(o.Base):
 
         npoints = 800
         phi = np.linspace(0, 2. * np.pi, npoints).astype(np.float32)
-        theta = np.linspace(0.5 * np.pi, -0.5 * np.pi, npoints).astype(np.float32)
+        theta = np.linspace(
+            0.5 * np.pi,
+            -0.5 * np.pi,
+            npoints,
+        ).astype(np.float32)
         r = np.zeros((npoints, npoints), dtype=np.float32)
         r[:, :] = 1.
         p, tt = np.meshgrid(phi, theta)
@@ -63,13 +67,14 @@ class Earth(o.Base):
         self._vertices.release()
         self._index.bind()
         self._index.allocate(
-        self._plot_prop._ids,
+            self._plot_prop._ids,
             len(self._plot_prop._ids) * 4
         )
         self._index.release()
 
     def show(self, parent):
 
+        GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glEnable(GL.GL_CULL_FACE)
@@ -135,5 +140,6 @@ class Earth(o.Base):
 
         self._shaders.disableAttributeArray("position")
         self._shaders.release()
+        self._textures[0].release()
 
 # vim: set tw=79 :

@@ -112,5 +112,6 @@ class HeightMap(o.Base):
 
         self._shaders.disableAttributeArray("position")
         self._shaders.release()
+        self._textures[0].release()
 
 # vim: set tw=79 :
