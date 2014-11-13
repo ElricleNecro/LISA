@@ -17,7 +17,7 @@ class Earth(o.Base):
 
         npoints = 800
         phi = np.linspace(0, 2. * np.pi, npoints).astype(np.float32)
-        theta = np.linspace(0., np.pi, npoints).astype(np.float32)
+        theta = np.linspace(0.5 * np.pi, -0.5 * np.pi, npoints).astype(np.float32)
         r = np.zeros((npoints, npoints), dtype=np.float32)
         r[:, :] = 1.
         p, tt = np.meshgrid(phi, theta)
@@ -35,9 +35,9 @@ class Earth(o.Base):
         phi = self._data[::3]
         theta = self._data[1::3]
         r = self._data[2::3]
-        X = r * np.cos(phi) * np.sin(theta)
-        Y = r * np.sin(phi) * np.sin(theta)
-        Z = r * np.cos(theta)
+        X = r * np.cos(phi) * np.cos(theta)
+        Y = r * np.sin(phi) * np.cos(theta)
+        Z = r * np.sin(theta)
         self._data[::3] = X
         self._data[1::3] = Y
         self._data[2::3] = Z
@@ -63,16 +63,17 @@ class Earth(o.Base):
         self._vertices.release()
         self._index.bind()
         self._index.allocate(
-            self._plot_prop._ids,
+        self._plot_prop._ids,
             len(self._plot_prop._ids) * 4
         )
         self._index.release()
 
     def show(self, parent):
 
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glEnable(GL.GL_CULL_FACE)
-        GL.glCullFace(GL.GL_FRONT)
+        GL.glEnable(GL.GL_BLEND)
 
         self._shaders.bind()
 
@@ -87,7 +88,7 @@ class Earth(o.Base):
 
         self._textures = parent.textures << [
             (
-                "earth/earth.jpg",
+                "earth/earth2.png",
                 {
                     "parameters": {
                         "TEXTURE_MIN_FILTER": "LINEAR",
@@ -115,6 +116,14 @@ class Earth(o.Base):
 
         self._index.bind()
 
+        GL.glCullFace(GL.GL_FRONT)
+        GL.glDrawElements(
+            GL.GL_TRIANGLES,
+            len(self._plot_prop._ids),
+            GL.GL_UNSIGNED_INT,
+            None,
+        )
+        GL.glCullFace(GL.GL_BACK)
         GL.glDrawElements(
             GL.GL_TRIANGLES,
             len(self._plot_prop._ids),
