@@ -30,6 +30,9 @@ class Text(Widget):
         self._color = color
         self._bg_color = bg_color
 
+        # set size_hint to none
+        # self.size_hint = None
+
         # init the fontmanager
         self.set_manager()
 
@@ -85,7 +88,9 @@ class Text(Widget):
     def text(self, text):
         self._text = text
         self._surface = self._manager.render(self._text)
+        self.minWidth = self._surface.w
         self.width = self._surface.w
+        self.minHeight = self._surface.h
         self.height = self._surface.h
 
     def createShaders(self):
