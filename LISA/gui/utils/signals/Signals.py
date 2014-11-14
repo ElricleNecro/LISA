@@ -24,16 +24,20 @@ class Signal(object):
     def __init__(self):
         self._functions = WeakSet()
         self._methods = WeakKeyDictionary()
+        self._activated = True
 
     def __call__(self, *args, **kargs):
-        # Call handler functions
-        for func in self._functions:
-            func(*args, **kargs)
 
-        # Call handler methods
-        for obj, funcs in self._methods.items():
-            for func in funcs:
-                func(obj, *args, **kargs)
+        # call connected functions only if activated
+        if self._activated:
+            # Call handler functions
+            for func in self._functions:
+                func(*args, **kargs)
+
+            # Call handler methods
+            for obj, funcs in self._methods.items():
+                for func in funcs:
+                    func(obj, *args, **kargs)
 
     def connect(self, slot):
         if inspect.ismethod(slot):
@@ -56,5 +60,19 @@ class Signal(object):
     def clear(self):
         self._functions.clear()
         self._methods.clear()
+
+    def activate(self):
+        """
+        Activate the signal to emit.
+        """
+
+        self._activated = True
+
+    def deactivate(self):
+        """
+        Deactivate the signal to emit.
+        """
+
+        self._activated = False
 
 # vim: set tw=79 :
