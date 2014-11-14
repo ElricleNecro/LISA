@@ -8,7 +8,7 @@ from OpenGL import GL
 import LISA.tools as t
 import LISA.Object as o
 
-from LISA.OpenGL import VBO, INDEX_BUFFER, VERTEX_BUFFER
+from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
 
 
 class HeightMap(o.Base):
@@ -39,8 +39,11 @@ class HeightMap(o.Base):
         # create buffers
         self._vertices = VBO(VERTEX_BUFFER)
         self._index = VBO(INDEX_BUFFER)
+        self._vao = VAO()
+
         self._vertices.create()
         self._index.create()
+        self._vao.create()
 
         # allocate buffers
         self._vertices.bind()
@@ -56,11 +59,38 @@ class HeightMap(o.Base):
         )
         self._index.release()
 
+        # Initialization of the VAO
+        self._shaders.bind()
+        self._vao.bind()
+
+        self._vertices.bind()
+        self._shaders.enableAttributeArray("position")
+        self._shaders.setAttributeBuffer(
+            "position",
+            self._data,
+        )
+        self._vertices.release()
+
+        self._index.bind()
+
+        GL.glDrawElements(
+            GL.GL_TRIANGLES,
+            len(self._plot_prop._ids),
+            GL.GL_UNSIGNED_INT,
+            None,
+        )
+
+        self._index.release()
+
+        self._vao.release()
+        self._shaders.release()
+
     def show(self, parent):
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
 
         self._shaders.bind()
+        self._vao.bind()
 
         self._shaders.setUniformValue(
             "projection",
@@ -91,26 +121,29 @@ class HeightMap(o.Base):
         )
         self._textures[0].activate()
 
-        self._vertices.bind()
-        self._shaders.enableAttributeArray("position")
-        self._shaders.setAttributeBuffer(
-            "position",
-            self._data,
-        )
-        self._vertices.release()
+        # self._vertices.bind()
+        # self._shaders.enableAttributeArray("position")
+        # self._shaders.setAttributeBuffer(
+            # "position",
+            # self._data,
+        # )
+        # self._vertices.release()
 
-        self._index.bind()
+        # self._index.bind()
 
-        GL.glDrawElements(
-            GL.GL_TRIANGLES,
-            len(self._plot_prop._ids),
-            GL.GL_UNSIGNED_INT,
-            None,
-        )
+        # GL.glDrawElements(
+            # GL.GL_TRIANGLES,
+            # len(self._plot_prop._ids),
+            # GL.GL_UNSIGNED_INT,
+            # None,
+        # )
 
-        self._index.release()
+        # self._index.release()
 
-        self._shaders.disableAttributeArray("position")
+        # self._shaders.disableAttributeArray("position")
+        GL. glDrawArrays(GL.GL_TRIANGLES, 0, self._data.shape[0]//3)
+
+        self._vao.release()
         self._shaders.release()
 
 # vim: set tw=79 :
