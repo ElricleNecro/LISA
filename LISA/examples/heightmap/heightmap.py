@@ -8,7 +8,7 @@ from OpenGL import GL
 import LISA.tools as t
 import LISA.Object as o
 
-from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
+from LISA.OpenGL import VBO, INDEX_BUFFER, VERTEX_BUFFER
 
 
 class HeightMap(o.Base):
@@ -37,8 +37,8 @@ class HeightMap(o.Base):
     def createShaders(self, parent):
 
         # create buffers
-        self._vertices = Buffer(VERTEX_BUFFER)
-        self._index = Buffer(INDEX_BUFFER)
+        self._vertices = VBO(VERTEX_BUFFER)
+        self._index = VBO(INDEX_BUFFER)
         self._vertices.create()
         self._index.create()
 
