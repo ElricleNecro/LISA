@@ -2,10 +2,11 @@
 # -*- coding: utf-8 -*-
 
 from .fonts import Text
+from .layout import HorizontalLayout
 from ..utils.signals import Signal
 
 
-class Button(Text):
+class Button(HorizontalLayout):
     """
     A class to manage a button with action done when clicking on it.
     """
@@ -17,6 +18,20 @@ class Button(Text):
 
         # signal when clicking
         self.click = Signal()
+
+        # set the text
+        self._text = Text()
+
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, text):
+        self._text.text = text
+        self._text.size_hint = None
+        if self._text not in self._children:
+            self.addWidget(self._text)
 
     def mouseEvent(self, event):
 

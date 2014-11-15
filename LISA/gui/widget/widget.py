@@ -64,10 +64,10 @@ class Widget(object):
 
         # set default padding and margin for the widget
         self.padding = 5
-        self.margin = 5
+        self.margin = 3
 
         # set the size_hint
-        self.size_hint = 1.
+        self.size_hint = None
 
     def addWidget(self, widget):
         """
@@ -385,41 +385,6 @@ class Widget(object):
         for widget in self._children:
             if widget.mouseEvent(event):
                 return True
-
-        # left button of the mouse pressed
-        if event[1]:
-
-            # compute the offset of the mouse cursor relative to the corner
-            # of the widget, if not already pressed
-            if not self._mousePress:
-                self._mouse[0] = event.x
-                self._mouse[1] = event.y
-                self._mouseOffset = self._mouse - self._corner
-
-            # check that we are inside or not the border used to resize the
-            # widget
-            if self._inside_border(event.x, event.y):
-                if not self._mousePressBorders:
-                    self._mouse[0] = event.x
-                    self._mouse[1] = event.y
-                    self._sizeOffset = self._size - self._mouse + self._corner
-                self._mousePressBorders = True
-            elif self.inside(event.x, event.y) and not self._mousePressBorders:
-                self._mousePress = True
-
-        # the left button is released
-        if not event[1]:
-            self._mousePress = False
-            self._mousePressBorders = False
-
-        if self._mousePressBorders:
-            self.width = self._sizeOffset[0] + event.x - self._corner[0]
-            self.height = self._sizeOffset[1] + event.y - self._corner[1]
-            return True
-        if self._mousePress:
-            self.x = event.x - self._mouseOffset[0]
-            self.y = event.y - self._mouseOffset[1]
-            return True
 
     def keyEvent(self, event):
         for widget in self._children:
