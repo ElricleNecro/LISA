@@ -11,7 +11,8 @@ import LISA.Object as o
 
 from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
 from LISA.Matrice import Vector
-from LISA.gui.widget import Button, VerticalLayout, HorizontalLayout
+from LISA.gui.widget import Button  # , VerticalLayout, HorizontalLayout
+from LISA.gui.widget import Application
 
 
 class Rippler(o.Base):
@@ -33,17 +34,21 @@ class Rippler(o.Base):
         self._time = datetime.datetime.now()
 
         # self._widget = HorizontalLayout()
-        self._widget = VerticalLayout()
-        button1 = Button(font_size=20)
-        button2 = Button(font_size=20)
+        # self._widget = VerticalLayout()
+        self._widget = Application()
+        self._widget.title.text = "Window title"
+        button1 = Button()
+        button2 = Button()
+        button1.text.font_size = 20
+        button2.text.font_size = 20
         button1.text = "Hello world !"
         button2.text = "Viva Sponge Bob !"
         self._widget.x = 300
         self._widget.y = 300
         button1.click.connect(self._echo)
         button2.click.connect(self._echo)
-        # button1.size_hint_x = 0.3
-        # button2.size_hint_x = 0.7
+        button1.size_hint_x = None
+        button2.size_hint_x = None
         button1.size_hint_y = 0.5
         button2.size_hint_y = 0.5
         self._widget.addWidget(button1)
