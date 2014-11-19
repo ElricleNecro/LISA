@@ -9,7 +9,7 @@ from OpenGL import GL
 import LISA.tools as t
 import LISA.Object as o
 
-from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
+from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
 from LISA.Matrice import Vector
 from LISA.gui.widget import Widget
 
@@ -27,7 +27,7 @@ class Rippler(o.Base):
 
         super(Rippler, self).__init__(mesh, linetype=o.TriangleMesh(data=mesh))
 
-        self._widget = Widget()
+        # self._widget = Widget()
 
         self._shaders += t.shader_path("rippler/rippler.vsh")
         self._shaders += t.shader_path("rippler/rippler.fsh")
@@ -37,10 +37,13 @@ class Rippler(o.Base):
     def createShaders(self, parent):
 
         # create buffers
-        self._vertices = Buffer(VERTEX_BUFFER)
-        self._index = Buffer(INDEX_BUFFER)
+        self._vertices = VBO(VERTEX_BUFFER)
+        self._index = VBO(INDEX_BUFFER)
+        self._vao = VAO()
+
         self._vertices.create()
         self._index.create()
+        self._vao.create()
 
         # allocate buffers
         self._vertices.bind()
@@ -56,13 +59,29 @@ class Rippler(o.Base):
         )
         self._index.release()
 
+        self._vao.bind()
+
+        self._index.bind()
+        self._vertices.bind()
+
+        self._shaders.enableAttributeArray("position")
+        self._shaders.setAttributeBuffer(
+            "position",
+            self._data,
+        )
+
+        # self._vertices.release()
+        # self._index.release()
+        self._vao.release()
+
         # create shaders for widget
-        self._widget.createShaders()
+        # self._widget.createShaders()
 
     def createWidget(self):
-        return self._widget
+        return None #self._widget
 
     def show(self, parent):
+        print("Ouiiiiin")
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
 
@@ -80,15 +99,17 @@ class Rippler(o.Base):
         second = float((dt.seconds * 1000000 + dt.microseconds) * 0.000006)
         self._shaders.setUniformValue("time", Vector(second, dtype=np.float32))
 
-        self._vertices.bind()
-        self._shaders.enableAttributeArray("position")
-        self._shaders.setAttributeBuffer(
-            "position",
-            self._data,
-        )
-        self._vertices.release()
+        # self._vertices.bind()
+        # self._shaders.enableAttributeArray("position")
+        # self._shaders.setAttributeBuffer(
+            # "position",
+            # self._data,
+        # )
+        # self._vertices.release()
 
-        self._index.bind()
+        # self._index.bind()
+
+        self._vao.bind()
 
         GL.glDrawElements(
             GL.GL_TRIANGLES,
@@ -97,9 +118,11 @@ class Rippler(o.Base):
             None,
         )
 
-        self._index.release()
+        self._vao.release()
 
-        self._shaders.disableAttributeArray("position")
+        # self._index.release()
+
+        # self._shaders.disableAttributeArray("position")
         self._shaders.release()
 
 # vim: set tw=79 :
