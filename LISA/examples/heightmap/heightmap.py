@@ -59,48 +59,6 @@ class HeightMap(o.Base):
         )
         self._index.release()
 
-        # Initialization of the VAO
-        self._shaders.bind()
-        self._vao.bind()
-
-        self._vertices.bind()
-        self._shaders.enableAttributeArray("position")
-        self._shaders.setAttributeBuffer(
-            "position",
-            self._data,
-        )
-        self._vertices.release()
-
-        self._index.bind()
-
-        GL.glDrawElements(
-            GL.GL_TRIANGLES,
-            len(self._plot_prop._ids),
-            GL.GL_UNSIGNED_INT,
-            None,
-        )
-
-        self._index.release()
-
-        self._vao.release()
-        self._shaders.release()
-
-    def show(self, parent):
-
-        GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
-
-        self._shaders.bind()
-        self._vao.bind()
-
-        self._shaders.setUniformValue(
-            "projection",
-            parent._projection
-        )
-        self._shaders.setUniformValue(
-            "modelview",
-            parent._view * self._model
-        )
-
         self._textures = parent.textures << [
             (
                 "heightmap/two.png",
@@ -114,6 +72,38 @@ class HeightMap(o.Base):
                 }
             )
         ]
+
+        # Initialization of the VAO
+        self._vao.bind()
+
+        self._vertices.bind()
+        self._shaders.enableAttributeArray("position")
+        self._shaders.setAttributeBuffer(
+            "position",
+            self._data,
+        )
+
+        self._index.bind()
+
+        # self._vertices.release()
+        # self._index.release()
+
+        self._vao.release()
+
+    def show(self, parent):
+
+        GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
+
+        self._shaders.bind()
+
+        self._shaders.setUniformValue(
+            "projection",
+            parent._projection
+        )
+        self._shaders.setUniformValue(
+            "modelview",
+            parent._view * self._model
+        )
 
         self._shaders.setUniformValue(
             "map",
@@ -129,19 +119,21 @@ class HeightMap(o.Base):
         # )
         # self._vertices.release()
 
+        self._vao.bind()
         # self._index.bind()
 
-        # GL.glDrawElements(
-            # GL.GL_TRIANGLES,
-            # len(self._plot_prop._ids),
-            # GL.GL_UNSIGNED_INT,
-            # None,
-        # )
+        GL.glDrawElements(
+            GL.GL_TRIANGLES,
+            len(self._plot_prop._ids),
+            GL.GL_UNSIGNED_INT,
+            None,
+        )
 
         # self._index.release()
 
         # self._shaders.disableAttributeArray("position")
-        GL. glDrawArrays(GL.GL_TRIANGLES, 0, self._data.shape[0]//3)
+
+        # GL. glDrawArrays(GL.GL_TRIANGLES, 0, len(self._plot_prop._ids)) #self._data.shape[0]//3)
 
         self._vao.release()
         self._shaders.release()
