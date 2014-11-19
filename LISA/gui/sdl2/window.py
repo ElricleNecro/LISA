@@ -32,8 +32,8 @@ class SDLWindow(object):
         # keep a trace of the identity of the window
         self._id = s.SDL_GetWindowID(self._win)
 
-        s.SDL_GL_SetAttribute(s.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
-        s.SDL_GL_SetAttribute(s.SDL_GL_CONTEXT_MINOR_VERSION, 3)
+        # s.SDL_GL_SetAttribute(s.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+        # s.SDL_GL_SetAttribute(s.SDL_GL_CONTEXT_MINOR_VERSION, 3)
 
 
         # set the opengl context of the window
