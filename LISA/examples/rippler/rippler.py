@@ -27,7 +27,7 @@ class Rippler(o.Base):
 
         super(Rippler, self).__init__(mesh, linetype=o.TriangleMesh(data=mesh))
 
-        # self._widget = Widget()
+        self._widget = Widget()
 
         self._shaders += t.shader_path("rippler/rippler.vsh")
         self._shaders += t.shader_path("rippler/rippler.fsh")
@@ -59,6 +59,11 @@ class Rippler(o.Base):
         )
         self._index.release()
 
+        self._shaders.build()
+        self._shaders.bindAttribLocation("position")
+
+        self._shaders.link()
+
         self._vao.bind()
 
         self._index.bind()
@@ -70,18 +75,15 @@ class Rippler(o.Base):
             self._data,
         )
 
-        # self._vertices.release()
-        # self._index.release()
         self._vao.release()
 
         # create shaders for widget
-        # self._widget.createShaders()
+        self._widget.createShaders()
 
     def createWidget(self):
-        return None #self._widget
+        return self._widget
 
     def show(self, parent):
-        print("Ouiiiiin")
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
 
@@ -99,16 +101,6 @@ class Rippler(o.Base):
         second = float((dt.seconds * 1000000 + dt.microseconds) * 0.000006)
         self._shaders.setUniformValue("time", Vector(second, dtype=np.float32))
 
-        # self._vertices.bind()
-        # self._shaders.enableAttributeArray("position")
-        # self._shaders.setAttributeBuffer(
-            # "position",
-            # self._data,
-        # )
-        # self._vertices.release()
-
-        # self._index.bind()
-
         self._vao.bind()
 
         GL.glDrawElements(
@@ -120,9 +112,6 @@ class Rippler(o.Base):
 
         self._vao.release()
 
-        # self._index.release()
-
-        # self._shaders.disableAttributeArray("position")
         self._shaders.release()
 
 # vim: set tw=79 :

@@ -73,6 +73,11 @@ class HeightMap(o.Base):
             )
         ]
 
+        self._shaders.build()
+        self._shaders.bindAttribLocation("position")
+
+        self._shaders.link()
+
         # Initialization of the VAO
         self._vao.bind()
 
