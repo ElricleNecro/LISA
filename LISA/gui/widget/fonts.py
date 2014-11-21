@@ -99,8 +99,11 @@ class Text(Widget):
         # create buffers
         self._vertices = VBO(VERTEX_BUFFER)
         self._index = VBO(INDEX_BUFFER)
+        self._vao = VAO()
+
         self._vertices.create()
         self._index.create()
+        self._vao.create()
 
         # allocate buffers
         self._vertices.bind()
@@ -117,6 +120,22 @@ class Text(Widget):
             len(self._indices) * 4
         )
         self._index.release()
+
+        self._shaders.build()
+        self._shaders.bindAttribLocation("window")
+        self._shaders.link()
+
+        self._vao.bind()
+
+        self._vertices.bind()
+        self._shaders.enableAttributeArray("window")
+        self._shaders.setAttributeBuffer(
+            "window",
+            self._mesh,
+        )
+        self._index.bind()
+
+        self._vao.release()
 
     def draw(self, parent):
 
@@ -147,8 +166,8 @@ class Text(Widget):
                     "parameters": {
                         "TEXTURE_MIN_FILTER": "LINEAR",
                         "TEXTURE_MAG_FILTER": "LINEAR",
-                        "TEXTURE_WRAP_S": "CLAMP",
-                        "TEXTURE_WRAP_T": "CLAMP",
+                        "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
+                        "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
                     }
                 }
             )
@@ -160,23 +179,15 @@ class Text(Widget):
         )
         self._textures[0].activate()
 
-        self._vertices.bind()
-        self._shaders.enableAttributeArray("window")
-        self._shaders.setAttributeBuffer(
-            "window",
-            self._mesh,
-        )
-        self._vertices.release()
-        self._index.bind()
+        self._vao.bind()
         GL.glDrawElements(
             GL.GL_QUADS,
             self._npoints,
             GL.GL_UNSIGNED_INT,
             None
         )
-        self._index.release()
 
-        self._shaders.disableAttributeArray("window")
+        self._vao.release()
         self._shaders.release()
         self._textures[0].release()
 
