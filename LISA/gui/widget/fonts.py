@@ -90,7 +90,7 @@ class Text(Widget):
         self.minHeight = self._surface.h
         self.height = self._surface.h
 
-    def createShaders(self):
+    def createShaders(self, parent):
 
         # set shaders
         self._shaders += t.shader_path("text/text.vsh")
@@ -120,6 +120,20 @@ class Text(Widget):
             len(self._indices) * 4
         )
         self._index.release()
+
+        self._textures = parent.textures << [
+            (
+                self._surface,
+                {
+                    "parameters": {
+                        "TEXTURE_MIN_FILTER": "LINEAR",
+                        "TEXTURE_MAG_FILTER": "LINEAR",
+                        "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
+                        "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
+                    }
+                }
+            )
+        ]
 
         self._shaders.build()
         self._shaders.bindAttribLocation("window")
@@ -158,20 +172,6 @@ class Text(Widget):
             "size",
             self._size,
         )
-
-        self._textures = parent.textures << [
-            (
-                self._surface,
-                {
-                    "parameters": {
-                        "TEXTURE_MIN_FILTER": "LINEAR",
-                        "TEXTURE_MAG_FILTER": "LINEAR",
-                        "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
-                        "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
-                    }
-                }
-            )
-        ]
 
         self._shaders.setUniformValue(
             "texture0",
