@@ -6,7 +6,7 @@ import LISA.tools as t
 
 from OpenGL import GL
 from .widget import Widget
-from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
+from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
 from sdl2.ext.color import Color
 from sdl2.ext import FontManager as FM
 
@@ -15,7 +15,7 @@ class Text(Widget):
 
     def __init__(
         self,
-        font="/usr/share/fonts/TTF/FreeSans.ttf",
+        font="/usr/share/fonts/TTF/Vera.ttf",
         font_size=14,
         color=[255, 255, 255],
         bg_color=[0, 0, 0],
@@ -97,8 +97,8 @@ class Text(Widget):
         self._shaders += t.shader_path("text/text.fsh")
 
         # create buffers
-        self._vertices = Buffer(VERTEX_BUFFER)
-        self._index = Buffer(INDEX_BUFFER)
+        self._vertices = VBO(VERTEX_BUFFER)
+        self._index = VBO(INDEX_BUFFER)
         self._vertices.create()
         self._index.create()
 

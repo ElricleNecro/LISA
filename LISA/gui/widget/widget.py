@@ -6,7 +6,7 @@ import LISA.tools as t
 import LISA.Matrice as m
 
 from OpenGL import GL
-from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
+from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
 from LISA.OpenGL import Shaders
 from LISA.Matrice import Vector
 
@@ -305,8 +305,8 @@ class Widget(object):
         self._shaders += t.shader_path("widget/widget.fsh")
 
         # create buffers
-        self._vertices = Buffer(VERTEX_BUFFER)
-        self._index = Buffer(INDEX_BUFFER)
+        self._vertices = VBO(VERTEX_BUFFER)
+        self._index = VBO(INDEX_BUFFER)
         self._vertices.create()
         self._index.create()
 
