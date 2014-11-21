@@ -28,11 +28,15 @@ class ShaderProgram(object):
         var_id = GL.glGetUniformLocation(self.id, name.encode())
         data._setUniformValue(var_id, _GL_ns)
 
-    def enableAttributeArray(self, name):
+    def bindAttribLocation(self, name):
         if name not in self._enableAttrib:
             GL.glBindAttribLocation(self.id, self._last_id, name.encode())
             self._enableAttrib[name] = self._last_id
             self._last_id += 1
+
+    def enableAttributeArray(self, name):
+        if name not in self._enableAttrib:
+            self.bindAttribLocation(name)
 
         GL.glEnableVertexAttribArray(
             self._enableAttrib[name]

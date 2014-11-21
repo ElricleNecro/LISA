@@ -8,7 +8,7 @@ from OpenGL import GL
 import LISA.tools as t
 import LISA.Object as o
 
-from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
+from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
 
 
 class HeightMap(o.Base):
@@ -37,10 +37,13 @@ class HeightMap(o.Base):
     def createShaders(self, parent):
 
         # create buffers
-        self._vertices = Buffer(VERTEX_BUFFER)
-        self._index = Buffer(INDEX_BUFFER)
+        self._vertices = VBO(VERTEX_BUFFER)
+        self._index = VBO(INDEX_BUFFER)
+        self._vao = VAO()
+
         self._vertices.create()
         self._index.create()
+        self._vao.create()
 
         # allocate buffers
         self._vertices.bind()
@@ -55,6 +58,42 @@ class HeightMap(o.Base):
             len(self._plot_prop._ids) * 4
         )
         self._index.release()
+
+        self._textures = parent.textures << [
+            (
+                "heightmap/two.png",
+                {
+                    "parameters": {
+                        "TEXTURE_MIN_FILTER": "LINEAR",
+                        "TEXTURE_MAG_FILTER": "LINEAR",
+                        "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
+                        "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
+                    }
+                }
+            )
+        ]
+
+        self._shaders.build()
+        self._shaders.bindAttribLocation("position")
+
+        self._shaders.link()
+
+        # Initialization of the VAO
+        self._vao.bind()
+
+        self._vertices.bind()
+        self._shaders.enableAttributeArray("position")
+        self._shaders.setAttributeBuffer(
+            "position",
+            self._data,
+        )
+
+        self._index.bind()
+
+        # self._vertices.release()
+        # self._index.release()
+
+        self._vao.release()
 
     def show(self, parent):
 
@@ -71,35 +110,22 @@ class HeightMap(o.Base):
             parent._view * self._model
         )
 
-        self._textures = parent.textures << [
-            (
-                "heightmap/two.png",
-                {
-                    "parameters": {
-                        "TEXTURE_MIN_FILTER": "LINEAR",
-                        "TEXTURE_MAG_FILTER": "LINEAR",
-                        "TEXTURE_WRAP_S": "CLAMP",
-                        "TEXTURE_WRAP_T": "CLAMP",
-                    }
-                }
-            )
-        ]
-
         self._shaders.setUniformValue(
             "map",
             self._textures[0],
         )
         self._textures[0].activate()
 
-        self._vertices.bind()
-        self._shaders.enableAttributeArray("position")
-        self._shaders.setAttributeBuffer(
-            "position",
-            self._data,
-        )
-        self._vertices.release()
+        # self._vertices.bind()
+        # self._shaders.enableAttributeArray("position")
+        # self._shaders.setAttributeBuffer(
+            # "position",
+            # self._data,
+        # )
+        # self._vertices.release()
 
-        self._index.bind()
+        self._vao.bind()
+        # self._index.bind()
 
         GL.glDrawElements(
             GL.GL_TRIANGLES,
@@ -108,9 +134,13 @@ class HeightMap(o.Base):
             None,
         )
 
-        self._index.release()
+        # self._index.release()
 
-        self._shaders.disableAttributeArray("position")
+        # self._shaders.disableAttributeArray("position")
+
+        # GL. glDrawArrays(GL.GL_TRIANGLES, 0, len(self._plot_prop._ids)) #self._data.shape[0]//3)
+
+        self._vao.release()
         self._shaders.release()
         self._textures[0].release()
 
