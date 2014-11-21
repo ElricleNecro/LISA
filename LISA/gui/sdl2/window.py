@@ -35,7 +35,6 @@ class SDLWindow(object):
         # s.SDL_GL_SetAttribute(s.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
         # s.SDL_GL_SetAttribute(s.SDL_GL_CONTEXT_MINOR_VERSION, 3)
 
-
         # set the opengl context of the window
         self._context = s.SDL_GL_CreateContext(self._win)
 
