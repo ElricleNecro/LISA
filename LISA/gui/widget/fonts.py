@@ -17,8 +17,8 @@ class Text(Widget):
         self,
         font="/usr/share/fonts/TTF/FreeSans.ttf",
         font_size=14,
-        color=Color(255, 255, 255),
-        bg_color=Color(0, 0, 0),
+        color=[255, 255, 255],
+        bg_color=[0, 0, 0],
     ):
 
         # init parent
@@ -27,8 +27,8 @@ class Text(Widget):
         # set a default size
         self._font_size = font_size
         self._font = font
-        self._color = color
-        self._bg_color = bg_color
+        self._color = Color(*color)
+        self._bg_color = Color(*bg_color)
 
         # init the fontmanager
         self.set_manager()
@@ -47,7 +47,7 @@ class Text(Widget):
 
     @font_size.setter
     def font_size(self, font_size):
-        self._font_size = font_size
+        self._font_size = int(font_size)
         self.set_manager()
 
     @property
@@ -85,7 +85,9 @@ class Text(Widget):
     def text(self, text):
         self._text = text
         self._surface = self._manager.render(self._text)
+        self.minWidth = self._surface.w
         self.width = self._surface.w
+        self.minHeight = self._surface.h
         self.height = self._surface.h
 
     def createShaders(self):

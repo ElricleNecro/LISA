@@ -11,7 +11,8 @@ import LISA.Object as o
 
 from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
 from LISA.Matrice import Vector
-from LISA.gui.widget import Button
+from LISA.gui.widget import Button  # , VerticalLayout, HorizontalLayout
+from LISA.gui.widget import Application
 
 
 class Rippler(o.Base):
@@ -27,12 +28,29 @@ class Rippler(o.Base):
 
         super(Rippler, self).__init__(mesh, linetype=o.TriangleMesh(data=mesh))
 
-        self._widget = Button(font_size=20)
-
         self._shaders += t.shader_path("rippler/rippler.vsh")
         self._shaders += t.shader_path("rippler/rippler.fsh")
 
         self._time = datetime.datetime.now()
+
+        self._widget = Application()
+        self._widget.title.text = "Window title"
+        button1 = Button()
+        button2 = Button()
+        button1.text.font_size = 20
+        button2.text.font_size = 20
+        button1.text = "Hello world !"
+        button2.text = "Viva Sponge Bob !"
+        self._widget.x = 300
+        self._widget.y = 300
+        button1.click.connect(self._echo)
+        button2.click.connect(self._echo)
+        button1.size_hint_x = None
+        button2.size_hint_x = None
+        button1.size_hint_y = 0.5
+        button2.size_hint_y = 0.5
+        self._widget.addWidget(button1)
+        self._widget.addWidget(button2)
 
     def createShaders(self, parent):
 
@@ -81,10 +99,6 @@ class Rippler(o.Base):
         self._widget.createShaders()
 
     def createWidget(self):
-        self._widget.text = "Hello world!"
-        self._widget.x = 300
-        self._widget.y = 300
-        self._widget.click.connect(self._echo)
 
         return self._widget
 

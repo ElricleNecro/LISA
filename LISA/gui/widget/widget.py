@@ -27,13 +27,11 @@ class Widget(object):
         self._npoints = len(self._indices)
 
         # the upper left corner of the widget
-        self._x, self._y = 0., 0.
-        self._corner = Vector(self._x, self._y, dtype=np.float32)
+        self._corner = Vector(0, 0, dtype=np.float32)
 
         # the size of the widget
-        self._width, self._height = 100., 300.
-        self.minWidth, self.minHeight = 40, 60
-        self._size = Vector(self._width, self._height, dtype=np.float32)
+        self._size = Vector(1., 1., dtype=np.float32)
+        self._minWidth, self._minHeight = 0., 0.
 
         # for borders
         self._borders = [10, 10]
@@ -53,13 +51,35 @@ class Widget(object):
         # a list of children object
         self._children = []
 
+        # set default padding and margin for the widget
+        self.padding = 5
+        self.margin = 3
+
+        # set the size_hint
+        self.size_hint = None
+
+        # set the parent
+        self._parent = None
+
     def addWidget(self, widget):
         """
         Add a widget in the list of children and set correctly sizes
         accordingly to the parent.
         """
 
+        # set the parent of the widget
+        widget.parent = self
+
+        # append the widget to children
         self._children.append(widget)
+
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, parent):
+        self._parent = parent
 
     @property
     def minWidth(self):
@@ -68,6 +88,9 @@ class Widget(object):
     @minWidth.setter
     def minWidth(self, minWidth):
         self._minWidth = minWidth
+        if self.parent is not None:
+            self.parent.minWidth = float(self._minWidth + self.margin_x.sum())
+        self.width = self.width
 
     @property
     def minHeight(self):
@@ -76,6 +99,11 @@ class Widget(object):
     @minHeight.setter
     def minHeight(self, minHeight):
         self._minHeight = minHeight
+        if self.parent is not None:
+            self.parent.minHeight = float(
+                self._minHeight + self.margin_y.sum()
+            )
+        self.height = self.height
 
     @property
     def x_border(self):
@@ -97,43 +125,179 @@ class Widget(object):
 
     @property
     def width(self):
-        return self._width
+        return self._size[0]
 
     @width.setter
     def width(self, width):
-        self._width = width
-        if self._width <= self.minWidth:
-            self._width = self.minWidth
-        self._size[0] = self._width
+        self._size[0] = width
+        if self._size[0] <= self.minWidth:
+            self._size[0] = self.minWidth
+        if self.parent is not None:
+            self.parent.width = self._size[0]
 
     @property
     def height(self):
-        return self._height
+        return self._size[1]
 
     @height.setter
     def height(self, height):
-        self._height = height
-        if self._height <= self.minHeight:
-            self._height = self.minHeight
-        self._size[1] = self._height
+        self._size[1] = height
+        if self._size[1] < self.minHeight:
+            self._size[1] = self.minHeight
+        if self.parent is not None:
+            self.parent.height = self._size[1]
 
     @property
     def x(self):
-        return self._x
+        return self._corner[0]
 
     @x.setter
     def x(self, x):
-        self._x = x
-        self._corner[0] = self._x
+        self._corner[0] = x
 
     @property
     def y(self):
-        return self._y
+        return self._corner[1]
 
     @y.setter
     def y(self, y):
-        self._y = y
-        self._corner[1] = self._y
+        self._corner[1] = y
+
+    @property
+    def size_hint(self):
+        return self._size_hint
+
+    @size_hint.setter
+    def size_hint(self, size_hint):
+        self._size_hint = [size_hint] * 2
+
+    @property
+    def size_hint_x(self):
+        return self._size_hint[0]
+
+    @size_hint_x.setter
+    def size_hint_x(self, size_hint_x):
+        self._size_hint[0] = size_hint_x
+
+    @property
+    def size_hint_y(self):
+        return self._size_hint[1]
+
+    @size_hint_y.setter
+    def size_hint_y(self, size_hint_y):
+        self._size_hint[1] = size_hint_y
+
+    @property
+    def padding(self):
+        return self._padding
+
+    @padding.setter
+    def padding(self, padding):
+        self._padding = Vector(*[padding] * 4, dtype=np.float32)
+
+    @property
+    def padding_x(self):
+        return self._padding[:2]
+
+    @padding_x.setter
+    def padding_x(self, padding_x):
+        self._padding[:2] = padding_x
+
+    @property
+    def padding_y(self):
+        return self._padding[2:]
+
+    @padding_y.setter
+    def padding_y(self, padding_y):
+        self._padding[2:] = padding_y
+
+    @property
+    def padding_left(self):
+        return self._padding[0]
+
+    @padding_left.setter
+    def padding_left(self, padding_left):
+        self._padding[0] = padding_left
+
+    @property
+    def padding_right(self):
+        return self._padding[1]
+
+    @padding_right.setter
+    def padding_right(self, padding_right):
+        self._padding[1] = padding_right
+
+    @property
+    def padding_top(self):
+        return self._padding[2]
+
+    @padding_top.setter
+    def padding_top(self, padding_top):
+        self._padding[2] = padding_top
+
+    @property
+    def padding_bottom(self):
+        return self._padding[3]
+
+    @padding_bottom.setter
+    def padding_bottom(self, padding_bottom):
+        self._padding[3] = padding_bottom
+
+    @property
+    def margin(self):
+        return self._margin
+
+    @margin.setter
+    def margin(self, margin):
+        self._margin = Vector(*[margin] * 4, dtype=np.float32)
+
+    @property
+    def margin_x(self):
+        return self._margin[:2]
+
+    @margin_x.setter
+    def margin_x(self, margin_x):
+        self._margin[:2] = margin_x
+
+    @property
+    def margin_y(self):
+        return self._margin[2:]
+
+    @margin_y.setter
+    def margin_y(self, margin_y):
+        self._margin[2:] = margin_y
+
+    @property
+    def margin_left(self):
+        return self._margin[0]
+
+    @margin_left.setter
+    def margin_left(self, margin_left):
+        self._margin[0] = margin_left
+
+    @property
+    def margin_right(self):
+        return self._margin[1]
+
+    @margin_right.setter
+    def margin_right(self, margin_right):
+        self._margin[1] = margin_right
+
+    @property
+    def margin_top(self):
+        return self._margin[2]
+
+    @margin_top.setter
+    def margin_top(self, margin_top):
+        self._margin[2] = margin_top
+
+    @property
+    def margin_bottom(self):
+        return self._margin[3]
+
+    @margin_bottom.setter
+    def margin_bottom(self, margin_bottom):
+        self._margin[3] = margin_bottom
 
     def createShaders(self):
 
@@ -159,6 +323,9 @@ class Widget(object):
             len(self._indices) * 4
         )
         self._index.release()
+
+        for widget in self._children:
+            widget.createShaders()
 
     def draw(self, parent):
 
@@ -202,48 +369,24 @@ class Widget(object):
         self._shaders.disableAttributeArray("window")
         self._shaders.release()
 
+        for widget in self._children:
+            widget.draw(parent)
+
     def mouseEvent(self, event):
 
-        # left button of the mouse pressed
-        if event[1]:
-
-            # compute the offset of the mouse cursor relative to the corner
-            # of the widget, if not already pressed
-            if not self._mousePress:
-                self._mouse[0] = event.x
-                self._mouse[1] = event.y
-                self._mouseOffset = self._mouse - self._corner
-            if not self._mousePressBorders:
-                self._mouse[0] = event.x
-                self._mouse[1] = event.y
-                self._sizeOffset = self._size - self._mouse + self._corner
-
-            # check that we are inside or not the border used to resize the
-            # widget
-            if self._inside_border(event.x, event.y):
-                self._mousePressBorders = True
-            elif self.inside(event.x, event.y) and not self._mousePressBorders:
-                self._mousePress = True
-
-        # the left button is released
-        if not event[1]:
-            self._mousePress = False
-            self._mousePressBorders = False
-
-        if self._mousePressBorders:
-            self.width = self._sizeOffset[0] + event.x - self._corner[0]
-            self.height = self._sizeOffset[1] + event.y - self._corner[1]
-            return True
-        if self._mousePress:
-            self.x = event.x - self._mouseOffset[0]
-            self.y = event.y - self._mouseOffset[1]
-            return True
+        for widget in self._children:
+            if widget.mouseEvent(event):
+                return True
 
     def keyEvent(self, event):
-        pass
+        for widget in self._children:
+            if widget.keyEvent(event):
+                return True
 
     def wheelEvent(self, event):
-        pass
+        for widget in self._children:
+            if widget.wheelEvent(event):
+                return True
 
     def inside(self, x, y):
         """
