@@ -26,7 +26,7 @@ class Figure(object):
         self._background_color = background_color
 
     def addWidget(self, wid):
-        pass
+        self.scene.addWidget(wid)
 
     def __getitem__(self, ind):
         return self.scene.lines[ind]

@@ -11,6 +11,7 @@ __all__ = [
     "LookAt",
     "Translation",
     "Quaternion",
+    "Orthographic",
 ]
 
 
@@ -107,6 +108,25 @@ def Perspective(FoV, ratio, near, far, dtype=np.float32):
     mat[2, 2] = (near + far) / (near - far)
     mat[2, 3] = 2. * near * far / (near - far)
     mat[3, 2] = -1.
+
+    return mat
+
+
+def Orthographic(right, left, top, bottom, near, far, dtype=np.float32):
+    """
+    Return an orthographic matrix for the projection in general of 2D gui.
+    """
+    mat = Matrix((4, 4), dtype, order='C')
+    width = right - left
+    height = top - bottom
+    depth = far - near
+    mat[0, 0] = 2. / width
+    mat[1, 1] = 2. / height
+    mat[2, 2] = - 2. / depth
+    mat[3, 3] = 1.
+    mat[0, 3] = - (right + left) / width
+    mat[1, 3] = - (top + bottom) / height
+    mat[2, 3] = (far + near) / depth
 
     return mat
 
