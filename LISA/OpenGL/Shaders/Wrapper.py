@@ -22,7 +22,7 @@ class Shaders(object):
         self._modified_shader = False
         self._list_shaders = list()
 
-    def _construct_shader(self):
+    def build(self):
         self._program = ShaderProgram()
         for a, t in self._list_shaders:
             self._program += Shader(a, t)
@@ -57,6 +57,9 @@ class Shaders(object):
     def setUniformValue(self, *args, **kwargs):
         self._program.setUniformValue(*args, **kwargs)
 
+    def bindAttribLocation(self, name):
+        self._program.bindAttribLocation(name)
+
     def enableAttributeArray(self, *args, **kwargs):
         self._program.enableAttributeArray(*args, **kwargs)
 
@@ -70,7 +73,8 @@ class Shaders(object):
         self._program.disableAttributeArray(*args, **kwargs)
 
     def link(self):
-        self._construct_shader()
+        if self._modified_shader or self._program is None:
+            self.build()
         self._program.link()
 
     def bind(self):
