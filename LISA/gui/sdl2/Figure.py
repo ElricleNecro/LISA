@@ -47,9 +47,13 @@ class Figure(object):
         # add widget created by user
         try:
             wid = value.createWidget()
+
             if wid:
                 self.addWidget(wid)
-        except:
+
+            # create shaders for widget
+            wid.createShaders(self.scene)
+        except AttributeError:
             pass
 
         # create shaders after all is done
