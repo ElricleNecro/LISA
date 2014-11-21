@@ -33,8 +33,6 @@ class Rippler(o.Base):
 
         self._time = datetime.datetime.now()
 
-        # self._widget = HorizontalLayout()
-        # self._widget = VerticalLayout()
         self._widget = Application()
         self._widget.title.text = "Window title"
         button1 = Button()

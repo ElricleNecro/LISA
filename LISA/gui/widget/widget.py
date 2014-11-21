@@ -7,7 +7,6 @@ import LISA.Matrice as m
 
 from OpenGL import GL
 from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
-from ..utils.signals import Signal
 from LISA.OpenGL import Shaders
 from LISA.Matrice import Vector
 
@@ -27,22 +26,12 @@ class Widget(object):
         self._indices = np.array([0, 1, 2, 3], dtype=np.uint32)
         self._npoints = len(self._indices)
 
-        # initialize signals
-        self.changedHeight = Signal()
-        self.changedWidth = Signal()
-        self.changedPosition = Signal()
-        self.changedPadding = Signal()
-        self.changedMargin = Signal()
-
         # the upper left corner of the widget
-        self._x, self._y = 0., 0.
-        self._corner = Vector(self._x, self._y, dtype=np.float32)
+        self._corner = Vector(0, 0, dtype=np.float32)
 
         # the size of the widget
-        self._size = Vector(0., 0., dtype=np.float32)
+        self._size = Vector(1., 1., dtype=np.float32)
         self._minWidth, self._minHeight = 0., 0.
-        self.width, self.height = 1., 1.
-        self.minWidth, self.minHeight = 0., 0.
 
         # for borders
         self._borders = [10, 10]
@@ -69,13 +58,28 @@ class Widget(object):
         # set the size_hint
         self.size_hint = None
 
+        # set the parent
+        self._parent = None
+
     def addWidget(self, widget):
         """
         Add a widget in the list of children and set correctly sizes
         accordingly to the parent.
         """
 
+        # set the parent of the widget
+        widget.parent = self
+
+        # append the widget to children
         self._children.append(widget)
+
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, parent):
+        self._parent = parent
 
     @property
     def minWidth(self):
@@ -84,6 +88,8 @@ class Widget(object):
     @minWidth.setter
     def minWidth(self, minWidth):
         self._minWidth = minWidth
+        if self.parent is not None:
+            self.parent.minWidth = float(self._minWidth + self.margin_x.sum())
         self.width = self.width
 
     @property
@@ -93,6 +99,10 @@ class Widget(object):
     @minHeight.setter
     def minHeight(self, minHeight):
         self._minHeight = minHeight
+        if self.parent is not None:
+            self.parent.minHeight = float(
+                self._minHeight + self.margin_y.sum()
+            )
         self.height = self.height
 
     @property
@@ -115,47 +125,43 @@ class Widget(object):
 
     @property
     def width(self):
-        return self._width
+        return self._size[0]
 
     @width.setter
     def width(self, width):
-        self._width = width
-        if self._width <= self.minWidth:
-            self._width = self.minWidth
-        self._size[0] = self._width
-        self.changedWidth(self._width)
+        self._size[0] = width
+        if self._size[0] <= self.minWidth:
+            self._size[0] = self.minWidth
+        if self.parent is not None:
+            self.parent.width = self._size[0]
 
     @property
     def height(self):
-        return self._height
+        return self._size[1]
 
     @height.setter
     def height(self, height):
-        self._height = height
-        if self._height <= self.minHeight:
-            self._height = self.minHeight
-        self._size[1] = self._height
-        self.changedHeight(self._height)
+        self._size[1] = height
+        if self._size[1] < self.minHeight:
+            self._size[1] = self.minHeight
+        if self.parent is not None:
+            self.parent.height = self._size[1]
 
     @property
     def x(self):
-        return self._x
+        return self._corner[0]
 
     @x.setter
     def x(self, x):
-        self._x = x
-        self._corner[0] = self._x
-        self.changedPosition(self._corner)
+        self._corner[0] = x
 
     @property
     def y(self):
-        return self._y
+        return self._corner[1]
 
     @y.setter
     def y(self, y):
-        self._y = y
-        self._corner[1] = self._y
-        self.changedPosition(self._corner)
+        self._corner[1] = y
 
     @property
     def size_hint(self):
@@ -188,7 +194,6 @@ class Widget(object):
     @padding.setter
     def padding(self, padding):
         self._padding = Vector(*[padding] * 4, dtype=np.float32)
-        self.changedPadding()
 
     @property
     def padding_x(self):
@@ -197,7 +202,6 @@ class Widget(object):
     @padding_x.setter
     def padding_x(self, padding_x):
         self._padding[:2] = padding_x
-        self.changedPadding()
 
     @property
     def padding_y(self):
@@ -206,7 +210,6 @@ class Widget(object):
     @padding_y.setter
     def padding_y(self, padding_y):
         self._padding[2:] = padding_y
-        self.changedPadding()
 
     @property
     def padding_left(self):
@@ -215,7 +218,6 @@ class Widget(object):
     @padding_left.setter
     def padding_left(self, padding_left):
         self._padding[0] = padding_left
-        self.changedPadding()
 
     @property
     def padding_right(self):
@@ -224,7 +226,6 @@ class Widget(object):
     @padding_right.setter
     def padding_right(self, padding_right):
         self._padding[1] = padding_right
-        self.changedPadding()
 
     @property
     def padding_top(self):
@@ -233,7 +234,6 @@ class Widget(object):
     @padding_top.setter
     def padding_top(self, padding_top):
         self._padding[2] = padding_top
-        self.changedPadding()
 
     @property
     def padding_bottom(self):
@@ -242,7 +242,6 @@ class Widget(object):
     @padding_bottom.setter
     def padding_bottom(self, padding_bottom):
         self._padding[3] = padding_bottom
-        self.changedPadding()
 
     @property
     def margin(self):
@@ -251,7 +250,6 @@ class Widget(object):
     @margin.setter
     def margin(self, margin):
         self._margin = Vector(*[margin] * 4, dtype=np.float32)
-        self.changedMargin()
 
     @property
     def margin_x(self):
@@ -260,7 +258,6 @@ class Widget(object):
     @margin_x.setter
     def margin_x(self, margin_x):
         self._margin[:2] = margin_x
-        self.changedMargin()
 
     @property
     def margin_y(self):
@@ -269,7 +266,6 @@ class Widget(object):
     @margin_y.setter
     def margin_y(self, margin_y):
         self._margin[2:] = margin_y
-        self.changedMargin()
 
     @property
     def margin_left(self):
@@ -278,7 +274,6 @@ class Widget(object):
     @margin_left.setter
     def margin_left(self, margin_left):
         self._margin[0] = margin_left
-        self.changedMargin()
 
     @property
     def margin_right(self):
@@ -287,7 +282,6 @@ class Widget(object):
     @margin_right.setter
     def margin_right(self, margin_right):
         self._margin[1] = margin_right
-        self.changedMargin()
 
     @property
     def margin_top(self):
@@ -296,7 +290,6 @@ class Widget(object):
     @margin_top.setter
     def margin_top(self, margin_top):
         self._margin[2] = margin_top
-        self.changedMargin()
 
     @property
     def margin_bottom(self):
@@ -305,7 +298,6 @@ class Widget(object):
     @margin_bottom.setter
     def margin_bottom(self, margin_bottom):
         self._margin[3] = margin_bottom
-        self.changedMargin()
 
     def createShaders(self):
 

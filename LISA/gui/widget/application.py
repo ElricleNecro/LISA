@@ -31,9 +31,15 @@ class Application(VerticalLayout):
         # the text for the title
         self.title = Text()
         self.title.size_hint = None
+        self._title_container = VerticalLayout()
+        self._title_container.size_hint_y = None
+        self._title_container.size_hint_x = 1.
+        self._title_container.padding = 0
+        self._title_container.margin = 0
+        self._title_container.addWidget(self.title)
 
         # add the text to the layout
-        self.titlebar.addWidget(self.title)
+        self.titlebar.addWidget(self._title_container)
 
         # create the button
         self.close = Button()
@@ -47,7 +53,7 @@ class Application(VerticalLayout):
         super(Application, self).addWidget(self.titlebar)
         super(Application, self).addWidget(self.content)
 
-        # add a padding fr moving window
+        # add a padding for moving window
         self.padding = 5
 
     def addWidget(self, widget):
