@@ -299,7 +299,7 @@ class Widget(object):
     def margin_bottom(self, margin_bottom):
         self._margin[3] = margin_bottom
 
-    def createShaders(self):
+    def createShaders(self, parent):
 
         self._shaders += t.shader_path("widget/widget.vsh")
         self._shaders += t.shader_path("widget/widget.fsh")
@@ -344,7 +344,7 @@ class Widget(object):
         self._vao.release()
 
         for widget in self._children:
-            widget.createShaders()
+            widget.createShaders(parent)
 
     def draw(self, parent):
 
