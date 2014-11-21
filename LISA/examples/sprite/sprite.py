@@ -10,7 +10,7 @@ import LISA.tools as t
 import LISA.Object as o
 
 from LISA.Matrice import Vector
-from LISA.OpenGL import Buffer, INDEX_BUFFER, VERTEX_BUFFER
+from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
 
 numpymodule.NumpyHandler.ERROR_ON_COPY = True
 
@@ -45,11 +45,13 @@ class Sprites(o.Base):
     def createShaders(self, parent):
 
         # create buffers
-        self._vertices = Buffer(VERTEX_BUFFER)
-        self._index = Buffer(INDEX_BUFFER)
+        self._vertices = VBO(VERTEX_BUFFER)
+        self._index = VBO(INDEX_BUFFER)
+        self._vao = VAO()
 
         self._vertices.create()
         self._index.create()
+        self._vao.create()
 
         # allocate buffers
         self._vertices.bind()
@@ -64,6 +66,21 @@ class Sprites(o.Base):
             len(self._indices) * 4
         )
         self._index.release()
+
+        self._shaders.build()
+        self._shaders.bindAttribLocation("position")
+        self._shaders.link()
+
+        self._vao.bind()
+        self._vertices.bind()
+        self._shaders.enableAttributeArray("position")
+        self._shaders.setAttributeBuffer(
+            "position",
+            self._data,
+        )
+
+        self._index.bind()
+        self._vao.release()
 
     def show(self, parent):
 
@@ -81,24 +98,15 @@ class Sprites(o.Base):
         self._shaders.setUniformValue("screenSize", parent._screensize)
         self._shaders.setUniformValue("voxelSize", Vector(0.01))
 
-        self._vertices.bind()
-        self._shaders.enableAttributeArray("position")
-        self._shaders.setAttributeBuffer(
-            "position",
-            self._data,
-        )
-        self._vertices.release()
-
-        self._index.bind()
+        self._vao.bind()
         GL.glDrawElements(
             GL.GL_POINTS,
             self._data.shape[0] // 3,
             GL.GL_UNSIGNED_INT,
             None,
         )
-        self._index.release()
+        self._vao.release()
 
-        self._shaders.disableAttributeArray("position")
         self._shaders.release()
 
         GL.glDisable(GL.GL_PROGRAM_POINT_SIZE)
