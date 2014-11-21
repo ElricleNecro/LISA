@@ -33,24 +33,6 @@ class Rippler(o.Base):
 
         self._time = datetime.datetime.now()
 
-        self._widget = Application()
-        self._widget.title.text = "Window title"
-        button1 = Button()
-        button2 = Button()
-        button1.text.font_size = 20
-        button2.text.font_size = 20
-        button1.text = "Hello world !"
-        button2.text = "Viva Sponge Bob !"
-        self._widget.x = 300
-        self._widget.y = 300
-        button1.click.connect(self._echo)
-        button2.click.connect(self._echo)
-        button1.size_hint_x = None
-        button2.size_hint_x = None
-        button1.size_hint_y = 0.5
-        button2.size_hint_y = 0.5
-        self._widget.addWidget(button1)
-        self._widget.addWidget(button2)
 
     def createShaders(self, parent):
 
@@ -95,10 +77,29 @@ class Rippler(o.Base):
 
         self._vao.release()
 
-        # create shaders for widget
-        self._widget.createShaders()
-
     def createWidget(self):
+        self._widget = Application()
+        self._widget.title.text = "Window title"
+        self._widget.x = 300
+        self._widget.y = 300
+
+        button1 = Button()
+        button1.text.font_size = 20
+        button1.text = "Hello world !"
+        button1.click.connect(self._echo)
+        button1.size_hint_x = None
+        button1.size_hint_y = 0.5
+
+        self._widget.addWidget(button1)
+
+        button2 = Button()
+        button2.text.font_size = 20
+        button2.text = "Viva Sponge Bob !"
+        button2.click.connect(self._echo)
+        button2.size_hint_x = None
+        button2.size_hint_y = 0.5
+
+        self._widget.addWidget(button2)
 
         return self._widget
 
