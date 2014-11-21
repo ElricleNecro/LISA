@@ -202,8 +202,8 @@ class TextureLinear(Texture):
             parameters={
                 "TEXTURE_MIN_FILTER": "LINEAR",
                 "TEXTURE_MAG_FILTER": "LINEAR",
-                "TEXTURE_WRAP_S": "CLAMP",
-                "TEXTURE_WRAP_T": "CLAMP",
+                "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
+                "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
             }
         )
 # vim: set tw=79 :
