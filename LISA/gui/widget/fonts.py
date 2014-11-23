@@ -9,13 +9,14 @@ from .widget import Widget
 from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
 from sdl2.ext.color import Color
 from sdl2.ext import FontManager as FM
+from LISA.gui.utils.fonts import getDefaultFont
 
 
 class Text(Widget):
 
     def __init__(
         self,
-        font="/usr/share/fonts/TTF/Vera.ttf",
+        font=getDefaultFont(),
         font_size=14,
         color=[255, 255, 255],
         bg_color=[0, 0, 0],
