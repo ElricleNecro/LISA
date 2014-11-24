@@ -7,5 +7,6 @@ from .button import Button
 from .layout import *
 from .application import *
 from .slider import *
+from .spinner import *
 
 # vim: set tw=79 :

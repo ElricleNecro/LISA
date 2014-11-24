@@ -14,6 +14,7 @@ from LISA.Matrice import Vector
 from LISA.gui.widget import Button, VerticalLayout
 from LISA.gui.widget import Application
 from LISA.gui.widget import VerticalSlider, HorizontalSlider
+from LISA.gui.widget import Spinner
 
 
 class Rippler(o.Base):
@@ -92,7 +93,8 @@ class Rippler(o.Base):
         button1.text = "Hello world !"
         button1.click.connect(self._echo)
         button1.size_hint_x = None
-        button1.size_hint_y = 0.5
+        # button1.size_hint_y = 0.33
+        button1.size_hint_y = None
 
         vlayout.addWidget(button1)
 
@@ -101,9 +103,16 @@ class Rippler(o.Base):
         button2.text = "Viva Sponge Bob !"
         button2.click.connect(self._echo)
         button2.size_hint_x = None
-        button2.size_hint_y = 0.5
+        # button2.size_hint_y = 0.33
+        button2.size_hint_y = None
 
         vlayout.addWidget(button2)
+
+        # create a integer spinner
+        spinner = Spinner()
+        spinner.size_hint = None
+        spinner.step = 0.01
+        vlayout.addWidget(spinner)
 
         # create the vertical slider
         slider = VerticalSlider()
