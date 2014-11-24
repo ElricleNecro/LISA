@@ -61,6 +61,9 @@ class Widget(object):
         # set the parent
         self._parent = None
 
+        # set the default color
+        self.bgcolor = 0.3, 0.4, 0.1, 0.7
+
     def addWidget(self, widget):
         """
         Add a widget in the list of children and set correctly sizes
@@ -73,6 +76,13 @@ class Widget(object):
         # append the widget to children
         self._children.append(widget)
 
+    @property
+    def bgcolor(self):
+        return self._bgcolor
+
+    @bgcolor.setter
+    def bgcolor(self, color):
+        self._bgcolor = Vector(*color, dtype=np.float32)
     @property
     def parent(self):
         return self._parent
@@ -366,6 +376,10 @@ class Widget(object):
         self._shaders.setUniformValue(
             "size",
             self._size,
+        )
+        self._shaders.setUniformValue(
+            "color",
+            self._bgcolor,
         )
 
         self._vao.bind()
