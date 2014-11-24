@@ -17,8 +17,8 @@ class BaseLayout(Widget):
         self._resizing = False
 
         # default padding null
-        self.padding = 5
-        self.margin = 2
+        self.padding = 0
+        self.margin = 0
 
     def addWidget(self, widget):
         """
@@ -134,6 +134,9 @@ class BaseLayout(Widget):
 
 class VerticalLayout(BaseLayout):
 
+    def _widget_position(self, widget):
+        return self.y + self.padding_top + self._total + widget.margin_top
+
     @property
     def width(self):
         return self._size[0]
@@ -186,7 +189,7 @@ class VerticalLayout(BaseLayout):
         super(VerticalLayout, self.__class__).height.fset(self, height)
 
         # init the total height of childrens
-        total = 0
+        self._total = 0
         total_static = 0
 
         # compute total static size
@@ -198,9 +201,7 @@ class VerticalLayout(BaseLayout):
         for widget in self._children:
 
             # set the position according to padding and margin
-            widget.y = (
-                self.y + self.padding_top + total + widget.margin_top
-            )
+            widget.y = self._widget_position(widget)
 
             # change the size hint with margin if specified
             if widget.size_hint_y is not None:
@@ -209,7 +210,7 @@ class VerticalLayout(BaseLayout):
                 ) - widget.margin_y.sum())
 
             # add to the total children height the new widget and its margin
-            total += widget.height + widget.margin_y.sum()
+            self._total += widget.height + widget.margin_y.sum()
 
         # not resizing
         self._resizing = False
@@ -234,6 +235,9 @@ class VerticalLayout(BaseLayout):
 
 
 class HorizontalLayout(BaseLayout):
+
+    def _widget_position(self, widget):
+        return self.x + self.padding_left + self._total + widget.margin_left
 
     @property
     def height(self):
@@ -287,7 +291,7 @@ class HorizontalLayout(BaseLayout):
         super(HorizontalLayout, self.__class__).width.fset(self, width)
 
         # init the total width of childrens
-        total = 0
+        self._total = 0
         total_static = 0
 
         # compute total static size
@@ -299,9 +303,7 @@ class HorizontalLayout(BaseLayout):
         for widget in self._children:
 
             # set the position according to padding and margin
-            widget.x = (
-                self.x + self.padding_left + total + widget.margin_left
-            )
+            widget.x = self._widget_position(widget)
 
             # change the size hint with margin if specified
             if widget.size_hint_x is not None:
@@ -310,7 +312,7 @@ class HorizontalLayout(BaseLayout):
                 ) - widget.margin_x.sum())
 
             # add to the total children width the new widget and its margin
-            total += widget.width + widget.margin_x.sum()
+            self._total += widget.width + widget.margin_x.sum()
 
         # not resizing
         self._resizing = False
