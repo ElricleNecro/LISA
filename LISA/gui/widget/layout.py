@@ -65,7 +65,8 @@ class BaseLayout(Widget):
             self.parent.minWidth = float(self.minWidth + self.margin_x.sum())
 
         # update width
-        self.width = self.width
+        if self.width < self._minWidth:
+            self.width = self._minWidth
 
     @property
     def minHeight(self):
@@ -95,7 +96,8 @@ class BaseLayout(Widget):
             self.parent.minHeight = float(self.minHeight + self.margin_y.sum())
 
         # check height
-        self.height = self.height
+        if self.height < self._minHeight:
+            self.height = self._minHeight
 
     @property
     def x(self):
@@ -231,7 +233,8 @@ class VerticalLayout(BaseLayout):
             self.parent.minHeight = float(self.minHeight + self.margin_y.sum())
 
         # check height
-        self.height = self.height
+        if self.height < self._minHeight:
+            self.height = self._minHeight
 
 
 class HorizontalLayout(BaseLayout):
@@ -333,5 +336,6 @@ class HorizontalLayout(BaseLayout):
             self.parent.minWidth = float(self.minWidth + self.margin_x.sum())
 
         # check height
-        self.width = self.width
+        if self.width < self._minWidth:
+            self.width = self.width
 # vim: set tw=79 :

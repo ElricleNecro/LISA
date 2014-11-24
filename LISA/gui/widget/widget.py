@@ -100,7 +100,8 @@ class Widget(object):
         self._minWidth = minWidth
         if self.parent is not None:
             self.parent.minWidth = float(self._minWidth + self.margin_x.sum())
-        self.width = self.width
+        if self.width < self._minWidth:
+            self.width = self._minWidth
 
     @property
     def minHeight(self):
@@ -113,7 +114,8 @@ class Widget(object):
             self.parent.minHeight = float(
                 self._minHeight + self.margin_y.sum()
             )
-        self.height = self.height
+        if self.height < self._minHeight:
+            self.height = self._minHeight
 
     @property
     def x_border(self):
