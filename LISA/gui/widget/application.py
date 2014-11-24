@@ -17,6 +17,12 @@ class Application(VerticalLayout):
 
     def __init__(self, *args, **kwargs):
 
+        # get the layout for contents
+        if "layout" in kwargs:
+            layout = kwargs.pop("layout")
+        else:
+            layout = "vertical"
+
         super(Application, self).__init__(*args, **kwargs)
 
         # layout for the titlebar
@@ -25,7 +31,12 @@ class Application(VerticalLayout):
         self.titlebar.size_hint_y = None
 
         # layout for the content
-        self.content = VerticalLayout()
+        if layout.upper() == "VERTICAL":
+            self.content = VerticalLayout()
+        elif layout.upper() == "HORIZONTAL":
+            self.content = HorizontalLayout()
+        else:
+            raise ValueError("No good content layout for application.")
         self.content.size_hint = 1.
 
         # the text for the title
