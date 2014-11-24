@@ -13,6 +13,7 @@ FONT_DIRECTORIES = [
     "/usr/share/fonts/TTF/",
 ]
 
+
 def getFontsFiles():
 
     # init the directory
@@ -42,6 +43,10 @@ def getDefaultFont():
     # get available fonts
     fonts = getFontsFiles()
 
-    return fonts[list(fonts.keys())[0]]
+    # list of fonts
+    fontNames = list(fonts.keys())
+    fontNames.sort()
+
+    return fonts[fontNames[0]]
 
 # vim: set tw=79 :
