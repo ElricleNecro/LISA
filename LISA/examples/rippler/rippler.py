@@ -11,8 +11,9 @@ import LISA.Object as o
 
 from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
 from LISA.Matrice import Vector
-from LISA.gui.widget import Button  # , VerticalLayout, HorizontalLayout
+from LISA.gui.widget import Button, VerticalLayout
 from LISA.gui.widget import Application
+from LISA.gui.widget import VerticalSlider, HorizontalSlider
 
 
 class Rippler(o.Base):
@@ -32,7 +33,6 @@ class Rippler(o.Base):
         self._shaders += t.shader_path("rippler/rippler.fsh")
 
         self._time = datetime.datetime.now()
-
 
     def createShaders(self, parent):
 
@@ -78,10 +78,14 @@ class Rippler(o.Base):
         self._vao.release()
 
     def createWidget(self):
-        self._widget = Application()
+        self._widget = Application(layout="horizontal")
         self._widget.title.text = "Window title"
         self._widget.x = 300
         self._widget.y = 300
+
+        # create vertical layout for buttons
+        vlayout = VerticalLayout()
+        vlayout.size_hint = 1.
 
         button1 = Button()
         button1.text.font_size = 20
@@ -90,7 +94,7 @@ class Rippler(o.Base):
         button1.size_hint_x = None
         button1.size_hint_y = 0.5
 
-        self._widget.addWidget(button1)
+        vlayout.addWidget(button1)
 
         button2 = Button()
         button2.text.font_size = 20
@@ -99,7 +103,16 @@ class Rippler(o.Base):
         button2.size_hint_x = None
         button2.size_hint_y = 0.5
 
-        self._widget.addWidget(button2)
+        vlayout.addWidget(button2)
+
+        # create the vertical slider
+        slider = VerticalSlider()
+        hslider = HorizontalSlider()
+        vlayout.addWidget(hslider)
+
+        # add the vertical layout and slider to horizontal layout
+        self._widget.addWidget(vlayout)
+        self._widget.addWidget(slider)
 
         return self._widget
 

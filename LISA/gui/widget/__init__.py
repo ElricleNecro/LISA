@@ -6,5 +6,6 @@ from .fonts import Text
 from .button import Button
 from .layout import *
 from .application import *
+from .slider import *
 
 # vim: set tw=79 :
