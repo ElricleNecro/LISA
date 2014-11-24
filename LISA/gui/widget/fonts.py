@@ -34,6 +34,12 @@ class Text(Widget):
         # init the fontmanager
         self.set_manager()
 
+        # initiate the trace of the figure
+        self._parent_manager = None
+
+        # and texture
+        self._textures = None
+
     def set_manager(self):
         self._manager = FM(
             font_path=self.font,
@@ -85,13 +91,33 @@ class Text(Widget):
     @text.setter
     def text(self, text):
         self._text = text
-        self._surface = self._manager.render(self._text)
-        self.minWidth = self._surface.w
-        self.width = self._surface.w
-        self.minHeight = self._surface.h
-        self.height = self._surface.h
+        if self._parent_manager is not None:
+            if self._textures is not None:
+                self._parent_manager.textures.remove(id(self._surface))
+            self._surface = self._manager.render(self._text)
+            self.minWidth = self._surface.w
+            # self.width = self._surface.w
+            self.minHeight = self._surface.h
+            # self.height = self._surface.h
+            self._textures = self._parent_manager.textures << [
+                (
+                    self._surface,
+                    {
+                        "parameters": {
+                            "TEXTURE_MIN_FILTER": "LINEAR",
+                            "TEXTURE_MAG_FILTER": "LINEAR",
+                            "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
+                            "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
+                        }
+                    }
+                )
+            ]
 
     def createShaders(self, parent):
+
+        # keep a trace of the figure
+        self._parent_manager = parent
+        self.text = self.text
 
         # set shaders
         self._shaders += t.shader_path("text/text.vsh")
@@ -121,20 +147,6 @@ class Text(Widget):
             len(self._indices) * 4
         )
         self._index.release()
-
-        self._textures = parent.textures << [
-            (
-                self._surface,
-                {
-                    "parameters": {
-                        "TEXTURE_MIN_FILTER": "LINEAR",
-                        "TEXTURE_MAG_FILTER": "LINEAR",
-                        "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
-                        "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
-                    }
-                }
-            )
-        ]
 
         self._shaders.build()
         self._shaders.bindAttribLocation("window")
