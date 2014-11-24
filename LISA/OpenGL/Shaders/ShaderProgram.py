@@ -125,6 +125,6 @@ class ShaderProgram(object):
         self.removeShader(val)
         return self
 
-    def __del__(self):
+    def delete(self):
         if bool(GL.glDeleteProgram):
             GL.glDeleteProgram(self.id)

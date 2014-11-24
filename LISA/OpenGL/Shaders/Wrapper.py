@@ -79,7 +79,7 @@ class Shaders(object):
 
     def bind(self):
         if self._modified_shader or self._program is None:
-            del self._program
+            self._program.delete()
             self.link()
 
         self._program.bind()
@@ -145,5 +145,5 @@ class Shaders(object):
         self.removeShader(val)
         return self
 
-    def __del__(self):
-        del self._program
+    def delete(self):
+        self._program.delete()

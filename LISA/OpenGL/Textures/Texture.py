@@ -188,8 +188,8 @@ class Texture(object):
     def _setUniformValue(self, location, GL_ns):
         GL_ns["glUniform1i"](location, self.unit)
 
-    def __del__(self):
-        GL.glDeleteTextures(1, self.id)
+    def delete(self):
+        GL.glDeleteTextures([self.id])
 
 
 class TextureLinear(Texture):

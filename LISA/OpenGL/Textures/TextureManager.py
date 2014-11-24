@@ -115,8 +115,7 @@ class TextureManager(object):
 
         if texture in self.database:
             # destroy the texture
-            tmp = self.database[texture]
-            del tmp
+            self.database[texture].delete()
 
             # remove it from the database
             del self.database[texture]
