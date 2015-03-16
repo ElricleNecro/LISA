@@ -40,13 +40,12 @@ def getFontsFiles():
 
 def getDefaultFont():
 
-    # get available fonts
-    fonts = getFontsFiles()
-
-    # list of fonts
-    fontNames = list(fonts.keys())
-    fontNames.sort()
-
-    return fonts[fontNames[0]]
+    # return fonts[fontNames[0]]
+    return os.path.abspath(
+        os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "../../../Data/Fonts/ComicRelief.ttf",
+        )
+    )
 
 # vim: set tw=79 :

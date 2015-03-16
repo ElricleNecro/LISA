@@ -118,6 +118,7 @@ setup(
             "Data/Shaders/reader/mock/*.*sh",
             'Data/Shaders/*.*sh',
             'Data/Textures/heightmap/*.png',
+            'Data/Fonts/*.ttf',
         ]
     },
     ext_modules=cythonize(
