@@ -7,8 +7,13 @@ from OpenGL import GL
 
 import LISA.tools as t
 import LISA.Object as o
+import LISA.Matrice as m
 
 from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
+from LISA.gui.widget import VerticalLayout, HorizontalLayout
+from LISA.gui.widget import Application
+from LISA.gui.widget import VerticalSlider, HorizontalSlider
+from LISA.gui.widget import Spinner, Text
 
 
 class Earth(o.Base):
@@ -45,6 +50,8 @@ class Earth(o.Base):
         self._data[::3] = X
         self._data[1::3] = Y
         self._data[2::3] = Z
+
+        self.angle = 0.
 
         self._shaders += t.shader_path("earth/earth.vsh")
         self._shaders += t.shader_path("earth/earth.fsh")
@@ -104,7 +111,40 @@ class Earth(o.Base):
 
         self._vao.release()
 
+    def createWidget(self):
+        self._widget = Application(layout="vertical")
+        self._widget.title.text = "Earth mover"
+        self._widget.x = 300
+        self._widget.y = 300
+
+        # create vertical layout for buttons
+        hlayout = HorizontalLayout()
+        hlayout.size_hint = 1.
+
+        # create the slider
+        hslider = HorizontalSlider()
+        hlayout.addWidget(hslider)
+
+        # connect the slider to the rotation of the earth
+        hslider.changedSlider.connect(self._updateModel)
+
+        # add the vertical layout and slider to horizontal layout
+        self._widget.addWidget(hlayout)
+
+        return self._widget
+
+    def _updateModel(self, value):
+        """
+        The value of the slider is between 0 and 1, so rescale to allow a
+        rotation of the model from one side to an other one.
+        """
+
+        self.angle = (value - 0.5) * 3.14159
+
     def show(self, parent):
+
+        # rotate against z axis
+        self.model *= m.Quaternion(self.angle, m.Vector(0., 0., 1.))
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
