@@ -35,4 +35,9 @@ Dependencies:
 - numpy
 - PyQt4 (optional)
 
+Fonts Licence:
+==============
+
+The distributed 'ComicRelief' font is available under SIL Open Font Licence (see SIL.md file for details).
+
 <!-- vim: spelllang=en -->
