@@ -83,7 +83,7 @@ class Earth(o.Base):
 
         self._textures = parent.textures << [
             (
-                "earth/earth2.png",
+                t.texture_path("earth/earth2.png"),
                 {
                     "parameters": {
                         "TEXTURE_MIN_FILTER": "LINEAR",

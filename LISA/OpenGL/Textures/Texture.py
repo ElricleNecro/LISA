@@ -125,14 +125,22 @@ class Texture(object):
         return value
 
     def loadImage(self, image, level=0):
+        # hack for cases where we have a one channel texture, can't find
+        # something smart at this time
+        if len(image.shape) == 2:
+            shape = list(image.shape)
+            shape += [1]
+        else:
+            shape = image.shape
+
         # generate the width, height, deep for all cases of textures
-        values = [image.shape[x] for x in range(len(image.shape) - 1)]
+        values = [shape[x] for x in range(len(shape) - 1)]
 
         # the value that they said to put at zero
         values.append(0)
 
         # format of the data
-        values.append(self._getFormat(image.shape[len(image.shape) - 1]))
+        values.append(self._getFormat(shape[len(shape) - 1]))
 
         # convert image type to opengl type
         values.append(DTYPE_TO_GL[image.dtype.name])
@@ -151,7 +159,7 @@ class Texture(object):
         self._teximage(
             self._kind,
             level,
-            self._getFormat(image.shape[len(image.shape) - 1]),
+            self._getFormat(shape[len(shape) - 1]),
             *values
         )
 
@@ -175,9 +183,7 @@ class Texture(object):
         )
 
     def loadImageFromFile(self, filename, dtype="uint8"):
-        image = imread(
-            texture_path(filename)
-        )
+        image = imread(filename)
         image = image.astype(dtype)
         self.loadImage(image)
 

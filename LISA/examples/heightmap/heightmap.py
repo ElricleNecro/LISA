@@ -18,7 +18,7 @@ class HeightMap(o.Base):
         npoints = 80
         X = np.linspace(-1, 1, npoints).astype(np.float32)
         Y = np.linspace(-1, 1, npoints).astype(np.float32)
-        Z = np.zeros((npoints,npoints), dtype=np.float32)
+        Z = np.zeros((npoints, npoints), dtype=np.float32)
         x, y = np.meshgrid(X, Y)
         mesh = np.vstack((x, y, Z)).reshape(3, -1).T.astype(np.float32)
 
@@ -61,7 +61,7 @@ class HeightMap(o.Base):
 
         self._textures = parent.textures << [
             (
-                "heightmap/two.png",
+                t.texture_path("heightmap/two.png"),
                 {
                     "parameters": {
                         "TEXTURE_MIN_FILTER": "LINEAR",
