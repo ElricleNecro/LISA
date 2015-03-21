@@ -15,7 +15,7 @@ class Perspective(m.Matrix):
 
         self._angle = 60.0
         self._ratio = 16 / 9
-        self._minimal = 0.000001
+        self._minimal = 0.001
         self._maximal = 10000000.0
         self._setf()
         self[:] = m.Perspective(
