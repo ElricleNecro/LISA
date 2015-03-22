@@ -1,5 +1,4 @@
 #version 130
-#pragma debug(on)
 
 uniform mat4 modelview;
 uniform mat4 projection;
