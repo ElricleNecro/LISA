@@ -6,6 +6,7 @@ from LISA.gui.sdl2.Figure import Figure
 from LISA.examples.rippler import Rippler
 from LISA.examples.heightmap import HeightMap
 from LISA.examples.earth import Earth
+from LISA.examples.earth_lighting import Earth as EarthLight
 from LISA.examples.sprite import Sprites
 
 # read arguments
@@ -35,6 +36,12 @@ parser.add_argument(
 parser.add_argument(
     '--Sprites',
     help="Plot the example of the sprites",
+    action="store_true",
+    default=False,
+)
+parser.add_argument(
+    '--EarthLight',
+    help="Plot the example of the earth with widget controls",
     action="store_true",
     default=False,
 )
