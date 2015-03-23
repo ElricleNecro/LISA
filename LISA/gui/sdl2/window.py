@@ -53,6 +53,10 @@ class SDLWindow(object):
             "Inside window %d for event.", id(self._win)
         )
 
+        if ev.End:
+            self.close()
+            return 0
+
         # the window resized
         if ev._resized and hasattr(self, "resizeGL"):
             s.SDL_SetWindowSize(self._win, *ev._window_size)
