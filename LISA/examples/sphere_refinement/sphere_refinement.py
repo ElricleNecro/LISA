@@ -12,7 +12,6 @@ from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
 from LISA.Object.Sphere import IcoSphere
 from LISA.gui.widget import Application
 from LISA.gui.widget import HorizontalSlider
-from LISA.gui.widget import Spinner
 from LISA.gui.widget import Text
 from LISA.Matrice import Vector
 
@@ -22,7 +21,7 @@ class SphereRefinement(o.Base):
     def __init__(self, *args, **kwargs):
         super(SphereRefinement, self).__init__(np.asarray([]))
 
-        self._createSphere(3)
+        self._createSphere()
 
         self.light_position = Vector(0, 10, 0, 1, dtype=np.float32)
         self.light_intensities = Vector(1, 1, 1, dtype=np.float32)
@@ -34,10 +33,10 @@ class SphereRefinement(o.Base):
         self._shaders += t.shader_path("sphere/sphere.vsh")
         self._shaders += t.shader_path("sphere/sphere.fsh")
 
-    def _createSphere(self, level):
+    def _createSphere(self, camera=[0, 0, 1]):
         # create the mesh
-        self.sphere = IcoSphere()
-        self.sphere(level)
+        self.sphere = IcoSphere([0, 0, 0], camera)
+        self.sphere()
         self._data = np.asarray(
             self.sphere.positions,
             dtype="float32"
@@ -124,34 +123,17 @@ class SphereRefinement(o.Base):
         self.distance_slider = HorizontalSlider()
         self._widget.addWidget(self.distance_slider)
 
-        # create spin box for setting the refinement
-        self.label = Text()
-        self.label.text = "Level of refinement"
-        self._widget.addWidget(self.label)
-
-        # the spinner
-        self.spinner = Spinner()
-        self.spinner.size_hint = None
-        self.spinner.step = 1
-        self.spinner.currentValue = 3
-        self._widget.addWidget(self.spinner)
-
         # connect the slider to the rotation of the earth
         self.attenuation_slider.changedSlider.connect(self._updateAttenuation)
         self.shininess_slider.changedSlider.connect(self._updateShininess)
         self.ambient_slider.changedSlider.connect(self._updateAmbient)
         self.distance_slider.changedSlider.connect(self._updateDistance)
-        self.spinner.changedCurrentValue.connect(self._changeRefinement)
 
         return self._widget
 
-    def _changeRefinement(self, value):
-        # check bounds
-        if value < 0:
-            return
-
+    def _changeRefinement(self):
         # recreate the sphere
-        self._createSphere(value)
+        self._createSphere(self.camera)
 
         # recreate the shaders and buffers
         self.createShaders(None)
@@ -160,6 +142,9 @@ class SphereRefinement(o.Base):
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
         GL.glEnable(GL.GL_CULL_FACE)
+
+        self.camera = np.dot(parent.rotate[:3, :3].T, parent.camera)
+        self._changeRefinement()
 
         self._shaders.bind()
 

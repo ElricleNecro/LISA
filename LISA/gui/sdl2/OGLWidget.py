@@ -27,7 +27,7 @@ class OGLWidget(SDLWindow):
         self.view = m.Identity()
         self.camera_up = m.Vector(0., 1., 0., dtype="float32")
         self.camera_target = m.Vector(0., 0., 0., dtype="float32")
-        self.camera = m.Vector(0, 0, 1., dtype="float32")
+        self.camera = m.Vector(0, 0, 5., dtype="float32")
         self.rotate = m.Identity()
         self.zoom = 1.0
 
