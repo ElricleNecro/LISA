@@ -23,7 +23,7 @@ class Widget(object):
              1, 0, 0.0],
             dtype=np.float32,
         )
-        self._indices = np.array([0, 1, 2, 3], dtype=np.uint32)
+        self._indices = np.array([0, 1, 2, 2, 3, 0], dtype=np.uint32)
         self._npoints = len(self._indices)
 
         # the upper left corner of the widget
@@ -386,7 +386,7 @@ class Widget(object):
 
         self._vao.bind()
         GL.glDrawElements(
-            GL.GL_QUADS,
+            GL.GL_TRIANGLES,
             self._npoints,
             GL.GL_UNSIGNED_INT,
             None

@@ -194,7 +194,7 @@ class Text(Widget):
 
         self._vao.bind()
         GL.glDrawElements(
-            GL.GL_QUADS,
+            GL.GL_TRIANGLES,
             self._npoints,
             GL.GL_UNSIGNED_INT,
             None
