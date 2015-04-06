@@ -28,7 +28,8 @@ class VerticalSlider(VerticalLayout):
         self.block.margin = 0
 
         # set another background color for the block
-        self.block.bgcolor = 1., 0., 0., 0.7
+        self.block.bgcolor = 0.117, 0.564, 1., 0.7
+        self.bgcolor = 0.15, 0.15, 0.15, 0.7
 
         # force the size hint
         self.size_hint_x = None
@@ -36,6 +37,8 @@ class VerticalSlider(VerticalLayout):
 
         # the value of the slide
         self._slideValue = 0.
+
+        self._mousePressSlide = False
 
         # add the block to the container
         self.addWidget(self.block)
@@ -59,14 +62,20 @@ class VerticalSlider(VerticalLayout):
             if self.block.inside(event.x, event.y):
                 # indicate that it is pressed
                 self._mousePress = True
+            elif self.inside(event.x, event.y):
+                self._mousePressSlide = True
 
         # the left button is released
         if not event[1]:
             self._mousePress = False
+            self._mousePressSlide = False
 
-        if self._mousePress:
+        if self._mousePress or self._mousePressSlide:
             # compute the position of the left edge of the block
-            position = event.y - self._mouseOffset[1]
+            if self._mousePress:
+                position = event.y - self._mouseOffset[1]
+            if self._mousePressSlide:
+                position = event.y - self.block.height // 2
 
             # check inside the parent container in top
             parent_edge = self.y + self.padding_top
@@ -125,7 +134,8 @@ class HorizontalSlider(HorizontalLayout):
         self.block.margin = 0
 
         # set another background color for the block
-        self.block.bgcolor = 1., 0., 0., 0.7
+        self.block.bgcolor = 0.117, 0.564, 1., 0.7
+        self.bgcolor = 0.15, 0.15, 0.15, 0.7
 
         # force the size hint
         self.size_hint_y = None
@@ -133,6 +143,8 @@ class HorizontalSlider(HorizontalLayout):
 
         # the value of the slide
         self._slideValue = 0.
+
+        self._mousePressSlide = False
 
         # add the block to the container
         self.addWidget(self.block)
@@ -156,14 +168,20 @@ class HorizontalSlider(HorizontalLayout):
             if self.block.inside(event.x, event.y):
                 # indicate that it is pressed
                 self._mousePress = True
+            elif self.inside(event.x, event.y):
+                self._mousePressSlide = True
 
         # the left button is released
         if not event[1]:
             self._mousePress = False
+            self._mousePressSlide = False
 
-        if self._mousePress:
+        if self._mousePress or self._mousePressSlide:
             # compute the position of the left edge of the block
-            position = event.x - self._mouseOffset[0]
+            if self._mousePress:
+                position = event.x - self._mouseOffset[0]
+            if self._mousePressSlide:
+                position = event.x - self.block.width // 2
 
             # check inside the parent container in left
             parent_edge = self.x + self.padding_left

@@ -62,7 +62,7 @@ class Widget(object):
         self._parent = None
 
         # set the default color
-        self.bgcolor = 0.3, 0.4, 0.1, 0.7
+        self.bgcolor = 0.1, 0.1, 0.1, 0.7
 
     def addWidget(self, widget):
         """
