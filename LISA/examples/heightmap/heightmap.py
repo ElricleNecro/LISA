@@ -146,7 +146,7 @@ class HeightMap(o.Base):
 
     def show(self, parent):
 
-        GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
+        GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
 
         self._shaders.bind()
 

@@ -28,24 +28,6 @@ class Keyboard(list):
             [False for i in range(s.SDL_NUM_SCANCODES)]
         )
 
-        self._x, self._y = 0., 0.
-
-    @property
-    def x(self):
-        return self._x
-
-    @x.setter
-    def x(self, x):
-        self._x = x
-
-    @property
-    def y(self):
-        return self._y
-
-    @y.setter
-    def y(self, y):
-        self._y = y
-
 
 class Wheel(object):
     dx = 0.
@@ -181,8 +163,6 @@ class SDLInput(object):
 
         self._mouse.x = self._event.motion.x
         self._mouse.y = self._event.motion.y
-        self._keys.x = self._mouse.x
-        self._keys.y = self._mouse.y
 
     @property
     def id(self):
