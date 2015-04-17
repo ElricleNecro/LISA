@@ -99,7 +99,7 @@ for name in extNames:
 # --------------------------------------------------------------------------------------------------------------
 setup(
     name='LISA is a Simulation Analyzer',
-    version='0.1a',
+    version='0.2a0',
     description='Python Module for analysis simulation.',
     author='Guillaume Plum, Manuel Duarte',
     cmdclass={
