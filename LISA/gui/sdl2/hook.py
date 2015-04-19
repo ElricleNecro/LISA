@@ -54,9 +54,9 @@ try:
 
                 self._ev.update()
 
-                if len(self._windowList) != 0:
-                    if self._ev.id in self._windowList:
-                        self._windowList[self._ev.id].events(self._ev)
+                if len(self._windowList):
+                    if self._ev.window.id in self._windowList:
+                        self._windowList[self._ev.window.id].events(self._ev)
 
                 for win in self._windowList.values():
                     win.draw()

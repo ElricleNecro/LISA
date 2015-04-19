@@ -53,15 +53,6 @@ class SDLWindow(object):
             "Inside window %d for event.", id(self._win)
         )
 
-        if ev.End:
-            self.close()
-            return 0
-
-        # the window resized
-        if ev._resized and hasattr(self, "resizeGL"):
-            s.SDL_SetWindowSize(self._win, *ev._window_size)
-            self.resizeGL(*ev._window_size)
-
         # loop over methods and call them if the associated event occurred
         for key in ev._methods.keys():
             if ev._methods[key][0] and hasattr(self, key):
@@ -121,13 +112,13 @@ class SDLWindow(object):
     @property
     def name(self):
         return self._win_name
+
     @name.setter
     def name(self, val):
         s.SDL_SetWindowTitle(self._win, val.encode())
         self._win_name = val
 
     def close(self):
-
         # remove the window in the register of window to display in the
         # event loop
         _ipython_way_sdl2.erase(self)
@@ -168,7 +159,6 @@ class SDLWindow(object):
                     return True
 
     def wheelEvent(self, event):
-
         # loop over children widgets
         for widget in self._widget:
 
@@ -182,7 +172,12 @@ class SDLWindow(object):
                     # anymore in tis iteration
                     return True
 
-    def resizeGL(self, w, h):
-        pass
+    def resizeEvent(self, event):
+        if event.end:
+            self.close()
+            return True
+        if event.resized:
+            s.SDL_SetWindowSize(self._win, *event.windowSize)
+
 
 # vim: set tw=79 :

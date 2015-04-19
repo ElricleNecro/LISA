@@ -140,7 +140,10 @@ class OGLWidget(SDLWindow):
                 "displayed on the window!"
             )
 
-    def resizeGL(self, w, h):
+    def resizeEvent(self, event):
+        if super(OGLWidget, self).resizeEvent(event):
+            return
+        w, h = event.windowSize
         h = 1 if h == 0 else h
         GL.glViewport(0, 0, w, h)
         self.projection.ratio = w / h
