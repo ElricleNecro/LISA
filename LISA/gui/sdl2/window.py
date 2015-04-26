@@ -2,16 +2,95 @@
 # -*- coding: utf-8 -*-
 
 import sdl2 as s
+import logging
 
 from OpenGL import GL
-from .hook import _ipython_way_sdl2
-from .events import _SDLInput_logger
+from ..utils.signals import Signal
 
 
 __all__ = ["SDLWindow"]
 
+logger = logging.getLogger(__name__)
 
-class SDLWindow(object):
+
+class WindowManager(object):
+    """
+    A window manager allowing to store and retrieve created windows.
+    """
+    def __init__(self):
+        """
+        Init some containers for created windows, and signals.
+        """
+        # containers
+        self.windowsById = {}
+        self.windows = []
+
+        # signals
+        self.created = Signal()
+        self.deleted = Signal()
+
+    def add(self, window):
+        """
+        Add a window.
+        """
+        # register the window if properties present
+        if hasattr(window, "id"):
+            self.windowsById[window.id] = window
+        else:
+            logger.error(
+                "The window {0} must have an id to be "
+                "registered".format(window)
+            )
+        self.windows.append(window)
+
+        # send a signal wiht the created window
+        self.created(window)
+
+    def delete(self, window):
+        """
+        Remove a window from the manager.
+        """
+        # remove the window in the register of window to display in the
+        # event loop
+        self.windows.remove(window)
+        self.windowsById.pop(window, None)
+
+        # send a signal with the removed window
+        self.deleted(window)
+
+
+class WindowMetaclass(type):
+    """
+    Metaclass to register created windows and easily get access to them in the
+    program according to various properties.
+    """
+
+    def __init__(cls, *args, **kwargs):
+        """
+        Store containers to the class.
+        """
+        # create the class as usual
+        super(WindowMetaclass, cls).__init__(*args, **kwargs)
+
+        # create the container if not present
+        if not hasattr(cls, "manager"):
+            cls.manager = WindowManager()
+
+    def __call__(cls, *args, **kwargs):
+        """
+        Register windows when they are created.
+        """
+        # create the instance has usual
+        instance = super(WindowMetaclass, cls).__call__(*args, **kwargs)
+
+        # register the window if properties present
+        cls.manager.add(instance)
+
+        # return the instance
+        return instance
+
+
+class SDLWindow(object, metaclass=WindowMetaclass):
     def __init__(
         self,
         title,
@@ -19,7 +98,6 @@ class SDLWindow(object):
         size=(800, 480),
         flags=s.SDL_WINDOW_SHOWN | s.SDL_WINDOW_OPENGL | s.SDL_WINDOW_RESIZABLE
     ):
-
         # create the window with default size
         self._win = s.SDL_CreateWindow(
             title.encode(),
@@ -30,7 +108,7 @@ class SDLWindow(object):
         self._win_name = title
 
         # keep a trace of the identity of the window
-        self._id = s.SDL_GetWindowID(self._win)
+        self.id = s.SDL_GetWindowID(self._win)
 
         s.SDL_GL_SetAttribute(s.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
         s.SDL_GL_SetAttribute(s.SDL_GL_CONTEXT_MINOR_VERSION, 3)
@@ -45,11 +123,9 @@ class SDLWindow(object):
 
         self._screensize = size
 
-        _ipython_way_sdl2.add(self)
-
     def events(self, ev):
         # Deal with events linked to the window:
-        _SDLInput_logger.debug(
+        logger.debug(
             "Inside window %d for event.", id(self._win)
         )
 
@@ -90,14 +166,6 @@ class SDLWindow(object):
         s.SDL_UpdateWindowSurface(self._win)
 
     @property
-    def id(self):
-        return self._id
-
-    @id.setter
-    def id(self, val):
-        self._id = val
-
-    @property
     def windowSurface(self):
         try:
             return self._s_win
@@ -109,19 +177,10 @@ class SDLWindow(object):
     def window(self):
         return self._win
 
-    @property
-    def name(self):
-        return self._win_name
-
-    @name.setter
-    def name(self, val):
-        s.SDL_SetWindowTitle(self._win, val.encode())
-        self._win_name = val
-
     def close(self):
         # remove the window in the register of window to display in the
         # event loop
-        _ipython_way_sdl2.erase(self)
+        SDLWindow.manager.delete(self)
 
         # destroy the window with SDL
         s.SDL_DestroyWindow(
@@ -172,12 +231,32 @@ class SDLWindow(object):
                     # anymore in tis iteration
                     return True
 
-    def resizeEvent(self, event):
+    def closeEvent(self, event):
         if event.end:
             self.close()
+            event.end = False
             return True
+
+    def resizeEvent(self, event):
         if event.resized:
             s.SDL_SetWindowSize(self._win, *event.windowSize)
+
+    @property
+    def id(self):
+        return self._id
+
+    @id.setter
+    def id(self, id):
+        self._id = id
+
+    @property
+    def name(self):
+        return self._win_name
+
+    @name.setter
+    def name(self, val):
+        s.SDL_SetWindowTitle(self._win, val.encode())
+        self._win_name = val
 
 
 # vim: set tw=79 :

@@ -12,12 +12,14 @@ class KeyUpEvent(EventType):
     """
     To manage key up event.
     """
-    __register_type__ = sdl2.SDL_KEYUP
-    __event_method__ = "keyEvent"
+    class Meta:
+        register_type = sdl2.SDL_KEYUP
+        event_method = "keyEvent"
+        event_attribute = "keys"
 
     def processEvent(self, event):
-        super(KeyUpEvent, self).processEvent(event)
         self.keys[event.key.keysym.scancode] = False
+        super(KeyUpEvent, self).processEvent(event)
 
 
 # vim: set tw=79 :

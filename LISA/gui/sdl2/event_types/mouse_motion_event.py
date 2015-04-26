@@ -12,15 +12,17 @@ class MouseMotionEvent(EventType):
     """
     To manage mouse motion event.
     """
-    __register_type__ = sdl2.SDL_MOUSEMOTION
-    __event_method__ = "mouseEvent"
+    class Meta:
+        register_type = sdl2.SDL_MOUSEMOTION
+        event_method = "mouseEvent"
+        event_attribute = "mouse"
 
     def processEvent(self, event):
-        super(MouseMotionEvent, self).processEvent(event)
         self.mouse.dx = event.motion.xrel
         self.mouse.dy = event.motion.yrel
         self.mouse.x = event.motion.x
         self.mouse.y = event.motion.y
+        super(MouseMotionEvent, self).processEvent(event)
 
 
 # vim: set tw=79 :

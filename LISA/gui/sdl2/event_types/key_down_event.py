@@ -12,12 +12,14 @@ class KeyDownEvent(EventType):
     """
     To manage key down event.
     """
-    __register_type__ = sdl2.SDL_KEYDOWN
-    __event_method__ = "keyEvent"
+    class Meta:
+        register_type = sdl2.SDL_KEYDOWN
+        event_method = "keyEvent"
+        event_attribute = "keys"
 
     def processEvent(self, event):
-        super(KeyDownEvent, self).processEvent(event)
         self.keys[event.key.keysym.scancode] = True
+        super(KeyDownEvent, self).processEvent(event)
 
 
 # vim: set tw=79 :

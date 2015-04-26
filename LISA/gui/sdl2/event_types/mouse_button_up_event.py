@@ -12,12 +12,14 @@ class MouseButtonUpEvent(EventType):
     """
     To manage mouse up event.
     """
-    __register_type__ = sdl2.SDL_MOUSEBUTTONUP
-    __event_method__ = "mouseEvent"
+    class Meta:
+        register_type = sdl2.SDL_MOUSEBUTTONUP
+        event_method = "mouseEvent"
+        event_attribute = "mouse"
 
     def processEvent(self, event):
-        super(MouseButtonUpEvent, self).processEvent(event)
         self.mouse[event.button.button] = False
+        super(MouseButtonUpEvent, self).processEvent(event)
 
 
 # vim: set tw=79 :

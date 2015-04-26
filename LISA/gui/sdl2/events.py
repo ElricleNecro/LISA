@@ -78,6 +78,9 @@ class Mouse(list):
     def dy(self, val):
         self._yRel = val
 
+    def reset(self):
+        self.dx, self.dy = 0., 0.
+
 
 class Window(object):
     def __init__(self):
@@ -86,45 +89,34 @@ class Window(object):
         self.windowSize = (0., 0.)
         self.id = None
 
+    def reset(self):
+        self.resized = False
+
 
 class SDLInput(object):
     def __init__(self):
-        self.mouse = Mouse()
-        self.keyboard = Keyboard()
-        self.wheel = Wheel()
-        self.window = Window()
-
         self._event = s.SDL_Event()
-        self._methods = {
-            "mouseEvent": [False, self._mouse],
-            "keyEvent": [False, self._keys],
-            "wheelEvent": [False, self._wheel],
-            "resizeEvent": [False, self._window],
-        }
 
         # create events
         self._createEvents()
 
     def _createEvents(self):
+        self.mouse = Mouse()
+        self.keyboard = Keyboard()
+        self.wheel = Wheel()
+        self.window = Window()
+
         for event in EventType.available_events.values():
             event(
                 mouse=self.mouse,
                 keys=self.keyboard,
-                methods=self._methods,
                 window=self.window,
                 wheel=self.wheel,
             )
 
     def update(self):
-        # say that we don't use any methods in the window
-        for key in self._methods.keys():
-            self._methods[key][0] = False
-        self._window.resized = False
-
-        # initiialize relative movement to null
-        self._mouse.dx, self._mouse.dy = 0., 0.
-        self._wheel.dx, self._wheel.dy = 0., 0.
-
+        self.mouse.reset()
+        self.window.reset()
         # loop over event in the queue
         while s.SDL_PollEvent(ctypes.byref(self._event)) != 0:
             if self._event.type in EventType.events:

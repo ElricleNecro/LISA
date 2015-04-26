@@ -12,13 +12,15 @@ class WheelEvent(EventType):
     """
     To manage wheel event.
     """
-    __register_type__ = sdl2.SDL_MOUSEWHEEL
-    __event_method__ = "wheelEvent"
+    class Meta:
+        register_type = sdl2.SDL_MOUSEWHEEL
+        event_method = "wheelEvent"
+        event_attribute = "wheel"
 
     def processEvent(self, event):
-        super(WheelEvent, self).processEvent(event)
         self.wheel.dx = event.wheel.x
         self.wheel.dy = event.wheel.y
+        super(WheelEvent, self).processEvent(event)
 
 
 # vim: set tw=79 :
