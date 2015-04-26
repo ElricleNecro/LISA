@@ -92,8 +92,8 @@ class SphereRefinement(o.Base):
     def createWidget(self):
         self._widget = Application(layout="vertical")
         self._widget.title.text = "Sphere mesh"
-        self._widget.x = 300
-        self._widget.y = 300
+        self._widget.x = 0
+        self._widget.y = 0
 
         # create a slider for attenuation
         self.attenuation_text = Text()

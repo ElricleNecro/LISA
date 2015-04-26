@@ -114,8 +114,8 @@ class Earth(o.Base):
     def createWidget(self):
         self._widget = Application(layout="vertical")
         self._widget.title.text = "Earth mover"
-        self._widget.x = 300
-        self._widget.y = 300
+        self._widget.x = 0
+        self._widget.y = 0
 
         # create vertical layout for buttons
         hlayout = HorizontalLayout()
