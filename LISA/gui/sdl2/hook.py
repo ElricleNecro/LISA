@@ -47,6 +47,21 @@ class SDL2_Dealer(object, metaclass=EventLoopMetaclass):
     def launch_events(self):
         pass
 
+    def _dealEvents(self):
+        allow_CTRL_C()
+        while not stdin_ready():
+            start = s.SDL_GetTicks()
+
+            self._ev.update()
+
+            for win in SDLWindow.manager.windows:
+                win.draw()
+
+            stop = s.SDL_GetTicks()
+            duree = (stop - start)
+            if duree < self._framerate:
+                s.SDL_Delay(self._framerate - duree)
+
     def __del__(self):
         s.SDL_Quit()
 
@@ -69,21 +84,6 @@ try:
                 return 0
 
             self._hook.set_inputhook(events)
-
-        def _dealEvents(self):
-            allow_CTRL_C()
-            while not stdin_ready():
-                start = s.SDL_GetTicks()
-
-                self._ev.update()
-
-                for win in SDLWindow.manager.windows:
-                    win.draw()
-
-                stop = s.SDL_GetTicks()
-                duree = (stop - start)
-                if duree < self._framerate:
-                    s.SDL_Delay(self._framerate - duree)
 
 
 except:
