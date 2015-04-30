@@ -2,39 +2,78 @@
 # -*- coding: utf-8 -*-
 
 from .events import SDLInput
+from .window import SDLWindow
 
 import sdl2 as s
 
+__all__ = ["EventLoop"]
 
-class SDL2_Dealer(object):
+
+class EventLoopMetaclass(type):
+    """
+    Make the event loop a singleton.
+    """
+
+    def __call__(cls, *args, **kwargs):
+        """
+        Singleton for the event loop.
+        """
+        if hasattr(cls, "instance"):
+            return cls.instance
+
+        cls.instance = super(EventLoopMetaclass, cls).__call__(*args, **kwargs)
+        return cls.instance
+
+
+class SDL2_Dealer(object, metaclass=EventLoopMetaclass):
     def __init__(self, fps=60):
         s.SDL_Init(s.SDL_INIT_VIDEO)
 
-        self._windowList = dict()
         self._ev = SDLInput()
         self._hook = None
         self._framerate = int(1000 / fps)
         self._in_event_loop = False
 
-    def add(self, val):
-        self._windowList[val.id] = val
+        # connect to added signal of the window manager
+        SDLWindow.manager.created.connect(self.passEventLoop)
 
-    def erase(self, val):
-        del self._windowList[val.id]
+    def passEventLoop(self, window):
+        """
+        Start the event loop when a window is created.
+        """
+        # start the event loop if not already launched
+        self.launch_events()
+
+    def launch_events(self):
+        pass
+
+    def _dealEvents(self):
+        allow_CTRL_C()
+        while not stdin_ready():
+            start = s.SDL_GetTicks()
+
+            self._ev.update()
+
+            for win in SDLWindow.manager.windows:
+                win.draw()
+
+            stop = s.SDL_GetTicks()
+            duree = (stop - start)
+            if duree < self._framerate:
+                s.SDL_Delay(self._framerate - duree)
 
     def __del__(self):
         s.SDL_Quit()
+
 
 try:
     from IPython.lib.inputhook import InputHookManager, stdin_ready
     from IPython.lib.inputhook import allow_CTRL_C
 
-    class SDL2_Deal(SDL2_Dealer):
+    class EventLoop(SDL2_Dealer):
         def __init__(self, *args, **kwargs):
-
-            super(SDL2_Deal, self).__init__(*args, **kwargs)
+            super(EventLoop, self).__init__(*args, **kwargs)
             self._hook = InputHookManager()
-            self.launch_events()
 
         def launch_events(self):
             if not self._in_event_loop:
@@ -42,36 +81,18 @@ try:
 
             def events():
                 self._dealEvents()
-                self._in_event_loop = False
                 return 0
 
             self._hook.set_inputhook(events)
 
-        def _dealEvents(self):
-            allow_CTRL_C()
-            while not stdin_ready():
-                start = s.SDL_GetTicks()
-
-                self._ev.update()
-
-                if len(self._windowList) != 0:
-                    if self._ev.id in self._windowList:
-                        self._windowList[self._ev.id].events(self._ev)
-
-                for win in self._windowList.values():
-                    win.draw()
-
-                stop = s.SDL_GetTicks()
-                duree = (stop - start)
-                if duree < self._framerate:
-                    s.SDL_Delay(self._framerate - duree)
 
 except:
-
-    class SDL2_Deal(SDL2_Dealer):
+    class EventLoop(SDL2_Dealer):
         def __init__(self, *args, **kwargs):
-            super(SDL2_Deal, self).__init__(*args, **kwargs)
+            super(EventLoop, self).__init__(*args, **kwargs)
 
-_ipython_way_sdl2 = SDL2_Deal()
+
+eventLoop = EventLoop()
+
 
 # vim: set tw=79 :

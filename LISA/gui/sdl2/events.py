@@ -5,6 +5,8 @@ import sdl2 as s
 import ctypes
 import logging
 
+from .event_types import EventType
+
 __all__ = ["_SDLInput_logger", "SDLInput"]
 
 _SDLInput_logger = logging.getLogger('SDLInput')
@@ -76,109 +78,67 @@ class Mouse(list):
     def dy(self, val):
         self._yRel = val
 
+    def reset(self):
+        self.dx, self.dy = 0., 0.
+
 
 class Window(object):
-    pass
+    def __init__(self):
+        self.resized = False
+        self.end = False
+        self.windowSize = (0., 0.)
+        self.id = None
+
+    def reset(self):
+        self.resized = False
 
 
 class SDLInput(object):
     def __init__(self):
-        self._mouse = Mouse()
-        self._keys = Keyboard()
-        self._wheel = Wheel()
-
-        self._end = False
-
         self._event = s.SDL_Event()
-        self._methods = {
-            "mouseEvent": [False, self._mouse],
-            "keyEvent": [False, self._keys],
-            "wheelEvent": [False, self._wheel],
-        }
 
-        # window size
-        self._window_size = (0., 0.)
+        # create events
+        self._createEvents()
+
+    def _createEvents(self):
+        self.mouse = Mouse()
+        self.keyboard = Keyboard()
+        self.wheel = Wheel()
+        self.window = Window()
+
+        for event in EventType.available_events.values():
+            event(
+                mouse=self.mouse,
+                keys=self.keyboard,
+                window=self.window,
+                wheel=self.wheel,
+            )
 
     def update(self):
-
-        # say that we don't use any methods in the window
-        for key in self._methods.keys():
-            self._methods[key][0] = False
-        self._resized = False
-
-        # initiialize relative movement to null
-        self._mouse.dx, self._mouse.dy = 0., 0.
-        self._wheel.dx, self._wheel.dy = 0., 0.
-
+        self.mouse.reset()
+        self.window.reset()
         # loop over event in the queue
         while s.SDL_PollEvent(ctypes.byref(self._event)) != 0:
-            # set the id of the window
-            self._id = self._event.window.windowID
-
-            if self._event.type == s.SDL_WINDOWEVENT:
-                if self._event.window.event == s.SDL_WINDOWEVENT_CLOSE:
-                    self._end = True
-
-                elif self._event.window.event == s.SDL_WINDOWEVENT_RESIZED:
-                    self._resized = True
-                    self._window_size = (
-                        self._event.window.data1,
-                        self._event.window.data2,
-                    )
-
-            elif self._event.type == s.SDL_KEYDOWN:
-                self._keys[self._event.key.keysym.scancode] = True
-
-                self._methods["keyEvent"][0] = True
-
-            elif self._event.type == s.SDL_KEYUP:
-                self._keys[self._event.key.keysym.scancode] = False
-
-                self._methods["keyEvent"][0] = True
-
-            elif self._event.type == s.SDL_MOUSEBUTTONDOWN:
-                self._mouse[self._event.button.button] = True
-
-                self._methods["mouseEvent"][0] = True
-
-            elif self._event.type == s.SDL_MOUSEBUTTONUP:
-                self._mouse[self._event.button.button] = False
-
-                self._methods["mouseEvent"][0] = True
-
-            elif self._event.type == s.SDL_MOUSEMOTION:
-                self._mouse.dx = self._event.motion.xrel
-                self._mouse.dy = self._event.motion.yrel
-
-                self._methods["mouseEvent"][0] = True
-
-            elif self._event.type == s.SDL_MOUSEWHEEL:
-                self._wheel.dx = self._event.wheel.x
-                self._wheel.dy = self._event.wheel.y
-
-                self._methods["wheelEvent"][0] = True
-
+            if self._event.type in EventType.events:
+                EventType.events[self._event.type].processEvent(self._event)
             else:
                 break
-
-        self._mouse.x = self._event.motion.x
-        self._mouse.y = self._event.motion.y
-
-    @property
-    def id(self):
-        return self._id
-
-    @property
-    def End(self):
-        return self._end
 
     @property
     def keyboard(self):
         return self._keys
 
+    @keyboard.setter
+    def keyboard(self, keyboard):
+        self._keys = keyboard
+
     @property
     def mouse(self):
         return self._mouse
+
+    @mouse.setter
+    def mouse(self, mouse):
+        self._mouse = mouse
 
     @property
     def wheel(self):
@@ -187,6 +147,14 @@ class SDLInput(object):
     @wheel.setter
     def wheel(self, wheel):
         self._wheel = wheel
+
+    @property
+    def window(self):
+        return self._window
+
+    @window.setter
+    def window(self, window):
+        self._window = window
 
     def _showCursor(self, val):
         if type(val) == bool:
