@@ -9,16 +9,14 @@ import LISA.tools as t
 import LISA.Object as o
 import LISA.Matrice as m
 
-from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
-from LISA.gui.widget import VerticalLayout, HorizontalLayout
+from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER, Texture
 from LISA.gui.widget import Application
-from LISA.gui.widget import VerticalSlider, HorizontalSlider
-from LISA.gui.widget import Spinner, Text
+from LISA.gui.widget import HorizontalSlider
+from LISA.gui.widget import Text
 from LISA.Matrice import Vector
 
 
 class Earth(o.Base):
-
     def __init__(self, *args, **kwargs):
 
         npoints = 800
@@ -111,19 +109,16 @@ class Earth(o.Base):
         )
         self._nindex.release()
 
-        self._textures = parent.textures << [
-            (
-                t.texture_path("earth/earth.jpg"),
-                {
-                    "parameters": {
-                        "TEXTURE_MIN_FILTER": "LINEAR",
-                        "TEXTURE_MAG_FILTER": "LINEAR",
-                        "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
-                        "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
-                    }
-                }
-            )
-        ]
+        texture = Texture.fromImage(t.texture_path("earth/earth.jpg"))
+        texture.parameters = {
+            "TEXTURE_MIN_FILTER": "LINEAR",
+            "TEXTURE_MAG_FILTER": "LINEAR",
+            "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
+            "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
+        }
+        texture.format = "RGB"
+        texture.load()
+        self._shaders.textures << texture
 
         self._shaders.build()
         self._shaders.bindAttribLocation("position")
@@ -280,9 +275,9 @@ class Earth(o.Base):
 
         self._shaders.setUniformValue(
             "map",
-            self._textures[0],
+            self._shaders.textures.textures[0],
         )
-        self._textures[0].activate()
+        self._shaders.textures.activate()
 
         self._vao.bind()
         GL.glCullFace(GL.GL_FRONT)
@@ -292,21 +287,15 @@ class Earth(o.Base):
             GL.GL_UNSIGNED_INT,
             None,
         )
-        # GL.glCullFace(GL.GL_BACK)
-        # GL.glDrawElements(
-            # GL.GL_TRIANGLES,
-            # len(self._plot_prop._ids),
-            # GL.GL_UNSIGNED_INT,
-            # None,
-        # )
 
         self._vao.release()
 
+        self._shaders.textures.release()
         self._shaders.release()
-        self._textures[0].release()
 
         GL.glDisable(GL.GL_DEPTH_TEST)
         GL.glDisable(GL.GL_CULL_FACE)
         GL.glDisable(GL.GL_BLEND)
+
 
 # vim: set tw=79 :

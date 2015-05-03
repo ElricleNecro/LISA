@@ -10,7 +10,6 @@ __all__ = ["Figure"]
 
 
 class Figure(object):
-
     def __init__(self, name="Figure {id:d}"):
 
         # set the window which will be the scene
@@ -55,15 +54,22 @@ class Figure(object):
             wid.createShaders(self.scene)
         except AttributeError:
             pass
+        except Exception as e:
+            print(e)
+            raise e
 
         # create shaders after all is done
         try:
             value.createShaders(self.scene)
-        except AttributeError:
-            pass
+        except Exception as e:
+            print(e)
+            raise e
 
         # store the instance for plots
         self.scene.lines = value
 
     def close(self):
         self.scene.close()
+
+
+# vim: set tw=79 :

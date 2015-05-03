@@ -13,7 +13,6 @@ _TypeNP_OGL = dict(
 
 
 class ShaderProgram(object):
-
     def __init__(self):
         self._id = GL.glCreateProgram()
         self._shaders = list()
@@ -97,6 +96,7 @@ class ShaderProgram(object):
         GL.glLinkProgram(self.id)
 
     def bind(self):
+        # first bind the program
         GL.glUseProgram(self.id)
 
     def release(self):
@@ -128,3 +128,14 @@ class ShaderProgram(object):
     def delete(self):
         if bool(GL.glDeleteProgram):
             GL.glDeleteProgram(self.id)
+
+    @property
+    def textures(self):
+        return self._textures
+
+    @textures.setter
+    def textures(self, textures):
+        self._textures = textures
+
+
+# vim: set tw=79 :

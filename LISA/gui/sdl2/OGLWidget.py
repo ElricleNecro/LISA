@@ -4,7 +4,6 @@ from OpenGL.arrays import numpymodule
 from OpenGL import GL
 
 from LISA.gui.utils.matrices import Perspective, Orthographic
-from LISA.OpenGL import TextureManager
 from .window import SDLWindow
 
 import LISA.Matrice as m
@@ -42,9 +41,6 @@ class OGLWidget(SDLWindow):
         self.widget_projection.bottom = self._screensize[1]
         self.widget_projection.left = 0.
         self.widget_projection.right = self._screensize[0]
-
-        # set the manager of texture for this window
-        self.textures = TextureManager(self)
 
     @property
     def zoom(self):

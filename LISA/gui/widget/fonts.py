@@ -2,18 +2,16 @@
 # -*- coding: utf-8 -*-
 
 import LISA.tools as t
-# import numpy as np
 
 from OpenGL import GL
 from .widget import Widget
-from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
+from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER, Texture
 from sdl2.ext.color import Color
 from sdl2.ext import FontManager as FM
 from LISA.gui.utils.fonts import getDefaultFont
 
 
 class Text(Widget):
-
     def __init__(
         self,
         font=getDefaultFont(),
@@ -34,11 +32,8 @@ class Text(Widget):
         # init the fontmanager
         self.set_manager()
 
-        # initiate the trace of the figure
-        self._parent_manager = None
-
-        # and texture
-        self._textures = None
+        # init the texture
+        self._texture = None
 
     def set_manager(self):
         self._manager = FM(
@@ -91,32 +86,26 @@ class Text(Widget):
     @text.setter
     def text(self, text):
         self._text = text
-        if self._parent_manager is not None:
-            if self._textures is not None:
-                self._parent_manager.textures.remove(id(self._surface))
-            self._surface = self._manager.render(self._text)
-            self.minWidth = self._surface.w
-            # self.width = self._surface.w
-            self.minHeight = self._surface.h
-            # self.height = self._surface.h
-            self._textures = self._parent_manager.textures << [
-                (
-                    self._surface,
-                    {
-                        "parameters": {
-                            "TEXTURE_MIN_FILTER": "LINEAR",
-                            "TEXTURE_MAG_FILTER": "LINEAR",
-                            "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
-                            "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
-                        }
-                    }
-                )
-            ]
+        if self._texture:
+            self._shaders.textures.delete(self._texture)
+        self._surface = self._manager.render(self._text)
+        self.minWidth = self._surface.w
+        # self.width = self._surface.w
+        self.minHeight = self._surface.h
+        # self.height = self._surface.h
+        self._texture = Texture.fromSDLSurface(self._surface)
+        self._texture.parameters = {
+            "TEXTURE_MIN_FILTER": "LINEAR",
+            "TEXTURE_MAG_FILTER": "LINEAR",
+            "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
+            "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
+        }
+        self._texture.load()
+        self._shaders.textures << self._texture
 
     def createShaders(self, parent):
 
         # keep a trace of the figure
-        self._parent_manager = parent
         self.text = self.text
 
         # set shaders
@@ -188,9 +177,9 @@ class Text(Widget):
 
         self._shaders.setUniformValue(
             "texture0",
-            self._textures[0],
+            self._shaders.textures.textures[0],
         )
-        self._textures[0].activate()
+        self._shaders.textures.activate()
 
         self._vao.bind()
         GL.glDrawElements(
@@ -201,10 +190,11 @@ class Text(Widget):
         )
 
         self._vao.release()
+        self._shaders.textures.release()
         self._shaders.release()
-        self._textures[0].release()
 
     def mouseEvent(self, event):
         pass
+
 
 # vim: set tw=79 :
