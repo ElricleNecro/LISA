@@ -7,37 +7,44 @@ import logging
 
 from .event_types import EventType
 
-__all__ = ["_SDLInput_logger", "SDLInput"]
+__all__ = ["SDLInput"]
 
-_SDLInput_logger = logging.getLogger('SDLInput')
-
-ch = logging.StreamHandler()
-ch.setFormatter(
-    logging.Formatter(
-        '%(name)s::%(asctime)s::%(levelname)s: %(message)s',
-        "%d-%m-%Y %H:%M:%S"
-    )
-)
-
-_SDLInput_logger.addHandler(ch)
-# _SDLInput_logger.setLevel(logging.DEBUG)
-_SDLInput_logger.setLevel(logging.WARNING)
+logger = logging.getLogger(__name__)
 
 
 class Keyboard(list):
+    """
+    Structure used by windows to get informations on the corresponding keyboard
+    event.
+    """
     def __init__(self):
+        """
+        Init some properties of the structure. Store the list of available
+        keys.
+        """
         super(Keyboard, self).__init__(
             [False for i in range(s.SDL_NUM_SCANCODES)]
         )
 
 
 class Wheel(object):
+    """
+    Structure used by windows to get informations on the corresponding wheel
+    event.
+    """
     dx = 0.
     dy = 0.
 
 
 class Mouse(list):
+    """
+    Structure used by windows to get informations on the corresponding mouse
+    event.
+    """
     def __init__(self):
+        """
+        Init some properties of the structure.
+        """
         super(Mouse, self).__init__([False for i in range(8)])
 
         self._x = 0.
@@ -79,33 +86,60 @@ class Mouse(list):
         self._yRel = val
 
     def reset(self):
+        """
+        Reset the state of the structure.
+        """
         self.dx, self.dy = 0., 0.
 
 
 class Window(object):
+    """
+    Structure used by windows to get informations on the corresponding window
+    event.
+    """
     def __init__(self):
+        """
+        Init some properties of the structure.
+        """
         self.resized = False
         self.end = False
         self.windowSize = (0., 0.)
         self.id = None
 
     def reset(self):
+        """
+        Reset the state of the structure.
+        """
         self.resized = False
 
 
 class SDLInput(object):
     def __init__(self):
+        """
+        Get the object for managing SDL events and create SDL events processors
+        and event structures used by windows.
+        """
+        # SDL event managers
         self._event = s.SDL_Event()
 
         # create events
         self._createEvents()
 
     def _createEvents(self):
+        """
+        Responsible to create the structures containing informations on events
+        that the window should handle.
+
+        Then, loop over defined derived EventType classes by the user, passing
+        it the event structures as attribute to the instances of EventType.
+        """
+        # create structures for informations of events, used by windows
         self.mouse = Mouse()
         self.keyboard = Keyboard()
         self.wheel = Wheel()
         self.window = Window()
 
+        # instantiate the derived EventType, with the event structures
         for event in EventType.available_events.values():
             event(
                 mouse=self.mouse,
@@ -115,14 +149,20 @@ class SDLInput(object):
             )
 
     def update(self):
+        """
+        Responsible to process SDL events in the queue.
+        """
+        # reset event structures
         self.mouse.reset()
         self.window.reset()
+
         # loop over event in the queue
         while s.SDL_PollEvent(ctypes.byref(self._event)) != 0:
+            # call the good event processor instance, by getting it from the
+            # mapping in the manager
             if self._event.type in EventType.events:
+                # process the SDL event with the good type
                 EventType.events[self._event.type].processEvent(self._event)
-            else:
-                break
 
     @property
     def keyboard(self):
@@ -155,17 +195,6 @@ class SDLInput(object):
     @window.setter
     def window(self, window):
         self._window = window
-
-    def _showCursor(self, val):
-        if type(val) == bool:
-            if val:
-                s.SDL_ShowCursor(s.SDL_ENABLE)
-            else:
-                s.SDL_ShowCursor(s.SDL_DISABLE)
-        else:
-            _SDLInput_logger.warn('ShowCursor must get a boolean!')
-
-    showCursor = property(fset=_showCursor, doc="")
 
 
 # vim: set tw=79 :
