@@ -143,6 +143,7 @@ class HeightMap(o.Base):
     def show(self, parent):
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
+        GL.glEnable(GL.GL_DEPTH_TEST)
 
         self._shaders.bind()
 
@@ -209,6 +210,8 @@ class HeightMap(o.Base):
         self._vao.release()
         self._shaders.textures.release()
         self._shaders.release()
+
+        GL.glDisable(GL.GL_DEPTH_TEST)
 
     def _updateAttenuation(self, value):
         self.attenuation[0] = value
