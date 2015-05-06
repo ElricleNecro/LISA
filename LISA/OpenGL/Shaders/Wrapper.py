@@ -16,7 +16,7 @@ Type = dict(
 )
 
 
-class TextureManager(object):
+class TextureLinker(object):
     """
     To be able to manage and set the appropriate properties to textures when
     using the shaders.
@@ -76,7 +76,7 @@ class Shaders(object):
         self._list_shaders = list()
 
         # the texture manager
-        self.textures = TextureManager()
+        self.textures = TextureLinker()
 
     def build(self):
         self._program = ShaderProgram()

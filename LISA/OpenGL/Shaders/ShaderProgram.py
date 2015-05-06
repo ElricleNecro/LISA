@@ -129,13 +129,5 @@ class ShaderProgram(object):
         if bool(GL.glDeleteProgram):
             GL.glDeleteProgram(self.id)
 
-    @property
-    def textures(self):
-        return self._textures
-
-    @textures.setter
-    def textures(self, textures):
-        self._textures = textures
-
 
 # vim: set tw=79 :
