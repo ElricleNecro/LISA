@@ -85,7 +85,6 @@ class Sprites(o.Base):
     def show(self, parent):
 
         GL.glEnable(GL.GL_PROGRAM_POINT_SIZE)
-        GL.glEnable(GL.GL_POINT_SPRITE)
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glEnable(GL.GL_BLEND)
         GL.glDepthMask(GL.GL_FALSE)
@@ -110,8 +109,8 @@ class Sprites(o.Base):
         self._shaders.release()
 
         GL.glDisable(GL.GL_PROGRAM_POINT_SIZE)
-        GL.glDisable(GL.GL_POINT_SPRITE)
         GL.glDisable(GL.GL_DEPTH_TEST)
         GL.glDisable(GL.GL_BLEND)
+
 
 # vim: set tw=79 :

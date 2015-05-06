@@ -8,7 +8,7 @@ from OpenGL import GL
 import LISA.tools as t
 import LISA.Object as o
 
-from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER
+from LISA.OpenGL import VAO, VBO, INDEX_BUFFER, VERTEX_BUFFER, Texture
 from LISA.gui.widget import Application
 from LISA.gui.widget import HorizontalSlider
 from LISA.gui.widget import Text
@@ -16,7 +16,6 @@ from LISA.Matrice import Vector
 
 
 class HeightMap(o.Base):
-
     def __init__(self, *args, **kwargs):
 
         npoints = 80
@@ -111,20 +110,17 @@ class HeightMap(o.Base):
         )
         self._index.release()
 
-        self._textures = parent.textures << [
-            (
-                t.texture_path("heightmap/two.png"),
-                {
-                    "parameters": {
-                        "TEXTURE_MIN_FILTER": "LINEAR",
-                        "TEXTURE_MAG_FILTER": "LINEAR",
-                        "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
-                        "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
-                    }
-                }
-            )
-        ]
-
+        texture = Texture.fromImage(
+            t.texture_path("heightmap/two.png"),
+        )
+        texture.parameters = {
+            "TEXTURE_MIN_FILTER": "LINEAR",
+            "TEXTURE_MAG_FILTER": "LINEAR",
+            "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
+            "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
+        }
+        texture.load()
+        self._shaders.textures << texture
         self._shaders.build()
         self._shaders.bindAttribLocation("position")
 
@@ -147,6 +143,7 @@ class HeightMap(o.Base):
     def show(self, parent):
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
+        GL.glEnable(GL.GL_DEPTH_TEST)
 
         self._shaders.bind()
 
@@ -197,9 +194,9 @@ class HeightMap(o.Base):
 
         self._shaders.setUniformValue(
             "map",
-            self._textures[0],
+            self._shaders.textures.textures[0],
         )
-        self._textures[0].activate()
+        self._shaders.textures.activate()
 
         self._vao.bind()
 
@@ -211,8 +208,10 @@ class HeightMap(o.Base):
         )
 
         self._vao.release()
+        self._shaders.textures.release()
         self._shaders.release()
-        self._textures[0].release()
+
+        GL.glDisable(GL.GL_DEPTH_TEST)
 
     def _updateAttenuation(self, value):
         self.attenuation[0] = value
@@ -225,5 +224,6 @@ class HeightMap(o.Base):
 
     def _updateDistance(self, value):
         self.light_position[2] = 1.01 + 99 * value
+
 
 # vim: set tw=79 :

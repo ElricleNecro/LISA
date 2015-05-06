@@ -27,11 +27,16 @@ class EventLoopMetaclass(type):
 
 class SDL2_Dealer(object, metaclass=EventLoopMetaclass):
     def __init__(self, fps=60):
+        """
+        Init SDL and connect to the signal sent by the window manager when a
+        window is created to launch the event loop at this time.
+        """
+        # init SDL
         s.SDL_Init(s.SDL_INIT_VIDEO)
 
         self._ev = SDLInput()
         self._hook = None
-        self._framerate = int(1000 / fps)
+        self.fps = fps
         self._in_event_loop = False
 
         # connect to added signal of the window manager
@@ -47,23 +52,17 @@ class SDL2_Dealer(object, metaclass=EventLoopMetaclass):
     def launch_events(self):
         pass
 
-    def _dealEvents(self):
-        allow_CTRL_C()
-        while not stdin_ready():
-            start = s.SDL_GetTicks()
-
-            self._ev.update()
-
-            for win in SDLWindow.manager.windows:
-                win.draw()
-
-            stop = s.SDL_GetTicks()
-            duree = (stop - start)
-            if duree < self._framerate:
-                s.SDL_Delay(self._framerate - duree)
-
     def __del__(self):
         s.SDL_Quit()
+
+    @property
+    def fps(self):
+        return self._fps
+
+    @fps.setter
+    def fps(self, fps):
+        self._fps = fps
+        self._framerate = int(1000 / fps)
 
 
 try:
@@ -76,14 +75,46 @@ try:
             self._hook = InputHookManager()
 
         def launch_events(self):
+            # check that the event loop is not already running
             if not self._in_event_loop:
                 self._in_event_loop = True
 
+            # define the function
             def events():
                 self._dealEvents()
                 return 0
 
             self._hook.set_inputhook(events)
+
+        def _dealEvents(self):
+            """
+            Run the event loop at the framerate specified by the fps property
+            of the event loop, and draw windows.
+            """
+            allow_CTRL_C()
+            # run the event loop while the input is ready
+            while not stdin_ready():
+                # get the time at the start of the frame
+                start = s.SDL_GetTicks()
+
+                # process events in the event queue and dispatch them to the
+                # windows
+                self._ev.update()
+
+                # loop over created windows to draw them
+                for win in SDLWindow.manager.windows:
+                    win.draw()
+
+                # get the time after processing
+                stop = s.SDL_GetTicks()
+
+                # compute elapsed time in the frame
+                duree = (stop - start)
+
+                # if there is remaining time compared to the specified frame
+                # rate, put the program in pause for the rest of the time
+                if duree < self._framerate:
+                    s.SDL_Delay(self._framerate - duree)
 
 
 except:

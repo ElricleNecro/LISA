@@ -11,9 +11,62 @@ __all__ = [
 ]
 
 Type = dict(
-    vertex = Extension["vsh"],
-    fragment = Extension["fsh"],
+    vertex=Extension["vsh"],
+    fragment=Extension["fsh"],
 )
+
+
+class TextureLinker(object):
+    """
+    To be able to manage and set the appropriate properties to textures when
+    using the shaders.
+    """
+    def __init__(self):
+        # list of instances of textures
+        self.textures = []
+
+    def add(self, texture):
+        """
+        Add a texture to the manager for the shader.
+        """
+        self.textures.append(texture)
+
+    def delete(self, texture):
+        """
+        Delete a texture from the local manager.
+        """
+        self.textures.remove(texture)
+
+    def activate(self):
+        """
+        Activate all the texture associated to the manager, himself associated
+        to the shader.
+        """
+        # init the counter
+        counter = 0
+
+        # loop over the textures
+        for texture in self.textures:
+            # set the unit with the order of insertion
+            texture.unit = counter
+
+            # activate the texture
+            texture.activate()
+
+    def release(self):
+        """
+        Release all textures associated to the manager.
+        """
+        # loop over textures and release them
+        for texture in self.textures:
+            # release
+            texture.release()
+
+    def __lshift__(self, texture):
+        """
+        To add textures to the manager with style!
+        """
+        self.add(texture)
 
 
 class Shaders(object):
@@ -21,6 +74,9 @@ class Shaders(object):
         self._program = None
         self._modified_shader = False
         self._list_shaders = list()
+
+        # the texture manager
+        self.textures = TextureLinker()
 
     def build(self):
         self._program = ShaderProgram()
@@ -87,14 +143,13 @@ class Shaders(object):
     def release(self):
         self._program.release()
 
-
     ############
     # For user's interface:
     ######################################################################
     def addShader(self, val):
         self._modified_shader = True
         if isfile(val):
-            #Read the shader from a file:
+            # Read the shader from a file:
             self._list_shaders.append(
                     self.CreateShaderFromFile(val)
             )
@@ -147,3 +202,6 @@ class Shaders(object):
 
     def delete(self):
         self._program.delete()
+
+
+# vim: set tw=79 :
