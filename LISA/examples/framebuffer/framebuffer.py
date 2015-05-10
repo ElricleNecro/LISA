@@ -18,31 +18,31 @@ from LISA.Matrice import Vector
 
 class HeightMapFBO(object):
     def __init__(self, *args, **kwargs):
-        
-        self._w_fbo = 128
-        self._h_fbo = 128
+
+        self._w_fbo = 600
+        self._h_fbo = 600
 
 #        self._carre = np.array(
 #            [0,0,0, 4,0,0, 4,4,0, 0,0,0, 0,4,0, 4,4,0]
 #        )
-        
+
         self._carre_vertices = np.array(
-            [0., 4.]        
+            [0., 1.]
         ).T.astype(np.float32)
         self._carre_index = np.array(
             [0,0,0, 1,0,0, 1,1,0, 0,0,0, 0,1,0, 1,1,0],
-            dtype=np.uint32
+            dtype=np.float32
         )
-        
-        self._tex_coord = np.array(
-            [0,0, 1,0, 1,1, 0,0, 0,1, 1,1],
-            dtype=np.uint32
-        )
-        
-        self._model_fbo = m.Identity()
-        self._view_fbo = m.LookAt(m.Vector(3, 0, 3), m.Vector(0, 0, 0), m.Vector(0, 3, 0))  
-        self._proj_fbo = m.Perspective(50.0, self._w_fbo / self._h_fbo, 1., 100.)
-        
+
+        # self._tex_coord = np.array(
+            # [0,0, 1,0, 1,1, 0,0, 0,1, 1,1],
+            # dtype=np.float32
+        # )
+
+        # self._model_fbo = m.Identity()
+        # self._view_fbo = m.LookAt(m.Vector(3, 0, 3), m.Vector(0, 0, 0), m.Vector(0, 3, 0))
+        # self._proj_fbo = m.Perspective(50.0, self._w_fbo / self._h_fbo, 1., 100.)
+
         npoints = 80
         X = np.linspace(-1, 1, npoints).astype(np.float32)
         Y = np.linspace(-1, 1, npoints).astype(np.float32)
@@ -67,9 +67,9 @@ class HeightMapFBO(object):
         self._shaders += t.shader_path("framebuffer/heightmap.vsh")
         self._shaders += t.shader_path("framebuffer/heightmap.fsh")
 
-        self._carre_shader = Shaders()
-        self._carre_shader += t.shader_path("framebuffer/framebuffer.vsh")
-        self._carre_shader += t.shader_path("framebuffer/framebuffer.fsh")
+        # self._carre_shader = Shaders()
+        # self._carre_shader += t.shader_path("framebuffer/framebuffer.vsh")
+        # self._carre_shader += t.shader_path("framebuffer/framebuffer.fsh")
 
     def createWidget(self):
         self._widget = Application(layout="vertical")
@@ -119,11 +119,11 @@ class HeightMapFBO(object):
 
         self._shaders.link()
 
-        self._carre_shader.build()
-        self._carre_shader.bindAttribLocation("position")
-        self._carre_shader.bindAttribLocation("in_TexCoord0")
-        self._carre_shader.link()
-    
+        # self._carre_shader.build()
+        # self._carre_shader.bindAttribLocation("position")
+        # self._carre_shader.bindAttribLocation("in_TexCoord0")
+        # self._carre_shader.link()
+
     def createBuffer(self, parent):
         # create buffers
         self._vertices = VBO(VERTEX_BUFFER)
@@ -149,33 +149,33 @@ class HeightMapFBO(object):
             len(self._plot_prop._ids) * 4
         )
         self._index.release()
-        
+
         ##########################
         # We are now creating everything we need for the plan which will
         # contain our render :
         ######################################################################
-        self._carre_vert = VBO(VERTEX_BUFFER)
-        self._carre_idx = VBO(INDEX_BUFFER)
-        self._carre_vao = VAO()
-        
-        self._carre_vert.create()
-        self._carre_idx.create()
-        self._carre_vao.create()
-        
-        # allocate buffers
-        self._vertices.bind()
-        self._vertices.allocate(
-            self._carre_vertices,
-            len(self._carre_vertices) * 4
-        )
-        self._vertices.release()
-        self._index.bind()
-        self._index.allocate(
-            self._carre_index,
-            len(self._carre_index) * 4
-        )
-        self._index.release()
-    
+        # self._carre_vert = VBO(VERTEX_BUFFER)
+        # self._carre_idx = VBO(INDEX_BUFFER)
+        # self._carre_vao = VAO()
+
+        # self._carre_vert.create()
+        # self._carre_idx.create()
+        # self._carre_vao.create()
+
+        # # allocate buffers
+        # self._vertices.bind()
+        # self._vertices.allocate(
+            # self._carre_vertices,
+            # len(self._carre_vertices) * 4
+        # )
+        # self._vertices.release()
+        # self._index.bind()
+        # self._index.allocate(
+            # self._carre_index,
+            # len(self._carre_index) * 4
+        # )
+        # self._index.release()
+
     def createTexture(self, parent):
         texture = Texture.fromImage(
             t.texture_path("heightmap/two.png"),
@@ -188,14 +188,14 @@ class HeightMapFBO(object):
         }
         texture.load()
         self._shaders.textures << texture
-        
-        self._carre_shader.textures << self._fbo.colorBuffers[0]
+
+        self._shaders.textures << self._fbo.colorBuffers[0]
 
     def createShaders(self, parent):
         self.createBuffer(parent)
         self.createShader(parent)
         self.createTexture(parent)
-        
+
         # Initialization of the VAO
         self._vao.bind()
 
@@ -209,25 +209,31 @@ class HeightMapFBO(object):
         self._index.bind()
 
         self._vao.release()
-        
-        self._carre_vao.bind()
-        self._carre_vert.bind()
-        self._carre_shader.enableAttributeArray("position")
-        self._carre_shader.setAttributeBuffer(
-            "position",
-            self._carre_vertices,
-            tuplesize=1,
-        )
-        self._carre_idx.bind()
-        self._carre_vao.release()
+
+        # self._carre_vao.bind()
+        # self._carre_vert.bind()
+        # self._carre_shader.enableAttributeArray("position")
+        # self._carre_shader.setAttributeBuffer(
+            # "position",
+            # self._carre_vertices,
+            # tuplesize=1,
+        # )
+
+        # self._carre_shader.enableAttributeArray("in_TexCoord0")
+        # self._carre_shader.setAttributeArray(
+            # "in_TexCoord0",
+            # self._tex_coord,
+        # )
+        # self._carre_idx.bind()
+        # self._carre_vao.release()
 
     def _first_pass(self, parent):
         self._fbo.bind()
-        
-        GL.glClearColor(0.5, 0.5, 0.5, 1.0)
+
+        GL.glClearColor(0., 0., 0., 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-        GL.glViewport(0, 0, self._fbo.width, self._fbo.height)
+        # GL.glViewport(0, 0, self._fbo.width, self._fbo.height)
 
         self._shaders.bind()
 
@@ -238,11 +244,13 @@ class HeightMapFBO(object):
         )
         self._shaders.setUniformValue(
             "view",
-            self._view_fbo,
+            # self._view_fbo,
+            parent._view,
         )
         self._shaders.setUniformValue(
             "model",
-            self._model_fbo,
+            # self._model_fbo,
+            self._model,
         )
         self._shaders.setUniformValue(
             "camera",
@@ -281,12 +289,15 @@ class HeightMapFBO(object):
             "map",
             self._shaders.textures.textures[0],
         )
+        self._shaders.setUniformValue(
+            "image",
+            self._shaders.textures.textures[0],
+        )
         self._shaders.textures.activate()
 
         self._vao.bind()
 
-        GL.glDrawElements(
-            GL.GL_TRIANGLES,
+        GL.glDrawElements( GL.GL_TRIANGLES,
             len(self._plot_prop._ids),
             GL.GL_UNSIGNED_INT,
             None,
@@ -301,46 +312,115 @@ class HeightMapFBO(object):
     def _second_pass(self, parent):
         GL.glClearColor(0.0, 0.0, 0.0, 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
-        
-        GL.glViewport(0, 0, parent.screenSize[0], parent.screenSize[1])
-        
-        self._carre_shader.bind()
 
-        self._carre_shader.setUniformValue(
+        # GL.glViewport(0, 0, self._fbo.width, self._fbo.height)
+
+        self._shaders.bind()
+
+        self._shaders.setUniformValue(
             "projection",
             parent._projection,
+            #self._proj_fbo,
         )
-        self._carre_shader.setUniformValue(
+        self._shaders.setUniformValue(
             "view",
+            # self._view_fbo,
             parent._view,
         )
-        self._carre_shader.setUniformValue(
+        self._shaders.setUniformValue(
             "model",
+            # self._model_fbo,
             self._model,
         )
-        
-        self._carre_shader.textures.activate()
-        
-        
-        self._carre_shader.setAttributeArray(
-            "in_TexCoord0",
-            self._tex_coord,
+        self._shaders.setUniformValue(
+            "camera",
+            parent._camera,
+        )
+        self._shaders.setUniformValue(
+            "rotate",
+            parent._rotate,
+        )
+        self._shaders.setUniformValue(
+            "light.position",
+            self.light_position,
+        )
+        self._shaders.setUniformValue(
+            "light.intensities",
+            self.light_intensities,
+        )
+        self._shaders.setUniformValue(
+            "light.attenuation",
+            self.attenuation,
+        )
+        self._shaders.setUniformValue(
+            "light.ambientCoefficient",
+            self.ambient,
+        )
+        self._shaders.setUniformValue(
+            "materialShininess",
+            self.shininess,
+        )
+        self._shaders.setUniformValue(
+            "materialSpecularColor",
+            self.specularColor,
         )
 
-        self._carre_vao.bind()
-    
+        self._shaders.setUniformValue(
+            "map",
+            self._shaders.textures.textures[0],
+        )
+        self._shaders.setUniformValue(
+            "image",
+            self._shaders.textures.textures[1],
+        )
+        self._shaders.textures.activate()
+
+        self._vao.bind()
+
         GL.glDrawElements(
             GL.GL_TRIANGLES,
-            len(self._carre_index),
+            len(self._plot_prop._ids),
             GL.GL_UNSIGNED_INT,
             None,
         )
-        
-        self._carre_vao.release()
-        
-        self._carre_shader.textures.release()
-        self._carre_shader.release()
-        
+
+        self._vao.release()
+        self._shaders.textures.release()
+        self._shaders.release()
+        # GL.glClearColor(0.0, 0.0, 0.0, 1.0)
+        # GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+
+        # self._carre_shader.bind()
+
+        # self._carre_shader.setUniformValue(
+            # "projection",
+            # parent._projection,
+        # )
+        # self._carre_shader.setUniformValue(
+            # "view",
+            # parent._view,
+        # )
+        # self._carre_shader.setUniformValue(
+            # "model",
+            # self._model,
+        # )
+
+        # self._carre_shader.textures.activate()
+
+        # self._carre_vao.bind()
+
+        # GL.glDrawElements(
+            # GL.GL_TRIANGLES,
+            # len(self._carre_index),
+            # GL.GL_UNSIGNED_INT,
+            # None,
+        # )
+
+        # self._carre_vao.release()
+
+        # self._carre_shader.textures.release()
+        # self._carre_shader.release()
+
     def show(self, parent):
 
         #GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
@@ -348,7 +428,7 @@ class HeightMapFBO(object):
 
         self._first_pass(parent)
         self._second_pass(parent)
-        
+
         GL.glDisable(GL.GL_DEPTH_TEST)
 
     def _updateAttenuation(self, value):

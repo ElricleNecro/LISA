@@ -44,26 +44,15 @@ class Figure(object):
         self.scene.makeCurrent()
 
         # add widget created by user
-        try:
+        if hasattr(value, "createWidget"):
             wid = value.createWidget()
-
             if wid:
                 self.addWidget(wid)
-
             # create shaders for widget
             wid.createShaders(self.scene)
-        except AttributeError:
-            pass
-        except Exception as e:
-            print(e)
-            raise e
 
         # create shaders after all is done
-        try:
-            value.createShaders(self.scene)
-        except Exception as e:
-            print(e)
-            raise e
+        value.createShaders(self.scene)
 
         # store the instance for plots
         self.scene.lines = value

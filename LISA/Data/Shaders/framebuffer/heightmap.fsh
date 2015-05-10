@@ -1,7 +1,9 @@
 #version 330
 
 in vec3 worldPosition;
+in vec3 modelPosition;
 
+uniform sampler2D image;
 uniform mat4 model;
 uniform mat4 rotate;
 uniform vec3 camera;
@@ -58,7 +60,8 @@ vec3 ApplyLight(Light light, vec3 surfaceColor, vec3 normal, vec3 surfacePos, ve
 
 void main()
 {
-    vec4 surfaceColor = vec4(1.0, 1.0, 1.0, 1.0);
+    /* vec4 surfaceColor = vec4(1.0, 1.0, 1.0, 1.0); */
+    vec4 surfaceColor = texture(image, (modelPosition.xy+1)/2);
 
     vec3 surfaceToLight = vec3(light.position) - worldPosition;
 

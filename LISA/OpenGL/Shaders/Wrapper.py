@@ -49,6 +49,7 @@ class TextureLinker(object):
         for texture in self.textures:
             # set the unit with the order of insertion
             texture.unit = counter
+            counter += 1
 
             # activate the texture
             texture.activate()
