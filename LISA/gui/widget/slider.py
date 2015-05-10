@@ -10,7 +10,6 @@ __all__ = ["VerticalSlider", "HorizontalSlider"]
 
 
 class VerticalSlider(VerticalLayout):
-
     def __init__(self, *args, **kwargs):
 
         # init the parent
@@ -46,30 +45,34 @@ class VerticalSlider(VerticalLayout):
         # signal when the value is updated
         self.changedSlider = Signal()
 
-    def mouseEvent(self, event):
+    def mousePressEvent(self, event):
+        super(VerticalSlider, self).mousePressEvent(event)
+        if event.accepted:
+            return
+        # compute the offset of the mouse cursor relative to the corner
+        # of the widget, if not already pressed
+        if not self._mousePress:
+            self._mouse[0] = event.x
+            self._mouse[1] = event.y
+            self._mouseOffset = self._mouse - self.block._corner
 
-        # left button of the mouse pressed
-        if event[1]:
+        # check that we are inside the block
+        if self.block.inside(event.x, event.y):
+            # indicate that it is pressed
+            self._mousePress = True
+            event.accept()
+        elif self.inside(event.x, event.y):
+            self._mousePressSlide = True
+            event.accept()
 
-            # compute the offset of the mouse cursor relative to the corner
-            # of the widget, if not already pressed
-            if not self._mousePress:
-                self._mouse[0] = event.x
-                self._mouse[1] = event.y
-                self._mouseOffset = self._mouse - self.block._corner
+    def mouseReleaseEvent(self, event):
+        self._mousePress = False
+        self._mousePressSlide = False
 
-            # check that we are inside the block
-            if self.block.inside(event.x, event.y):
-                # indicate that it is pressed
-                self._mousePress = True
-            elif self.inside(event.x, event.y):
-                self._mousePressSlide = True
-
-        # the left button is released
-        if not event[1]:
-            self._mousePress = False
-            self._mousePressSlide = False
-
+    def mouseMoveEvent(self, event):
+        super(VerticalSlider, self).mouseMoveEvent(event)
+        if event.accepted:
+            return
         if self._mousePress or self._mousePressSlide:
             # compute the position of the left edge of the block
             if self._mousePress:
@@ -96,9 +99,9 @@ class VerticalSlider(VerticalLayout):
 
             # set the position of the block inside
             self.block.y = self._widget_position(None)
+            event.accept()
 
-            # indicate that the event is intercepted
-            return True
+            self.update()
 
     def _widget_position(self, widget):
         return self.y + self.padding_top + self.slideValue * float(
@@ -116,7 +119,6 @@ class VerticalSlider(VerticalLayout):
 
 
 class HorizontalSlider(HorizontalLayout):
-
     def __init__(self, *args, **kwargs):
 
         # init the parent
@@ -152,30 +154,34 @@ class HorizontalSlider(HorizontalLayout):
         # signal when the value is updated
         self.changedSlider = Signal()
 
-    def mouseEvent(self, event):
+    def mousePressEvent(self, event):
+        super(HorizontalSlider, self).mousePressEvent(event)
+        if event.accepted:
+            return
+        # compute the offset of the mouse cursor relative to the corner
+        # of the widget, if not already pressed
+        if not self._mousePress:
+            self._mouse[0] = event.x
+            self._mouse[1] = event.y
+            self._mouseOffset = self._mouse - self.block._corner
 
-        # left button of the mouse pressed
-        if event[1]:
+        # check that we are inside the block
+        if self.block.inside(event.x, event.y):
+            # indicate that it is pressed
+            self._mousePress = True
+            event.accept()
+        elif self.inside(event.x, event.y):
+            self._mousePressSlide = True
+            event.accept()
 
-            # compute the offset of the mouse cursor relative to the corner
-            # of the widget, if not already pressed
-            if not self._mousePress:
-                self._mouse[0] = event.x
-                self._mouse[1] = event.y
-                self._mouseOffset = self._mouse - self.block._corner
+    def mouseReleaseEvent(self, event):
+        self._mousePress = False
+        self._mousePressSlide = False
 
-            # check that we are inside the block
-            if self.block.inside(event.x, event.y):
-                # indicate that it is pressed
-                self._mousePress = True
-            elif self.inside(event.x, event.y):
-                self._mousePressSlide = True
-
-        # the left button is released
-        if not event[1]:
-            self._mousePress = False
-            self._mousePressSlide = False
-
+    def mouseMoveEvent(self, event):
+        super(HorizontalSlider, self).mouseMoveEvent(event)
+        if event.accepted:
+            return
         if self._mousePress or self._mousePressSlide:
             # compute the position of the left edge of the block
             if self._mousePress:
@@ -202,9 +208,9 @@ class HorizontalSlider(HorizontalLayout):
 
             # set the position of the block inside
             self.block.x = self._widget_position(None)
+            event.accept()
 
-            # indicate that the event was intercepted
-            return True
+            self.update()
 
     def _widget_position(self, widget):
         return self.x + self.padding_left + self.slideValue * float(
@@ -219,4 +225,6 @@ class HorizontalSlider(HorizontalLayout):
     def slideValue(self, slideValue):
         self._slideValue = slideValue
         self.changedSlider(self._slideValue)
+
+
 # vim: set tw=79 :

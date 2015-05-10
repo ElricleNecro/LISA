@@ -29,25 +29,22 @@ class Base(object):
             for v in shaders:
                 self._shaders += v
 
-    def createShaders(self, parent):
+    def createShaders(self, world):
         if len(self._shaders) == 0:
             self._shaders += t.shader_path("basic.vsh")
             self._shaders += t.shader_path("basic.fsh")
         self._shaders.link()
 
-    def show(self, parent):
-        if self._modified_data:
-            # self._plot_prop.init()
-            pass
+    def paintEvent(self, event):
         GL.glEnable(GL.GL_DEPTH_TEST)
 
         GL.glClear(GL.GL_DEPTH_BUFFER_BIT | GL.GL_COLOR_BUFFER_BIT)
 
-        matrice = parent._view * self._model
+        matrice = self.world._view * self._model
 
         self._shaders.bind()
         self._shaders.setUniformValue("modelview", matrice)
-        self._shaders.setUniformValue("projection", parent._projection)
+        self._shaders.setUniformValue("projection", self.world._projection)
 
         self._shaders.enableAttributeArray("position")
 
@@ -61,11 +58,10 @@ class Base(object):
 
     @property
     def data(self):
-        self._modified_data = True
         return self._data
+
     @data.setter
     def data(self, val):
-        self._modified_data = True
         if len(val.shape) != 1:
             self._data = val.flatten()
         else:
@@ -82,8 +78,16 @@ class Base(object):
     def shaders(self):
         return self._shaders
 
+    @property
+    def world(self):
+        return self._world
+
+    @world.setter
+    def world(self, world):
+        self._world = world
+
     def __lshift__(self, inst):
         self._plot_prop = inst
 
 
-
+# vim: set tw=79 :

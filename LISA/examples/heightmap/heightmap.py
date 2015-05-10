@@ -86,7 +86,7 @@ class HeightMap(o.Base):
 
         return self._widget
 
-    def createShaders(self, parent):
+    def createShaders(self, world):
         # create buffers
         self._vertices = VBO(VERTEX_BUFFER)
         self._index = VBO(INDEX_BUFFER)
@@ -140,7 +140,7 @@ class HeightMap(o.Base):
 
         self._vao.release()
 
-    def show(self, parent):
+    def paintEvent(self, event):
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
         GL.glEnable(GL.GL_DEPTH_TEST)
@@ -149,11 +149,11 @@ class HeightMap(o.Base):
 
         self._shaders.setUniformValue(
             "projection",
-            parent._projection,
+            self.world._projection,
         )
         self._shaders.setUniformValue(
             "view",
-            parent._view,
+            self.world._view,
         )
         self._shaders.setUniformValue(
             "model",
@@ -161,11 +161,11 @@ class HeightMap(o.Base):
         )
         self._shaders.setUniformValue(
             "camera",
-            parent._camera,
+            self.world._camera,
         )
         self._shaders.setUniformValue(
             "rotate",
-            parent._rotate,
+            self.world._rotate,
         )
         self._shaders.setUniformValue(
             "light.position",

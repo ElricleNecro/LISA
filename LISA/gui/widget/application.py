@@ -14,7 +14,6 @@ class Application(VerticalLayout):
     A class for managing an application with title bar, action buttons and
     contents...
     """
-
     def __init__(self, *args, **kwargs):
 
         # get the layout for contents
@@ -74,44 +73,53 @@ class Application(VerticalLayout):
 
         self.content.addWidget(widget)
 
-    def mouseEvent(self, event):
+    def mousePressEvent(self, event):
+        super(Application, self).mousePressEvent(event)
+        if event.accepted:
+            return
+        # compute the offset of the mouse cursor relative to the corner
+        # of the widget, if not already pressed
+        if not self._mousePress:
+            self._mouse[0] = event.x
+            self._mouse[1] = event.y
+            self._mouseOffset = self._mouse - self._corner
 
-        # call the parent
-        if super(VerticalLayout, self).mouseEvent(event):
-            return True
-
-        # left button of the mouse pressed
-        if event[1]:
-
-            # compute the offset of the mouse cursor relative to the corner
-            # of the widget, if not already pressed
-            if not self._mousePress:
+        # check that we are inside or not the border used to resize the
+        # widget
+        if self._inside_border(event.x, event.y):
+            if not self._mousePressBorders:
                 self._mouse[0] = event.x
                 self._mouse[1] = event.y
-                self._mouseOffset = self._mouse - self._corner
+                self._sizeOffset = self._size - self._mouse + self._corner
+            self._mousePressBorders = True
+            event.accept()
+        elif self.inside(event.x, event.y) and not self._mousePressBorders:
+            self._mousePress = True
+            event.accept()
 
-            # check that we are inside or not the border used to resize the
-            # widget
-            if self._inside_border(event.x, event.y):
-                if not self._mousePressBorders:
-                    self._mouse[0] = event.x
-                    self._mouse[1] = event.y
-                    self._sizeOffset = self._size - self._mouse + self._corner
-                self._mousePressBorders = True
-            elif self.inside(event.x, event.y) and not self._mousePressBorders:
-                self._mousePress = True
+    def mouseReleaseEvent(self, event):
+        super(Application, self).mouseReleaseEvent(event)
+        self._mousePress = False
+        self._mousePressBorders = False
 
-        # the left button is released
-        if not event[1]:
-            self._mousePress = False
-            self._mousePressBorders = False
+    def mouseMoveEvent(self, event):
+        # call the parent
+        super(Application, self).mouseMoveEvent(event)
+        if event.accepted:
+            return
 
         if self._mousePressBorders:
             self.width = self._sizeOffset[0] + event.x - self._corner[0]
             self.height = self._sizeOffset[1] + event.y - self._corner[1]
-            return True
+            event.accept()
+            self.update()
+            return
         if self._mousePress:
             self.x = event.x - self._mouseOffset[0]
             self.y = event.y - self._mouseOffset[1]
-            return True
+            event.accept()
+            self.update()
+            return
+
+
 # vim: set tw=79 :

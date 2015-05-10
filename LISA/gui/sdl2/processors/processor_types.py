@@ -1,86 +1,69 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import abc
 import logging
 
-from ..window import SDLWindow
-
-__all__ = ["EventType", "eventor", "WindowEventType"]
+__all__ = ["EventProcessor", "WindowEventProcessor"]
 
 logger = logging.getLogger(__name__)
 
 
-def eventor(func):
+class EventProcessorManager(object):
     """
-    A decorator to indicate which method needs to be called after an event
-    occurred. This allow to not process all the tree if no corresponding event
-    happened.
-
-    Simply call the method, defined by the Meta.event_method of the instance of
-    thewrapped method, of window that have the focus, with the attribute of the
-    instance defined by Meta.event_attribute.
+    Class to manage the defined processors of the system events, register them
+    access them easily.
     """
-    def decorator(self, event):
-        # execute the processing of the event
-        func(self, event)
+    def __init__(self):
+        """
+        Create containers.
+        """
+        self.processors = {}
+        self.processorInstances = {}
 
-        # call the good method of the window with the focus
-        if self.window.id in SDLWindow.manager.windowsById:
-            # get the window with the focus
-            window = SDLWindow.manager.windowsById[self.window.id]
+    def add(self, cls):
+        """
+        Register a defined processor event.
+        """
+        if not hasattr(cls.Meta, "register_type"):
+            logger.error("An event type needs meta attribute register_type")
+            raise AttributeError(
+                "An event type needs meta attribute register_type"
+            )
+            return
 
-            # check it has the method to call in the window
-            if hasattr(window, self.Meta.event_method):
-                # call the method with the good event as argument
-                getattr(window, self.Meta.event_method)(
-                    getattr(self, self.Meta.event_attribute)
-                )
+        self.processors[cls.Meta.register_type] = cls
 
-    return decorator
+    def __getitem__(self, kind):
+        """
+        Return an instance from the manager given the type of SDL event.
+        """
+        # get the instance processor
+        if kind in self:
+            return self.processors[kind]
+
+    def __contains__(self, kind):
+        return kind in self.processors
 
 
-class EventTypeMetaclass(abc.ABCMeta):
+class EventProcessorMetaclass(type):
     """
     Metaclass to register available kinds of event type and easily access them
     without adding a lot of if statement in the code for each kind of event.
     """
     def __init__(cls, name, bases, attrs):
         # create the class as usual
-        super(EventTypeMetaclass, cls).__init__(name, bases, attrs)
+        super(EventProcessorMetaclass, cls).__init__(name, bases, attrs)
 
         # store the available classes
-        if not hasattr(cls, "available_events"):
-            cls.available_events = {}
-        else:
-            if not hasattr(cls.Meta, "register_type"):
-                raise AttributeError(
-                    "An event type needs meta attribute register_type"
-                )
-            cls.available_events[cls.Meta.register_type] = cls
+        if not hasattr(cls, "manager"):
+            cls.manager = EventProcessorManager()
+            return
 
-        # mapping for instantiated events
-        if not hasattr(cls, "events"):
-            cls.events = {}
-
-    def __call__(cls, *args, **kwargs):
-        """
-        Called when a class is instantiated.
-        """
-        # register the instance if not already created (events are singleton)
-        if cls.Meta.register_type in cls.events:
-            return cls.events[cls.Meta.register_type]
-
-        # create the instance
-        instance = super(EventTypeMetaclass, cls).__call__(*args, **kwargs)
-
-        # store it to retrieve it later
-        cls.events[instance.Meta.register_type] = instance
-
-        return instance
+        # register the event processor
+        cls.manager.add(cls)
 
 
-class EventType(object, metaclass=EventTypeMetaclass):
+class EventProcessor(object, metaclass=EventProcessorMetaclass):
     """
     A base class for the kind of SDL events to manage in the window. The
     keyword arguments given to the class are stored into the instance as
@@ -93,11 +76,11 @@ class EventType(object, metaclass=EventTypeMetaclass):
     SDL event, and to communicate to the window.
 
     The Meta.register_type refers to the SDL event associated associated to the
-    EventType class. Through the EventTypeMetaclass metaclass, when a class is
-    derived from the EventType base class, the new class is automatically
+    EventProcessor class. Through the EventProcessorMetaclass metaclass, when a class is
+    derived from the EventProcessor base class, the new class is automatically
     registered into the available_events attribute set by the metaclass. This
     is a mapping between the Meta.register_type and the class itself, allowing
-    to handle events. Since derived EventType instances are singleton, we can
+    to handle events. Since derived EventProcessor instances are singleton, we can
     also make a mapping between the Meta.register_type and the instance, stored
     in the events attribute.
 
@@ -107,7 +90,7 @@ class EventType(object, metaclass=EventTypeMetaclass):
     by SDL in the structure of the event. Since we have a window manager, we
     can easily access to it.
 
-    The Meta.event_attribute is the attribute of the derived EventType
+    The Meta.event_attribute is the attribute of the derived EventProcessor
     instance, that will be given as argument to the method in the current
     window referenced by Meta.event_method.
 
@@ -133,28 +116,25 @@ class EventType(object, metaclass=EventTypeMetaclass):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    @eventor
-    @abc.abstractmethod
-    def processEvent(self, event):
+    @staticmethod
+    def processEvent(event):
         """
         A method called to process the event. This method take the SDL event
         extracted from the PollEvent as an argument. The event is then
-        processed by the processEvent method of the derived class of EventType,
-        putting interesting informations to the keyboard, mouse, wheel and
-        window structures.
-
-        It is the eventor decorator that is responsible to give the good
-        structure to the good method of the current window.
+        processed by the processEvent method of the derived class of
+        EventProcessor, putting interesting informations to the keyboard,
+        mouse, wheel and window structures. Then returns the good instance of
+        the ApplicationEvent.
         """
         pass
 
 
-class WindowEventType(object, metaclass=EventTypeMetaclass):
+class WindowEventProcessor(object, metaclass=EventProcessorMetaclass):
     """
-    Base class for window events. The principle is the same as for EventType.
+    Base class for window events. The principle is the same as for EventProcessor.
     This is just a new class since the way to handle it is not the same for
     window event, since the Meta.register_type key used for the mapping is not
-    the same. Refer to EventType for details.
+    the same. Refer to EventProcessor for details.
     """
     def __init__(self, *args, **kwargs):
         """
@@ -172,9 +152,8 @@ class WindowEventType(object, metaclass=EventTypeMetaclass):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-    @eventor
-    @abc.abstractmethod
-    def processEvent(self, event):
+    @staticmethod
+    def processEvent(event):
         """
         A method called to process the event.
         """

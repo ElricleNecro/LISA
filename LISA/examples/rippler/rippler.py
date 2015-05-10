@@ -35,7 +35,7 @@ class Rippler(o.Base):
 
         self._time = datetime.datetime.now()
 
-    def createShaders(self, parent):
+    def createShaders(self, world):
 
         # create buffers
         self._vertices = VBO(VERTEX_BUFFER)
@@ -128,7 +128,7 @@ class Rippler(o.Base):
     def _echo(self):
         print("clicked")
 
-    def show(self, parent):
+    def paintEvent(self, event):
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
 
@@ -136,11 +136,11 @@ class Rippler(o.Base):
 
         self._shaders.setUniformValue(
             "projection",
-            parent._projection
+            event.world._projection
         )
         self._shaders.setUniformValue(
             "modelview",
-            parent._view * self._model
+            event.world._view * self._model
         )
         dt = datetime.datetime.now() - self._time
         second = float((dt.seconds * 1000000 + dt.microseconds) * 0.000006)
@@ -158,5 +158,6 @@ class Rippler(o.Base):
         self._vao.release()
 
         self._shaders.release()
+
 
 # vim: set tw=79 :

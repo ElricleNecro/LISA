@@ -82,19 +82,19 @@ class Sprites(o.Base):
         self._index.bind()
         self._vao.release()
 
-    def show(self, parent):
+    def paintEvent(self, event):
 
         GL.glEnable(GL.GL_PROGRAM_POINT_SIZE)
         GL.glEnable(GL.GL_DEPTH_TEST)
         GL.glEnable(GL.GL_BLEND)
         GL.glDepthMask(GL.GL_FALSE)
 
-        matrice = parent._view * self._model
+        matrice = event.world._view * self._model
 
         self._shaders.bind()
         self._shaders.setUniformValue("modelview", matrice)
-        self._shaders.setUniformValue("projection", parent._projection)
-        self._shaders.setUniformValue("screenSize", parent._screensize)
+        self._shaders.setUniformValue("projection", event.world._projection)
+        self._shaders.setUniformValue("screenSize", event.world._screensize)
         self._shaders.setUniformValue("voxelSize", Vector(0.01))
 
         self._vao.bind()

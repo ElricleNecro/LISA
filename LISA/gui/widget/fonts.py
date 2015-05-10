@@ -103,7 +103,8 @@ class Text(Widget):
         self._texture.load()
         self._shaders.textures << self._texture
 
-    def createShaders(self, parent):
+    def createShaders(self, world):
+        self.world = world
 
         # keep a trace of the figure
         self.text = self.text
@@ -153,7 +154,7 @@ class Text(Widget):
 
         self._vao.release()
 
-    def draw(self, parent):
+    def paintEvent(self, event):
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
@@ -163,7 +164,7 @@ class Text(Widget):
 
         self._shaders.setUniformValue(
             "modelview",
-            parent._widget_projection * self._model
+            self.world._widget_projection * self._model
         )
 
         self._shaders.setUniformValue(
@@ -192,9 +193,6 @@ class Text(Widget):
         self._vao.release()
         self._shaders.textures.release()
         self._shaders.release()
-
-    def mouseEvent(self, event):
-        pass
 
 
 # vim: set tw=79 :

@@ -3,6 +3,7 @@
 
 import sdl2 as s
 import logging
+import LISA.Matrice as m
 
 from OpenGL import GL
 from ..utils.signals import Signal
@@ -95,7 +96,7 @@ class SDLWindow(object, metaclass=WindowMetaclass):
         self,
         title,
         w_pos=(s.SDL_WINDOWPOS_UNDEFINED, s.SDL_WINDOWPOS_UNDEFINED),
-        size=(800, 480),
+        size=m.Vector(800, 480),
         flags=s.SDL_WINDOW_SHOWN | s.SDL_WINDOW_OPENGL | s.SDL_WINDOW_RESIZABLE
     ):
         # create the window with default size
@@ -137,7 +138,7 @@ class SDLWindow(object, metaclass=WindowMetaclass):
     def makeCurrent(self):
         s.SDL_GL_MakeCurrent(self._win, self._context)
 
-    def draw(self):
+    def paintEvent(self, event):
         _SDLInput_logger.debug("Inside window %d for drawing.", id(self._win))
         GL.glMatrixMode(GL.GL_PROJECTION | GL.GL_MODELVIEW)
         GL.glLoadIdentity()
@@ -157,9 +158,9 @@ class SDLWindow(object, metaclass=WindowMetaclass):
         self._y += 50
         self._y %= 10
 
-        self.update()
+        self.swap()
 
-    def update(self):
+    def swap(self):
         s.SDL_GL_SwapWindow(self._win)
 
     def updateWindow(self):
@@ -187,59 +188,74 @@ class SDLWindow(object, metaclass=WindowMetaclass):
             self._win
         )
 
-    def mouseEvent(self, event):
-
+    def mouseReleaseEvent(self, event):
         # loop over children widgets
         for widget in self._widget:
+            # call the widget to see if he process the event
+            widget.mouseReleaseEvent(event)
+            if event.accepted:
+                break
 
-            # if the widget has the method call it
-            if hasattr(widget, "mouseEvent"):
-
-                # call the widget to see if he process the event
-                if widget.mouseEvent(event):
-
-                    # the widget accepts the event and we don't process it
-                    # anymore in tis iteration
-                    return True
-
-    def keyEvent(self, event):
-
+    def mousePressEvent(self, event):
         # loop over children widgets
         for widget in self._widget:
+            # call the widget to see if he process the event
+            widget.mousePressEvent(event)
+            if event.accepted:
+                break
 
-            # if the widget has the method call it
-            if hasattr(widget, "keyEvent"):
+    def mouseMoveEvent(self, event):
+        # loop over children widgets
+        for widget in self._widget:
+            # call the widget to see if he process the event
+            widget.mouseMoveEvent(event)
+            if event.accepted:
+                break
 
-                # call the widget to see if he process the event
-                if widget.keyEvent(event):
+    def keyReleaseEvent(self, event):
+        # loop over children widgets
+        for widget in self._widget:
+            # call the widget to see if he process the event
+            widget.keyReleaseEvent(event)
+            if event.accepted:
+                break
 
-                    # the widget accepts the event and we don't process it
-                    # anymore in tis iteration
-                    return True
+    def keyPressEvent(self, event):
+        # loop over children widgets
+        for widget in self._widget:
+            # call the widget to see if he process the event
+            widget.keyPressEvent(event)
+            if event.accepted:
+                break
 
     def wheelEvent(self, event):
         # loop over children widgets
         for widget in self._widget:
-
-            # if the widget has the method call it
-            if hasattr(widget, "wheelEvent"):
-
-                # call the widget to see if he process the event
-                if widget.wheelEvent(event):
-
-                    # the widget accepts the event and we don't process it
-                    # anymore in tis iteration
-                    return True
+            # call the widget to see if he process the event
+            widget.wheelEvent(event)
+            if event.accepted:
+                break
 
     def closeEvent(self, event):
-        if event.end:
-            self.close()
-            event.end = False
-            return True
+        self.close()
 
     def resizeEvent(self, event):
-        if event.resized:
-            s.SDL_SetWindowSize(self._win, *event.windowSize)
+        s.SDL_SetWindowSize(self._win, *event.size)
+
+    def focusInEvent(self, event):
+        pass
+
+    def focusOutEvent(self, event):
+        pass
+
+    def showEvent(self, event):
+        """
+        Called when the window is shown.
+        """
+        pass
+
+    def exposeEvent(self, event):
+        pass
 
     @property
     def id(self):

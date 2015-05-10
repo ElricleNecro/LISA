@@ -5,6 +5,9 @@ from OpenGL import GL
 
 from LISA.gui.utils.matrices import Perspective, Orthographic
 from .window import SDLWindow
+from .hook import EventLoop
+from .application_events import PaintEvent
+from .application_events import Paint
 
 import LISA.Matrice as m
 
@@ -15,9 +18,7 @@ __all__ = ["OGLWidget"]
 
 
 class OGLWidget(SDLWindow):
-
     def __init__(self, *args, **kwargs):
-
         # Data class to plot:
         self._data = []
 
@@ -128,27 +129,33 @@ class OGLWidget(SDLWindow):
         self._data.append(value)
 
     def addWidget(self, widget):
-        if hasattr(widget, "draw"):
+        if hasattr(widget, "paintEvent"):
+            widget.world = self
             self._widget.append(widget)
         else:
             print(
-                "A widget must have a draw method to be "
+                "A widget must have a paintEvent method to be " +
                 "displayed on the window!"
             )
 
+    def update(self):
+        """
+        Send a event into the queue to redraw the window.
+        """
+        EventLoop.instance.postEvent(self, PaintEvent(Paint, self))
+
     def resizeEvent(self, event):
-        if super(OGLWidget, self).resizeEvent(event):
-            return
-        w, h = event.windowSize
+        super(OGLWidget, self).resizeEvent(event)
+        w, h = event.size
         h = 1 if h == 0 else h
         GL.glViewport(0, 0, w, h)
         self.projection.ratio = w / h
         self.widget_projection.right = w
         self.widget_projection.bottom = h
         self._screensize = m.Vector(w, h)
+        self.update()
 
-    def draw(self, *args):
-
+    def paintEvent(self, event):
         self.view.setToIdentity()
 
         self.view.lookAt(
@@ -164,32 +171,31 @@ class OGLWidget(SDLWindow):
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
         for data in self._data:
-            data.show(self)
+            data.paintEvent(event)
 
         # now loop over widgets
         for widget in self._widget:
-            widget.draw(self)
+            widget.paintEvent(event)
 
-        self.update()
+        self.swap()
 
-    def keyEvent(self, event):
-        if super(OGLWidget, self).keyEvent(event):
+    def mousePressEvent(self, event):
+        super(OGLWidget, self).mousePressEvent(event)
+        if event.accepted:
+            return
+        # say the mouse is pressed
+        self._mousePress = True
+
+    def mouseReleaseEvent(self, event):
+        super(OGLWidget, self).mouseReleaseEvent(event)
+        self._mousePress = False
+
+    def mouseMoveEvent(self, event):
+        super(OGLWidget, self).mouseMoveEvent(event)
+        if event.accepted:
             return
 
-    def mouseEvent(self, event):
-        if not self._mousePress:
-            if super(OGLWidget, self).mouseEvent(event):
-                return
-        if event[1]:
-
-            # say the mouse is pressed
-            self._mousePress = True
-
-        if not event[1]:
-            self._mousePress = False
-
         if self._mousePress:
-
             # compute the movement of the mouse
             x, y = event.dx, event.dy
 
@@ -209,10 +215,10 @@ class OGLWidget(SDLWindow):
                 rotationAxis
             ) * m.Translation(-self.camera_target) * self.rotate
 
-    def wheelEvent(self, event):
+            self.update()
 
-        if super(OGLWidget, self).wheelEvent(event):
-            return
+    def wheelEvent(self, event):
+        super(OGLWidget, self).wheelEvent(event)
 
         delta = event.dy
 
@@ -220,6 +226,14 @@ class OGLWidget(SDLWindow):
             self.zoom = 1.15
         elif delta > 0:
             self.zoom = 0.87
+
+        self.update()
+
+    def showEvent(self, event):
+        self.update()
+
+    def exposeEvent(self, event):
+        self.update()
 
 
 # vim: set tw=79 :

@@ -25,6 +25,7 @@ class Figure(object):
         self._background_color = background_color
 
     def addWidget(self, wid):
+        wid.parent = self.scene
         self.scene.addWidget(wid)
 
     def __getitem__(self, ind):
@@ -39,31 +40,23 @@ class Figure(object):
 
     @axes.setter
     def axes(self, value):
-
         # create shaders if there is one
         self.scene.makeCurrent()
 
-        # add widget created by user
-        try:
-            wid = value.createWidget()
+        # set the world into the axes
+        value.world = self.scene
 
+        # add widget created by user
+        if hasattr(value, "createWidget"):
+            wid = value.createWidget()
             if wid:
                 self.addWidget(wid)
 
             # create shaders for widget
             wid.createShaders(self.scene)
-        except AttributeError:
-            pass
-        except Exception as e:
-            print(e)
-            raise e
 
         # create shaders after all is done
-        try:
-            value.createShaders(self.scene)
-        except Exception as e:
-            print(e)
-            raise e
+        value.createShaders(self.scene)
 
         # store the instance for plots
         self.scene.lines = value

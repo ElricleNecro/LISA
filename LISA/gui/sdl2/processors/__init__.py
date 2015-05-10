@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pkgutil
-from .event_types import EventType
+from .processor_types import EventProcessor
 
 __all__ = ["EventType"]
 

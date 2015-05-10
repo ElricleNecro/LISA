@@ -12,7 +12,6 @@ from LISA.Matrice import Vector
 
 
 class Widget(object):
-
     def __init__(self):
 
         # the mesh used to draw the widget on the screen
@@ -77,12 +76,21 @@ class Widget(object):
         self._children.append(widget)
 
     @property
+    def world(self):
+        return self._world
+
+    @world.setter
+    def world(self, world):
+        self._world = world
+
+    @property
     def bgcolor(self):
         return self._bgcolor
 
     @bgcolor.setter
     def bgcolor(self, color):
         self._bgcolor = Vector(*color, dtype=np.float32)
+
     @property
     def parent(self):
         return self._parent
@@ -311,7 +319,8 @@ class Widget(object):
     def margin_bottom(self, margin_bottom):
         self._margin[3] = margin_bottom
 
-    def createShaders(self, parent):
+    def createShaders(self, world):
+        self.world = world
 
         self._shaders += t.shader_path("widget/widget.vsh")
         self._shaders += t.shader_path("widget/widget.fsh")
@@ -356,9 +365,9 @@ class Widget(object):
         self._vao.release()
 
         for widget in self._children:
-            widget.createShaders(parent)
+            widget.createShaders(world)
 
-    def draw(self, parent):
+    def paintEvent(self, event):
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
@@ -368,7 +377,7 @@ class Widget(object):
 
         self._shaders.setUniformValue(
             "modelview",
-            parent._widget_projection * self._model
+            self.world._widget_projection * self._model
         )
 
         self._shaders.setUniformValue(
@@ -396,23 +405,49 @@ class Widget(object):
         self._shaders.release()
 
         for widget in self._children:
-            widget.draw(parent)
+            widget.paintEvent(event)
 
-    def mouseEvent(self, event):
-
+    def mousePressEvent(self, event):
         for widget in self._children:
-            if widget.mouseEvent(event):
-                return True
+            widget.mousePressEvent(event)
+            if event.accepted:
+                break
 
-    def keyEvent(self, event):
+    def mouseMoveEvent(self, event):
         for widget in self._children:
-            if widget.keyEvent(event):
-                return True
+            widget.mouseMoveEvent(event)
+            if event.accepted:
+                break
+
+    def mouseReleaseEvent(self, event):
+        for widget in self._children:
+            widget.mouseReleaseEvent(event)
+            if event.accepted:
+                break
+
+    def keyReleaseEvent(self, event):
+        for widget in self._children:
+            widget.keyReleaseEvent(event)
+            if event.accepted:
+                break
+
+    def keyPressEvent(self, event):
+        for widget in self._children:
+            widget.keyPressEvent(event)
+            if event.accepted:
+                break
 
     def wheelEvent(self, event):
         for widget in self._children:
-            if widget.wheelEvent(event):
-                return True
+            widget.wheelEvent(event)
+            if event.accepted:
+                break
+
+    def closeEvent(self, event):
+        pass
+
+    def resizeEvent(self, event):
+        pass
 
     def inside(self, x, y):
         """
@@ -433,5 +468,9 @@ class Widget(object):
             self._corner[1] + self._size[1] - self._borders[1] <=
             y <= self._corner[1] + self._size[1]
         )
+
+    def update(self):
+        self.parent.update()
+
 
 # vim: set tw=79 :

@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from .events import SDLInput
+import collections
+import ctypes
+
 from .window import SDLWindow
+from .processors import EventProcessor
 
 import sdl2 as s
 
@@ -13,7 +16,6 @@ class EventLoopMetaclass(type):
     """
     Make the event loop a singleton.
     """
-
     def __call__(cls, *args, **kwargs):
         """
         Singleton for the event loop.
@@ -25,7 +27,7 @@ class EventLoopMetaclass(type):
         return cls.instance
 
 
-class SDL2_Dealer(object, metaclass=EventLoopMetaclass):
+class BaseEventLoop(object, metaclass=EventLoopMetaclass):
     def __init__(self, fps=60):
         """
         Init SDL and connect to the signal sent by the window manager when a
@@ -34,13 +36,69 @@ class SDL2_Dealer(object, metaclass=EventLoopMetaclass):
         # init SDL
         s.SDL_Init(s.SDL_INIT_VIDEO)
 
-        self._ev = SDLInput()
-        self._hook = None
+        # set fps
         self.fps = fps
         self._in_event_loop = False
 
         # connect to added signal of the window manager
         SDLWindow.manager.created.connect(self.passEventLoop)
+
+        # create the queue for application events
+        self.queue = collections.deque()
+
+        # SDL event managers
+        self._event = s.SDL_Event()
+
+    def updateApplication(self):
+        """
+        Process the events from the queue for the application.
+        """
+        # clear the queue and send the events
+        while(len(self.queue)):
+            # get the event and receiver from the queue
+            widget, event = self.queue.popleft()
+
+            # send the event to the widget
+            self.sendEvent(widget, event)
+
+    def updateSDL(self):
+        """
+        Process the events from the system, given by SDL.
+        """
+        # loop over event in the queue
+        while s.SDL_PollEvent(ctypes.byref(self._event)) != 0:
+            # call the good event processor instance, by getting it from the
+            # mapping in the manager
+            if self._event.type in EventProcessor.manager:
+                # process the SDL event with the good type
+                event = EventProcessor.manager[self._event.type].processEvent(
+                    self._event
+                )
+
+                # check that the event is handled
+                if not event:
+                    return
+
+                # call the good method of the window with the focus
+                if event.windowId in SDLWindow.manager.windowsById:
+                    # get the window with the focus
+                    window = SDLWindow.manager.windowsById[event.windowId]
+
+                    # send the event in the queue of the application
+                    self.postEvent(window, event)
+
+    def update(self):
+        """
+        Process the events coming from the system and from the application.
+        """
+        # process what is coming from the application
+        self.updateApplication()
+
+        # process what is coming from the system
+        self.updateSDL()
+
+        # treat again the application since the system send things to the queue
+        self.updateApplication()
 
     def passEventLoop(self, window):
         """
@@ -64,12 +122,22 @@ class SDL2_Dealer(object, metaclass=EventLoopMetaclass):
         self._fps = fps
         self._framerate = int(1000 / fps)
 
+    def postEvent(self, receiver, event):
+        """
+        Post an event in the queue.
+        """
+        self.queue.append((receiver, event))
+
+    def sendEvent(self, receiver, event):
+        # call the event handler of the widget
+        getattr(receiver, event.handler)(event)
+
 
 try:
     from IPython.lib.inputhook import InputHookManager, stdin_ready
     from IPython.lib.inputhook import allow_CTRL_C
 
-    class EventLoop(SDL2_Dealer):
+    class EventLoop(BaseEventLoop):
         def __init__(self, *args, **kwargs):
             super(EventLoop, self).__init__(*args, **kwargs)
             self._hook = InputHookManager()
@@ -99,11 +167,7 @@ try:
 
                 # process events in the event queue and dispatch them to the
                 # windows
-                self._ev.update()
-
-                # loop over created windows to draw them
-                for win in SDLWindow.manager.windows:
-                    win.draw()
+                self.update()
 
                 # get the time after processing
                 stop = s.SDL_GetTicks()
@@ -118,7 +182,7 @@ try:
 
 
 except:
-    class EventLoop(SDL2_Dealer):
+    class EventLoop(BaseEventLoop):
         def __init__(self, *args, **kwargs):
             super(EventLoop, self).__init__(*args, **kwargs)
 

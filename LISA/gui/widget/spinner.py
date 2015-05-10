@@ -91,4 +91,5 @@ class Spinner(HorizontalLayout):
         self.text.text = text
         self.changedCurrentValue(self._currentValue)
 
+
 # vim: set tw=79 :

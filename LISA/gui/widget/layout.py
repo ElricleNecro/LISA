@@ -238,7 +238,6 @@ class VerticalLayout(BaseLayout):
 
 
 class HorizontalLayout(BaseLayout):
-
     def _widget_position(self, widget):
         return self.x + self.padding_left + self._total + widget.margin_left
 
@@ -338,4 +337,6 @@ class HorizontalLayout(BaseLayout):
         # check height
         if self.width < self._minWidth:
             self.width = self.width
+
+
 # vim: set tw=79 :

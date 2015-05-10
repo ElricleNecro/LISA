@@ -55,7 +55,7 @@ class Earth(o.Base):
         self._shaders += t.shader_path("earth/earth.vsh")
         self._shaders += t.shader_path("earth/earth.fsh")
 
-    def createShaders(self, parent):
+    def createShaders(self, world):
 
         # create buffers
         self._vertices = VBO(VERTEX_BUFFER)
@@ -136,7 +136,7 @@ class Earth(o.Base):
 
         self.angle = (value - 0.5) * 3.14159
 
-    def show(self, parent):
+    def paintEvent(self, event):
 
         # rotate against z axis
         self.model *= m.Quaternion(self.angle, m.Vector(0., 0., 1.))
@@ -151,11 +151,11 @@ class Earth(o.Base):
 
         self._shaders.setUniformValue(
             "projection",
-            parent._projection
+            event.world._projection
         )
         self._shaders.setUniformValue(
             "modelview",
-            parent._view * self._model
+            event.world._view * self._model
         )
 
         self._shaders.setUniformValue(
@@ -188,5 +188,6 @@ class Earth(o.Base):
         GL.glDisable(GL.GL_DEPTH_TEST)
         GL.glDisable(GL.GL_CULL_FACE)
         GL.glDisable(GL.GL_BLEND)
+
 
 # vim: set tw=79 :

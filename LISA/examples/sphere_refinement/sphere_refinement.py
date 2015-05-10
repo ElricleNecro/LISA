@@ -46,7 +46,7 @@ class SphereRefinement(o.Base):
             dtype="uint32"
         ).flatten()
 
-    def createShaders(self, parent):
+    def createShaders(self, world):
 
         # create buffers
         self._vertices = VBO(VERTEX_BUFFER)
@@ -138,23 +138,23 @@ class SphereRefinement(o.Base):
         # recreate the shaders and buffers
         self.createShaders(None)
 
-    def show(self, parent):
+    def paintEvent(self, event):
 
         GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE)
         GL.glEnable(GL.GL_CULL_FACE)
 
-        self.camera = np.dot(parent.rotate[:3, :3].T, parent.camera)
+        self.camera = np.dot(event.world.rotate[:3, :3].T, event.world.camera)
         self._changeRefinement()
 
         self._shaders.bind()
 
         self._shaders.setUniformValue(
             "projection",
-            parent._projection,
+            event.world._projection,
         )
         self._shaders.setUniformValue(
             "view",
-            parent._view,
+            event.world._view,
         )
         self._shaders.setUniformValue(
             "model",
@@ -162,11 +162,11 @@ class SphereRefinement(o.Base):
         )
         self._shaders.setUniformValue(
             "camera",
-            parent._camera,
+            event.world._camera,
         )
         self._shaders.setUniformValue(
             "rotate",
-            parent._rotate,
+            event.world._rotate,
         )
         self._shaders.setUniformValue(
             "light.position",
@@ -220,5 +220,6 @@ class SphereRefinement(o.Base):
 
     def _updateDistance(self, value):
         self.light_position[1] = 1.01 + 99 * value
+
 
 # vim: set tw=79 :

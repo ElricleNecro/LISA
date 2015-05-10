@@ -10,7 +10,6 @@ class Button(HorizontalLayout):
     """
     A class to manage a button with action done when clicking on it.
     """
-
     def __init__(self, *args, **kwargs):
 
         # call parent
@@ -33,22 +32,20 @@ class Button(HorizontalLayout):
         if self._text not in self._children:
             self.addWidget(self._text)
 
-    def mouseEvent(self, event):
-
+    def mousePressEvent(self, event):
         # compute the offset of the mouse cursor relative to the corner
         # of the widget, if not already pressed
         if self.inside(event.x, event.y):
-            # left button of the mouse pressed
-            if event[1]:
-                # say it is pressed
-                if not self._mousePress:
-                    self._mousePress = True
+            # say it is pressed
+            if not self._mousePress:
+                self._mousePress = True
+            event.accept()
 
-            # the left button is released
-            if not event[1] and self._mousePress:
-                self._mousePress = False
-                self.click()
+    def mouseReleaseEvent(self, event):
+        # the left button is released
+        if self._mousePress:
+            self._mousePress = False
+            self.click()
 
-            return True
 
 # vim: set tw=79 :
