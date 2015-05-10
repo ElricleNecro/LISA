@@ -50,6 +50,10 @@ class TextureLinker(object):
             # set the unit with the order of insertion
             texture.unit = counter
 
+            # increment the counter (else the used texture will be always the
+            # first one)
+            counter += 1
+
             # activate the texture
             texture.activate()
 
