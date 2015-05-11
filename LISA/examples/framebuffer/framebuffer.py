@@ -14,34 +14,35 @@ from LISA.gui.widget import Application
 from LISA.gui.widget import HorizontalSlider
 from LISA.gui.widget import Text
 from LISA.Matrice import Vector
+from LISA.gui.utils.matrices import Perspective
 
 
 class HeightMapFBO(object):
     def __init__(self, *args, **kwargs):
 
-        self._w_fbo = 600
-        self._h_fbo = 600
-
-#        self._carre = np.array(
-#            [0,0,0, 4,0,0, 4,4,0, 0,0,0, 0,4,0, 4,4,0]
-#        )
+        self._w_fbo = 1600
+        self._h_fbo = 1600
 
         self._carre_vertices = np.array(
-            [0., 4.]
-        ).T.astype(np.float32)
-        self._carre_index = np.array(
-            [0,0,0, 1,0,0, 1,1,0, 0,0,0, 0,1,0, 1,1,0],
-            dtype=np.float32
+            [0., 0., 0.0,
+             0., 1, 0.0,
+             1, 1, 0.0,
+             1, 0, 0.0],
+            dtype=np.float32,
         )
+        self._carre_index = np.array([0, 1, 2, 2, 3, 0], dtype=np.uint32)
 
-        self._tex_coord = np.array(
-            [0,0, 1,0, 1,1, 0,0, 0,1, 1,1],
-            dtype=np.float32
-        )
-
+        self._camera_fbo = m.Vector(0, 0, 3, dtype="float32")
         self._model_fbo = m.Identity()
-        self._view_fbo = m.LookAt(m.Vector(0, 0, 2), m.Vector(0, 0, 0), m.Vector(0, 3, 0))
-        self._proj_fbo = m.Perspective(90.0, self._w_fbo / self._h_fbo, 0.001, 1000000.)
+        self._rotate_fbo = m.Identity()
+        self._view_fbo = m.Identity()
+        self._view_fbo.lookAt(
+            self._camera_fbo,
+            m.Vector(0, 0, 0, dtype="float32"),
+            m.Vector(0, 1, 0, dtype="float32"),
+        )
+        self._proj_fbo = Perspective(shape=(4, 4), dtype="float32")
+        self._proj_fbo.ratio = self._w_fbo / self._h_fbo
 
         npoints = 80
         X = np.linspace(-1, 1, npoints).astype(np.float32)
@@ -121,7 +122,6 @@ class HeightMapFBO(object):
 
         self._carre_shader.build()
         self._carre_shader.bindAttribLocation("position")
-        self._carre_shader.bindAttribLocation("in_TexCoord0")
         self._carre_shader.link()
 
     def createBuffer(self, parent):
@@ -163,18 +163,18 @@ class HeightMapFBO(object):
         self._carre_vao.create()
 
         # allocate buffers
-        self._vertices.bind()
-        self._vertices.allocate(
+        self._carre_vert.bind()
+        self._carre_vert.allocate(
             self._carre_vertices,
             len(self._carre_vertices) * 4
         )
-        self._vertices.release()
-        self._index.bind()
-        self._index.allocate(
+        self._carre_vert.release()
+        self._carre_idx.bind()
+        self._carre_idx.allocate(
             self._carre_index,
             len(self._carre_index) * 4
         )
-        self._index.release()
+        self._carre_idx.release()
 
     def createTexture(self, parent):
         texture = Texture.fromImage(
@@ -216,14 +216,8 @@ class HeightMapFBO(object):
         self._carre_shader.setAttributeBuffer(
             "position",
             self._carre_vertices,
-            tuplesize=1,
         )
 
-        self._carre_shader.enableAttributeArray("in_TexCoord0")
-        self._carre_shader.setAttributeArray(
-            "in_TexCoord0",
-            self._tex_coord,
-        )
         self._carre_idx.bind()
         self._carre_vao.release()
 
@@ -239,7 +233,7 @@ class HeightMapFBO(object):
 
         self._shaders.setUniformValue(
             "projection",
-            #parent._projection,
+            # parent._projection,
             self._proj_fbo,
         )
         self._shaders.setUniformValue(
@@ -254,11 +248,11 @@ class HeightMapFBO(object):
         )
         self._shaders.setUniformValue(
             "camera",
-            parent._camera,
+            self._camera_fbo,
         )
         self._shaders.setUniformValue(
             "rotate",
-            parent._rotate,
+            self._rotate_fbo,
         )
         self._shaders.setUniformValue(
             "light.position",
@@ -312,6 +306,7 @@ class HeightMapFBO(object):
     def _second_pass(self, parent):
         GL.glClearColor(0.4, 0., 0., 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        GL.glViewport(0, 0, parent._screensize[0], parent._screensize[1])
 
         self._carre_shader.bind()
 
@@ -327,6 +322,10 @@ class HeightMapFBO(object):
         self._carre_shader.setUniformValue(
             "model",
             self._model,
+        )
+        self._carre_shader.setUniformValue(
+            "tex",
+            self._carre_shader.textures.textures[0],
         )
 
         self._carre_shader.textures.activate()
@@ -349,7 +348,6 @@ class HeightMapFBO(object):
 
         #GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
         GL.glEnable(GL.GL_DEPTH_TEST)
-        print(parent._camera)
 
         self._first_pass(parent)
         self._second_pass(parent)

@@ -13,7 +13,7 @@ in vec2 coordTexture;
 uniform sampler2D tex;
 
 
-// Sortie 
+// Sortie
 
 out vec4 out_Color;
 
@@ -25,4 +25,5 @@ void main()
     // Couleur du pixel
 
     out_Color = texture(tex, coordTexture);
+    /* out_Color = vec4(1, 1, 1, 1); */
 }

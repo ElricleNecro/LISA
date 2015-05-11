@@ -6,7 +6,6 @@
 // Entrées
 
 in vec3 position;
-in vec2 in_TexCoord0;
 
 
 // Uniform
@@ -27,10 +26,11 @@ void main()
 {
     // Position finale du vertex en 3D
 
-    gl_Position = projection * view * model * vec4(position, 1.0);
+    vec2 inter = position.xy - 0.5;
+    gl_Position = projection * view * model * vec4(inter.xy, 0, 1.0);
 
 
     // Envoi des coordonnées de texture au Fragment Shader
 
-    coordTexture = in_TexCoord0;
+    coordTexture = position.xy;
 }
