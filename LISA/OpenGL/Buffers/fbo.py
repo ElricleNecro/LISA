@@ -143,6 +143,8 @@ class FBO(Buffer):
             texture.parameters = {
                 "TEXTURE_MIN_FILTER": "LINEAR",
                 "TEXTURE_MAG_FILTER": "NEAREST",
+                "TEXTURE_WRAP_S": "CLAMP_TO_EDGE",
+                "TEXTURE_WRAP_T": "CLAMP_TO_EDGE",
             }
             texture.load()
             self._colorBuffers.append(texture)
