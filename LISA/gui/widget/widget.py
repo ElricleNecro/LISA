@@ -408,22 +408,13 @@ class Widget(object):
             widget.paintEvent(event)
 
     def mousePressEvent(self, event):
-        for widget in self._children:
-            widget.mousePressEvent(event)
-            if event.accepted:
-                break
+        pass
 
     def mouseMoveEvent(self, event):
-        for widget in self._children:
-            widget.mouseMoveEvent(event)
-            if event.accepted:
-                break
+        pass
 
     def mouseReleaseEvent(self, event):
-        for widget in self._children:
-            widget.mouseReleaseEvent(event)
-            if event.accepted:
-                break
+        pass
 
     def keyReleaseEvent(self, event):
         for widget in self._children:

@@ -124,6 +124,8 @@ class SDLWindow(object, metaclass=WindowMetaclass):
 
         self._screensize = size
 
+        self._mouseHandler = None
+
     def events(self, ev):
         # Deal with events linked to the window:
         logger.debug(
@@ -189,28 +191,59 @@ class SDLWindow(object, metaclass=WindowMetaclass):
         )
 
     def mouseReleaseEvent(self, event):
-        # loop over children widgets
-        for widget in self._widget:
-            # call the widget to see if he process the event
-            widget.mouseReleaseEvent(event)
-            if event.accepted:
-                break
+        """
+        The window gives the release event to the child that has grabbed the
+        press event before. Then the child that must handle the event is set to
+        None, since nobody must get a move event when the mouse is released.
+        """
+        # check a child get the press event
+        if self._mouseHandler:
+            # inform it that the mouse is released
+            self._mouseHandler.mouseReleaseEvent(event)
+
+            # nobody can get the event
+            self._mouseHandler = None
 
     def mousePressEvent(self, event):
-        # loop over children widgets
-        for widget in self._widget:
-            # call the widget to see if he process the event
-            widget.mousePressEvent(event)
-            if event.accepted:
+        """
+        The window find the widget handling the mouse press event with the
+        position of the mouse in the window. Then the mouse press event is send
+        to this widget. If he doesn't accept it, the event is passed
+        recursively to the parent until a widget accept it.
+        """
+        # get the widget accepting the event
+        widget = self._acceptMouse(self, self._widget, event)
+
+        # check it is the window itself
+        if widget is self:
+            return self._mousePressEvent(event)
+
+        # up in the tree while nobody accept the event, or we reach the root
+        # (the window)
+        while (not event.accepted):
+            # the child accepting the event
+            self._mouseHandler = widget
+
+            # send press event to it
+            self._mouseHandler.mousePressEvent(event)
+
+            # the widget is the parent
+            widget = widget.parent
+
+            # check parent exist (not the window)
+            if not widget:
                 break
 
     def mouseMoveEvent(self, event):
-        # loop over children widgets
-        for widget in self._widget:
-            # call the widget to see if he process the event
-            widget.mouseMoveEvent(event)
-            if event.accepted:
-                break
+        """
+        The mouse move event is dispatched by the window to the child which as
+        grabbed the mouse press event before. If the mouse has been released,
+        the mouse move event is not dispatched to children.
+        """
+        # check the mouse is pressed and a child as grabbed the event
+        if self._mouseHandler:
+            # the widget handle this
+            self._mouseHandler.mouseMoveEvent(event)
 
     def keyReleaseEvent(self, event):
         # loop over children widgets
@@ -255,6 +288,21 @@ class SDLWindow(object, metaclass=WindowMetaclass):
         pass
 
     def exposeEvent(self, event):
+        pass
+
+    def _acceptMouse(self, widget, children, event):
+        """
+        To recursively know which widget is accepting a mouse press event.
+        """
+        # loop over widgets
+        for child in children:
+            # if the press is inside the widget, loop over its child
+            if child.inside(event.x, event.y):
+                # give to children to know which one must accept the press
+                return self._acceptMouse(child, child._children, event)
+        return widget
+
+    def _mousePressEvent(self, event):
         pass
 
     @property
