@@ -169,7 +169,6 @@ class Texture(object, metaclass=TextureMetaclass):
             self.format,
             self.width,
             self.height,
-            self.deep,
             0,
             self.format,
             self.type,
@@ -177,7 +176,7 @@ class Texture(object, metaclass=TextureMetaclass):
         ]
 
         # say opengl where is the data for the texture
-        self._teximage(*[x for x in values if x is not None])
+        self._teximage(*[x for x in values])
 
     def activate(self):
         GL.glActiveTexture(GL.GL_TEXTURE0 + self.unit)

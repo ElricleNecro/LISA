@@ -168,18 +168,6 @@ class SDLWindow(object, metaclass=WindowMetaclass):
     def updateWindow(self):
         s.SDL_UpdateWindowSurface(self._win)
 
-    @property
-    def windowSurface(self):
-        try:
-            return self._s_win
-        except:
-            self._s_win = s.SDL_GetWindowSurface(self._win)
-            return self._s_win
-
-    @property
-    def window(self):
-        return self._win
-
     def close(self):
         # remove the window in the register of window to display in the
         # event loop
@@ -304,6 +292,22 @@ class SDLWindow(object, metaclass=WindowMetaclass):
 
     def _mousePressEvent(self, event):
         pass
+
+    @property
+    def windowSurface(self):
+        try:
+            return self._s_win
+        except:
+            self._s_win = s.SDL_GetWindowSurface(self._win)
+            return self._s_win
+
+    @property
+    def window(self):
+        return self._win
+
+    @property
+    def screenSize(self):
+        return self._screensize
 
     @property
     def id(self):

@@ -51,7 +51,6 @@ class Figure(object):
             wid = value.createWidget()
             if wid:
                 self.addWidget(wid)
-
             # create shaders for widget
             wid.createShaders(self.scene)
 

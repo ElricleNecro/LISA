@@ -9,6 +9,7 @@ from LISA.examples.earth import Earth
 from LISA.examples.earth_lighting import Earth as EarthLight
 from LISA.examples.sprite import Sprites
 from LISA.examples.sphere_refinement import SphereRefinement
+from LISA.examples.framebuffer import HeightMapFBO
 
 # read arguments
 parser = argparse.ArgumentParser(
@@ -48,6 +49,12 @@ parser.add_argument(
 )
 parser.add_argument(
     '--SphereRefinement',
+    help="Plot the example of the mesh sphere with refinement",
+    action="store_true",
+    default=False,
+)
+parser.add_argument(
+    '--HeightMapFBO',
     help="Plot the example of the mesh sphere with refinement",
     action="store_true",
     default=False,

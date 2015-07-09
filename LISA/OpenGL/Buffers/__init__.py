@@ -3,5 +3,6 @@
 
 from .vbo import *
 from .vao import *
+from .fbo import *
 
 # vim: set tw=79 :
