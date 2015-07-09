@@ -100,6 +100,7 @@ class SDLWindow(object, metaclass=WindowMetaclass):
         flags=s.SDL_WINDOW_SHOWN | s.SDL_WINDOW_OPENGL | s.SDL_WINDOW_RESIZABLE
     ):
         # create the window with default size
+        logger.debug("Create SDL window {0}".format(title))
         self._win = s.SDL_CreateWindow(
             title.encode(),
             w_pos[0], w_pos[1],
@@ -109,12 +110,16 @@ class SDLWindow(object, metaclass=WindowMetaclass):
         self._win_name = title
 
         # keep a trace of the identity of the window
+        logger.debug("Get Id for {0}".format(self))
         self.id = s.SDL_GetWindowID(self._win)
 
+        # set the OpenGL version
+        logger.debug("Setting SDL OpenGL version")
         s.SDL_GL_SetAttribute(s.SDL_GL_CONTEXT_MAJOR_VERSION, 3)
         s.SDL_GL_SetAttribute(s.SDL_GL_CONTEXT_MINOR_VERSION, 3)
 
         # set the opengl context of the window
+        logger.debug("Creating SDL OpenGL context")
         self._context = s.SDL_GL_CreateContext(self._win)
 
         self._x = 0.
@@ -128,9 +133,7 @@ class SDLWindow(object, metaclass=WindowMetaclass):
 
     def events(self, ev):
         # Deal with events linked to the window:
-        logger.debug(
-            "Inside window %d for event.", id(self._win)
-        )
+        logger.debug("Inside {0} for event".format(self))
 
         # loop over methods and call them if the associated event occurred
         for key in ev._methods.keys():
@@ -138,10 +141,11 @@ class SDLWindow(object, metaclass=WindowMetaclass):
                 getattr(self, key)(ev._methods[key][1])
 
     def makeCurrent(self):
+        logger.debug("Make {0} context current".format(self))
         s.SDL_GL_MakeCurrent(self._win, self._context)
 
     def paintEvent(self, event):
-        _SDLInput_logger.debug("Inside window %d for drawing.", id(self._win))
+        logger.debug("Drawing {0}".format(self))
         GL.glMatrixMode(GL.GL_PROJECTION | GL.GL_MODELVIEW)
         GL.glLoadIdentity()
         GL.glOrtho(-400, 400, 300, -300, 0, 1)
@@ -163,9 +167,11 @@ class SDLWindow(object, metaclass=WindowMetaclass):
         self.swap()
 
     def swap(self):
+        logger.debug("Swapping {0}".format(self))
         s.SDL_GL_SwapWindow(self._win)
 
     def updateWindow(self):
+        logger.debug("Updating window surface {0}".format(self))
         s.SDL_UpdateWindowSurface(self._win)
 
     def close(self):
@@ -325,6 +331,12 @@ class SDLWindow(object, metaclass=WindowMetaclass):
     def name(self, val):
         s.SDL_SetWindowTitle(self._win, val.encode())
         self._win_name = val
+
+    def __repr__(self):
+        if hasattr(self, "_win_name"):
+            return "SDL window {0}".format(self._win_name)
+        else:
+            return super(SDLWindow, self).__repr__()
 
 
 # vim: set tw=79 :

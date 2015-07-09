@@ -1,15 +1,54 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import os.path as osp
 import collections
+import logging.config
+import logging
 import ctypes
+import json
+import os
 
 from .window import SDLWindow
 from .processors import EventProcessor
+from ...tools import config_path
 
 import sdl2 as s
 
 __all__ = ["EventLoop"]
+
+logger = logging.getLogger(__name__)
+
+def setLogger():
+    """
+    Create a logger with the correct name for the module in order to see what
+    happens in the program in different handlers (console, console in GUI,
+    activity file, etc).
+    """
+    # get the path from where to read the configuration file for the platform
+    # set default path
+    path = config_path("logger.json")
+
+    # get an environment variable for setting the configuration file for the
+    # logger manually
+    value = os.getenv("LISA_LOGGER_FILE", None)
+    if value:
+        path = value
+
+    # standard verification for the file
+    if osp.exists(path):
+        # open the file and read its structure in json
+        with open(path, 'rt') as f:
+            config = json.load(f, object_pairs_hook=collections.OrderedDict)
+
+        # set parameters to logging
+        logging.config.dictConfig(config)
+    else:
+        raise ValueError(
+            "The configuration file for the logger {0} doesn't exist".format(
+                path
+            )
+        )
 
 
 class EventLoopMetaclass(type):
@@ -126,10 +165,12 @@ class BaseEventLoop(object, metaclass=EventLoopMetaclass):
         """
         Post an event in the queue.
         """
+        logger.debug("Posting {0} for {1}".format(event, receiver))
         self.queue.append((receiver, event))
 
     def sendEvent(self, receiver, event):
         # call the event handler of the widget
+        logger.debug("Sending {0} to {1}".format(event, receiver))
         getattr(receiver, event.handler)(event)
 
 
@@ -186,6 +227,8 @@ except:
         def __init__(self, *args, **kwargs):
             super(EventLoop, self).__init__(*args, **kwargs)
 
+
+setLogger()
 
 eventLoop = EventLoop()
 
