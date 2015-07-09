@@ -9,7 +9,8 @@ import LISA.tools as t
 import LISA.Object as o
 import LISA.Matrice as m
 
-from LISA.OpenGL import VAO, VBO, FBO, INDEX_BUFFER, VERTEX_BUFFER, Texture, Shaders
+from LISA.OpenGL import VAO, VBO, FBO, INDEX_BUFFER, \
+    VERTEX_BUFFER, Texture, Shaders
 from LISA.gui.widget import Application
 from LISA.gui.widget import HorizontalSlider
 from LISA.gui.widget import Text
@@ -25,9 +26,9 @@ class HeightMapFBO(object):
 
         self._carre_vertices = np.array(
             [0., 0., 0.0,
-             0., 1, 0.0,
-             1, 1, 0.0,
-             1, 0, 0.0],
+                0., 1, 0.0,
+                1, 1, 0.0,
+                1, 0, 0.0],
             dtype=np.float32,
         )
         self._carre_index = np.array([0, 1, 2, 2, 3, 0], dtype=np.uint32)
@@ -51,9 +52,9 @@ class HeightMapFBO(object):
         x, y = np.meshgrid(X, Y)
         self.data = np.vstack((x, y, Z)).reshape(3, -1).T.astype(np.float32)
         self._plot_prop = o.TriangleMesh(
-                data=np.vstack((x, y, Z)).reshape(3, -1).T.astype(np.float32),
-                side_x=npoints,
-                side_y=npoints,
+            data=np.vstack((x, y, Z)).reshape(3, -1).T.astype(np.float32),
+            side_x=npoints,
+            side_y=npoints,
         )
         self._model = m.Identity()
 
@@ -291,7 +292,8 @@ class HeightMapFBO(object):
 
         self._vao.bind()
 
-        GL.glDrawElements( GL.GL_TRIANGLES,
+        GL.glDrawElements(
+            GL.GL_TRIANGLES,
             len(self._plot_prop._ids),
             GL.GL_UNSIGNED_INT,
             None,
@@ -303,20 +305,25 @@ class HeightMapFBO(object):
 
         self._fbo.release()
 
-    def _second_pass(self, parent):
+    def _second_pass(self, event):
         GL.glClearColor(0.4, 0., 0., 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
-        GL.glViewport(0, 0, parent._screensize[0], parent._screensize[1])
+        GL.glViewport(
+            0,
+            0,
+            self.world._screensize[0],
+            self.world._screensize[1],
+        )
 
         self._carre_shader.bind()
 
         self._carre_shader.setUniformValue(
             "projection",
-            parent._projection,
+            self.world._projection,
         )
         self._carre_shader.setUniformValue(
             "view",
-            parent._view,
+            self.world._view,
             # self._view_fbo,
         )
         self._carre_shader.setUniformValue(
@@ -344,13 +351,12 @@ class HeightMapFBO(object):
         self._carre_shader.textures.release()
         self._carre_shader.release()
 
-    def show(self, parent):
-
-        #GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
+    def paintEvent(self, event):
+        # GL.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL)
         GL.glEnable(GL.GL_DEPTH_TEST)
 
-        self._first_pass(parent)
-        self._second_pass(parent)
+        self._first_pass(event)
+        self._second_pass(event)
 
         GL.glDisable(GL.GL_DEPTH_TEST)
 
@@ -370,6 +376,7 @@ class HeightMapFBO(object):
     def data(self):
         self._modified_data = True
         return self._data
+
     @data.setter
     def data(self, val):
         self._modified_data = True
@@ -381,6 +388,7 @@ class HeightMapFBO(object):
     @property
     def model(self):
         return self._model
+
     @model.setter
     def model(self, model):
         self._model = model
