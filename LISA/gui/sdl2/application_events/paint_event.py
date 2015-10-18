@@ -23,6 +23,10 @@ class PaintEvent(ApplicationEvent):
         super(PaintEvent, self).__init__(type)
         self.world = world
 
+        # a paint event is compressible, i.e. can be merged with an already
+        # existing event
+        self.compressible = True
+
     @property
     def type(self):
         return self._type

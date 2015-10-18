@@ -16,6 +16,18 @@ class ApplicationEvent(object):
         self.type = type
         self._handler = None
         self.windowId = None
+        self.compressible = False
+
+    def merge(self, instance):
+        """
+        Given an new instance of the event, make a merge between this instance
+        and the one given in argument. Particularly useful for paint event,
+        resize event, etc that needs to be merged when repeated calls are done.
+
+        It must modify the current instance in place, to be able to update
+        directly the queue.
+        """
+        pass
 
     def accept(self):
         """
@@ -60,6 +72,14 @@ class ApplicationEvent(object):
     @windowId.setter
     def windowId(self, windowId):
         self._windowId = windowId
+
+    @property
+    def compressible(self):
+        return self._compressible
+
+    @compressible.setter
+    def compressible(self, compressible):
+        self._compressible = compressible
 
 
 # vim: set tw=79 :

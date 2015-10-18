@@ -166,6 +166,23 @@ class BaseEventLoop(object, metaclass=EventLoopMetaclass):
         Post an event in the queue.
         """
         logger.debug("Posting {0} for {1}".format(event, receiver))
+
+        # if the vent is compressible, we search in the queue for a similar
+        # event and merge it
+        if event.compressible:
+            # loop over events associated to same instance and merge if already
+            # present
+            for instance, ev in self.queue:
+                # check that this is the good instance
+                if instance is not receiver:
+                    continue
+
+                # if the event is of the same type, try a merge
+                if isinstance(event, type(ev)):
+                    ev.merge(event)
+                    return
+
+        # not compressible or not found, add it to the queue to process
         self.queue.append((receiver, event))
 
     def sendEvent(self, receiver, event):
